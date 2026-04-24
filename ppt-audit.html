@@ -75,6 +75,8 @@
     .sev-mid { color: #e65100; font-weight: 700; }
     .sev-low { color: #1a7a4b; font-weight: 700; }
     .chip { display: inline-block; padding: 2px 8px; border-radius: 20px; background: #f2f4f7; font-size: 12px; color: #4b5563; }
+    .chip-link { background: transparent; color: #126DFF; padding: 0 2px; border-radius: 0; text-decoration: none; }
+    .chip-link:hover { text-decoration: underline; background: transparent; }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: none; align-items: center; justify-content: center; z-index: 1500; }
     .modal-overlay.show { display: flex; }
@@ -107,6 +109,8 @@
     .audit-layout { display: flex; flex-direction: column; gap: 14px; }
     .history-wrap { background: #fff; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.07); padding: 16px; }
     .history-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+    .audit-history-table { width: 100%; table-layout: fixed; }
+    .ellipsis-cell { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 12px; font-weight: 600; }
     .badge-blue { background: #e8f0fe; color: #126DFF; }
     .badge-green { background: #e6f7ee; color: #1a7a4b; }
@@ -148,6 +152,43 @@
     .result-dim { font-size: 12px; color: #475467; line-height: 1.55; }
     .result-qa { font-size: 12px; color: #374151; line-height: 1.65; white-space: normal; }
     .result-qa strong { color: #111827; }
+    .main-view { display: none; }
+    .main-view.show { display: block; }
+    .kb-note { font-size: 12px; color: #8a97a6; margin-bottom: 10px; }
+    .kb-shell { background: #fff; border: 1px solid #edf1f5; border-radius: 8px; overflow: hidden; }
+    .kb-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #edf1f5; background: #fafcff; }
+    .kb-left-tools, .kb-right-tools { display: flex; align-items: center; gap: 8px; }
+    .kb-select { border: 1px solid #dbe3ee; border-radius: 6px; padding: 6px 8px; font-size: 12px; color: #475467; min-width: 160px; background: #fff; }
+    .kb-add-btn { background: #126DFF; color: #fff; border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+    .kb-status-filter { border: 1px solid #d0d5dd; border-radius: 10px; padding: 5px 10px; font-size: 12px; color: #98a2b3; min-width: 132px; background: #fff; }
+    .kb-search { border: 1px solid #d0d5dd; border-radius: 10px; padding: 5px 10px; width: 260px; font-size: 12px; }
+    .kb-refresh-row { display: flex; justify-content: flex-end; align-items: center; gap: 6px; padding: 6px 12px; border-bottom: 1px solid #edf1f5; background: #fff; }
+    .kb-refresh { color: #344054; font-size: 16px; cursor: pointer; user-select: none; line-height: 1; }
+    .kb-refresh-label { font-size: 13px; color: #344054; }
+    .kb-body { display: grid; grid-template-columns: 180px 1fr; min-height: 520px; }
+    .kb-dir { border-right: 1px solid #edf1f5; background: #fcfdff; padding: 10px; }
+    .kb-dir-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #667085; margin-bottom: 10px; }
+    .kb-dir-item { padding: 6px 8px; border-radius: 6px; font-size: 13px; color: #344054; background: #eef4ff; }
+    .kb-list-wrap { padding: 0; }
+    .kb-list-head { display: grid; grid-template-columns: 1fr 120px 160px 80px 100px 180px; font-size: 12px; color: #667085; padding: 10px 12px; border-bottom: 1px solid #edf1f5; background: #fff; }
+    .kb-row { display: grid; grid-template-columns: 1fr 120px 160px 80px 100px 180px; align-items: center; gap: 0; padding: 10px 12px; border-bottom: 1px solid #f2f4f7; }
+    .kb-file { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .kb-file-icon { color: #667085; font-size: 14px; }
+    .kb-file-name { font-size: 13px; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kb-meta { font-size: 12px; color: #98a2b3; }
+    .kb-status { font-size: 12px; font-weight: 600; }
+    .kb-status.ok { color: #12b76a; }
+    .kb-status.bad { color: #f04438; }
+    .kb-actions { display: flex; align-items: center; gap: 10px; color: #98a2b3; font-size: 12px; }
+    .kb-actions .i-blue { color: #2d6cff; }
+    .kb-actions .i-cyan { color: #2f80ed; }
+    .kb-actions .i-gold { color: #d08a1c; }
+    .kb-actions .i-purple { color: #7f3dff; }
+    .kb-actions .i-green { color: #16a34a; }
+    .kb-actions .i-red { color: #ef4444; }
+    .kb-actions .i-edit { color: #0f766e; margin-left: 4px; cursor: pointer; }
+    .kb-footer { display: flex; justify-content: flex-end; align-items: center; gap: 8px; border-top: 1px solid #edf1f5; padding: 10px 12px; font-size: 12px; color: #667085; background: #fff; }
+    .kb-page-chip { border: 1px solid #d0d5dd; border-radius: 6px; padding: 1px 6px; background: #fff; }
     @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } .stat-wrap { grid-template-columns: 1fr; } .ppt-pair { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -159,7 +200,7 @@
 <div class="layout">
   <div class="sidebar">
     <div class="section-title">知识管理</div>
-    <div class="menu-item" onclick="showToast('👤 个人知识库功能开发中')">.个人知识库</div>
+    <div class="menu-item" id="menuPersonalKb" onclick="openMainView('kb')">.个人知识库</div>
     <div class="menu-item" onclick="showToast('🔎 知识查询功能开发中')">.知识查询</div>
     <div class="menu-item" onclick="showToast('🏢 企业知识库功能开发中')">.企业知识库</div>
     <div class="menu-item" onclick="showToast('🏬 部门知识库功能开发中')">.部门知识库</div>
@@ -167,10 +208,11 @@
     <div class="menu-item" onclick="location.href='index.html'">.word写作</div>
     <div class="menu-item" onclick="location.href='index.html'">.我的文稿</div>
     <div class="menu-item" onclick="location.href='check.html'">.技术规范书查重</div>
-    <div class="menu-item active">.采购方案PPT稽核</div>
+    <div class="menu-item active" id="menuAudit" onclick="openMainView('audit')">.采购方案PPT稽核</div>
   </div>
 
   <div class="content">
+    <div class="main-view show" id="auditMainView">
     <div class="page-head">
       <div>
         <div class="page-title">采购方案PPT稽核</div>
@@ -198,20 +240,115 @@
           </select>
           <button class="btn btn-primary" onclick="filterAuditHistory()">搜索</button>
           <button class="btn btn-outline" onclick="resetAuditHistoryFilter()">重置</button>
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#667085;">
+            <input type="checkbox" id="auditHistoryAutoRefreshEnabled" checked />
+            刷新
+          </label>
+          <input class="input" type="number" id="auditHistoryAutoRefreshSec" value="5" min="1" max="600" step="1" style="width:64px;" />
+          <span style="font-size:12px;color:#667085;">秒</span>
         </div>
-        <table>
+        <table class="audit-history-table">
           <thead>
             <tr>
-              <th style="width:28%;">采购方案PPT</th>
-              <th style="width:28%;">立项PPT（基准）</th>
+              <th style="width:24%;">采购方案PPT</th>
+              <th style="width:24%;">立项PPT（基准）</th>
               <th style="width:12%;">稽核时间</th>
               <th style="width:10%;">状态</th>
-              <th style="width:10%;">问题数</th>
-              <th style="width:12%;">操作</th>
+              <th style="width:8%;">问题数</th>
+              <th style="width:8%;">评分</th>
+              <th style="width:14%;">操作</th>
             </tr>
           </thead>
           <tbody id="auditHistoryBody"></tbody>
         </table>
+      </div>
+    </div>
+    </div>
+    <div class="main-view" id="kbMainView">
+      <div class="kb-note">个人知识库 上传你的素材文件，写作时可进行引用。已生成流程闭环的内容，支持 DOC、DOCX、PDF、TXT、EXCEL、PPT、图片、MD 格式非目录文件。</div>
+      <div class="kb-shell">
+        <div class="kb-toolbar">
+          <div class="kb-left-tools">
+            <select class="kb-select">
+              <option>用户_admin个人知识库</option>
+            </select>
+            <button class="kb-add-btn">+ 添加素材</button>
+          </div>
+          <div class="kb-right-tools">
+            <select class="kb-status-filter">
+              <option selected>请选择状态</option>
+              <option>处理中</option>
+              <option>已完成</option>
+              <option>失败</option>
+            </select>
+            <input class="kb-search" placeholder="请输入关键词搜索文件" />
+          </div>
+        </div>
+        <div class="kb-refresh-row">
+          <span class="kb-refresh">↻</span>
+          <span class="kb-refresh-label">刷新</span>
+        </div>
+        <div class="kb-body">
+          <div class="kb-dir">
+            <div class="kb-dir-head"><span>全部</span><span>+</span></div>
+            <div class="kb-dir-item">/</div>
+          </div>
+          <div class="kb-list-wrap">
+            <div class="kb-list-head">
+              <div>项目名称：全部</div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">《公司2024年培训路线图-加强落实》.docx</span></div>
+              <div class="kb-meta">2026-04-24</div><div class="kb-meta">更新：2026-04-24 19:28:17</div><div class="kb-meta">admin</div><div class="kb-meta">2.85MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">中国电信2025年河南公司智慧机房系统升级研发工程技术规范书V2.2.doc</span></div>
+              <div class="kb-meta">2026-04-24</div><div class="kb-meta">更新：2026-04-24 10:26:33</div><div class="kb-meta">admin</div><div class="kb-meta">10.07MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">整理版_公司2023年案例遴选明细及2024年增强巡检升级研发工程技术规范书_副本20260413.docx</span></div>
+              <div class="kb-meta">2026-04-16</div><div class="kb-meta">更新：-</div><div class="kb-meta">admin</div><div class="kb-meta">0.09MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-purple">ⓘ</span><span class="kb-status bad">● 失败</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">钉钉日报详解：每天提报简报下的写作长图案例和总结.docx</span></div>
+              <div class="kb-meta">2026-04-11</div><div class="kb-meta">更新：2026-04-11 17:10:45</div><div class="kb-meta">admin</div><div class="kb-meta">2.02MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">中共共产人物传记02单.docx</span></div>
+              <div class="kb-meta">2026-03-26</div><div class="kb-meta">更新：2026-03-26 11:08:19</div><div class="kb-meta">admin</div><div class="kb-meta">1.35MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">测试调研.doc</span></div>
+              <div class="kb-meta">2026-03-12</div><div class="kb-meta">更新：2026-03-12 14:45:19</div><div class="kb-meta">admin</div><div class="kb-meta">3.10MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">问题培训方案v0.2(1).docx</span></div>
+              <div class="kb-meta">2025-02-21</div><div class="kb-meta">更新：2025-02-21 22:07:16</div><div class="kb-meta">admin</div><div class="kb-meta">3.04MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-row">
+              <div class="kb-file"><span class="kb-file-icon" style="color:#ef4444;">📄</span><span class="kb-file-name">《每日要闻》（2025年7月2日，总第1474期）详细版.pdf</span></div>
+              <div class="kb-meta">2026-01-27</div><div class="kb-meta">更新：2026-01-27 15:11:41</div><div class="kb-meta">admin</div><div class="kb-meta">2.31MB</div>
+              <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
+            </div>
+            <div class="kb-footer">
+              <span>共 14 条</span>
+              <span class="kb-page-chip">1</span>
+              <span>2</span>
+              <span>›</span>
+              <span>10 条/页</span>
+              <span>跳至</span>
+              <span class="kb-page-chip">1</span>
+              <span>页</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -455,6 +592,7 @@
     { id: 2, target: '中国电信河南公司2025年网络优化平台升级采购方案汇报.pptx', baseline: '中国电信河南公司智慧营维系统能力提升立项汇报（批复版）.pptx', time: '2026-04-14 16:05', status: 'completed', issues: 9 }
   ];
   var filteredAuditHistory = auditHistory.slice();
+  var auditHistoryAutoRefreshTimer = null;
   var auditResultRows = {
     1: [
       { page: '第3页', category: '关键信息一致性 / 金额口径', severity: '高', issue: '“实施计划”页项目总金额为 1260 万，“工作量评估”页为 1160 万，与立项PPT不一致。', advice: '统一金额口径并在两页同步修正，补充“金额来源说明”脚注。' },
@@ -483,20 +621,24 @@
     var body = document.getElementById('auditHistoryBody');
     if (!body) return;
     if (!filteredAuditHistory.length) {
-      body.innerHTML = '<tr><td colspan="6" style="color:#98a2b3;">暂无记录</td></tr>';
+      body.innerHTML = '<tr><td colspan="7" style="color:#98a2b3;">暂无记录</td></tr>';
       return;
     }
     body.innerHTML = filteredAuditHistory.map(function (r) {
-      var reAudit = '<a class="chip" href="javascript:void(0)" onclick="openAuditModal(' + r.id + ')">重新稽核</a>';
+      var score = (r.status === 'completed' && typeof r.issues === 'number')
+        ? Math.max(60, 100 - r.issues * 2)
+        : '—';
+      var reAudit = '<a class="chip chip-link" href="javascript:void(0)" onclick="openAuditModal(' + r.id + ')">重新稽核</a>';
       var op = r.status === 'completed'
-        ? '<a class="chip" href="javascript:void(0)" onclick="openAuditResultModal(' + r.id + ')">查看结果</a> ' + reAudit
+        ? '<a class="chip chip-link" href="javascript:void(0)" onclick="openAuditResultModal(' + r.id + ')">查看结果</a> ' + reAudit
         : '<span style="color:#98a2b3;">执行中</span> ' + reAudit;
       return '<tr>' +
-        '<td title="' + r.target.replace(/"/g, '&quot;') + '" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + r.target + '</td>' +
-        '<td title="' + r.baseline.replace(/"/g, '&quot;') + '" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + r.baseline + '</td>' +
+        '<td title="' + r.target.replace(/"/g, '&quot;') + '"><span class="ellipsis-cell">' + r.target + '</span></td>' +
+        '<td title="' + r.baseline.replace(/"/g, '&quot;') + '"><span class="ellipsis-cell">' + r.baseline + '</span></td>' +
         '<td>' + r.time + '</td>' +
         '<td>' + getAuditStatusBadge(r.status) + '</td>' +
         '<td>' + (typeof r.issues === 'number' ? r.issues : '—') + '</td>' +
+        '<td>' + score + '</td>' +
         '<td>' + op + '</td>' +
       '</tr>';
     }).join('');
@@ -616,7 +758,58 @@
   function closeAuditResultModal() {
     document.getElementById('auditResultModal').classList.remove('show');
   }
+  function openWordEditor() {
+    showToast('跳转到word编辑页面');
+  }
+  function openMainView(view) {
+    var auditView = document.getElementById('auditMainView');
+    var kbView = document.getElementById('kbMainView');
+    var menuAudit = document.getElementById('menuAudit');
+    var menuKb = document.getElementById('menuPersonalKb');
+    if (!auditView || !kbView || !menuAudit || !menuKb) return;
+    var isKb = view === 'kb';
+    kbView.classList.toggle('show', isKb);
+    auditView.classList.toggle('show', !isKb);
+    menuKb.classList.toggle('active', isKb);
+    menuAudit.classList.toggle('active', !isKb);
+  }
 
+  function getAuditHistoryRefreshSec() {
+    var el = document.getElementById('auditHistoryAutoRefreshSec');
+    var sec = parseInt((el && el.value) || '5', 10);
+    if (!Number.isFinite(sec) || sec < 1) sec = 5;
+    if (sec > 600) sec = 600;
+    if (el) el.value = String(sec);
+    return sec;
+  }
+
+  function clearAuditHistoryAutoRefresh() {
+    if (auditHistoryAutoRefreshTimer) {
+      clearInterval(auditHistoryAutoRefreshTimer);
+      auditHistoryAutoRefreshTimer = null;
+    }
+  }
+
+  function setupAuditHistoryAutoRefresh() {
+    clearAuditHistoryAutoRefresh();
+    var enabledEl = document.getElementById('auditHistoryAutoRefreshEnabled');
+    if (!enabledEl || !enabledEl.checked) return;
+    var sec = getAuditHistoryRefreshSec();
+    auditHistoryAutoRefreshTimer = setInterval(function () {
+      filterAuditHistory();
+    }, sec * 1000);
+  }
+
+  function initAuditHistoryAutoRefresh() {
+    var enabledEl = document.getElementById('auditHistoryAutoRefreshEnabled');
+    var secEl = document.getElementById('auditHistoryAutoRefreshSec');
+    if (!enabledEl || !secEl) return;
+    enabledEl.addEventListener('change', setupAuditHistoryAutoRefresh);
+    secEl.addEventListener('change', setupAuditHistoryAutoRefresh);
+    setupAuditHistoryAutoRefresh();
+  }
+
+  initAuditHistoryAutoRefresh();
   renderAuditHistory();
 </script>
 </body>
