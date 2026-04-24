@@ -1232,9 +1232,9 @@
 <script>
 // ===== 数据 =====
 const libraryDocs = [
-  { id: 1, name: "河南电信5G核心网建设技术规范书_v2.3.docx", size: "2.4MB", time: "2026-03-10 09:32", user: "王海龙" },
-  { id: 2, name: "河南电信云资源池扩容技术规范书_2026.docx", size: "1.8MB", time: "2026-03-11 14:15", user: "李明" },
-  { id: 3, name: "河南电信传输网络设备采购技术规范书.docx", size: "3.1MB", time: "2026-03-12 10:08", user: "张伟" },
+  { id: 1, name: "XX公司5G核心网建设技术规范书_v2.3.docx", size: "2.4MB", time: "2026-03-10 09:32", user: "王海龙" },
+  { id: 2, name: "XX公司云资源池扩容技术规范书_2026.docx", size: "1.8MB", time: "2026-03-11 14:15", user: "李明" },
+  { id: 3, name: "XX公司传输网络设备采购技术规范书.docx", size: "3.1MB", time: "2026-03-12 10:08", user: "张伟" },
   { id: 4, name: "基站设备技术规范书_城区_v1.0.docx", size: "1.2MB", time: "2026-03-12 16:44", user: "王海龙" },
   { id: 5, name: "核心网NFV平台技术规范书_2026Q1.docx", size: "2.7MB", time: "2026-03-13 09:00", user: "赵强" },
   { id: 6, name: "宽带接入网改造技术规范书_郑州.docx", size: "1.5MB", time: "2026-03-13 11:20", user: "孙丽" },
@@ -1243,8 +1243,8 @@ const libraryDocs = [
 ];
 
 const historyData = [
-  { id: 1, target: "河南电信5G核心网建设技术规范书_v2.3.docx", compareName: "河南电信云资源池扩容技术规范书_2026.docx", time: "2026-03-14 10:32:00", rate: 34, status: "completed" },
-  { id: 2, target: "河南电信云资源池扩容技术规范书_2026.docx", compareName: "OTN设备采购技术规范书_v2.1.docx", time: "2026-03-13 15:20:00", rate: 18, status: "completed" },
+  { id: 1, target: "XX公司5G核心网建设技术规范书_v2.3.docx", compareName: "XX公司云资源池扩容技术规范书_2026.docx", time: "2026-03-14 10:32:00", rate: 34, status: "completed" },
+  { id: 2, target: "XX公司云资源池扩容技术规范书_2026.docx", compareName: "OTN设备采购技术规范书_v2.1.docx", time: "2026-03-13 15:20:00", rate: 18, status: "completed" },
   { id: 3, target: "OTN设备采购技术规范书_v2.1.docx", compareName: "核心网NFV平台技术规范书_2026Q1.docx", time: "2026-03-12 09:10:00", rate: 52, status: "completed" },
   { id: 4, target: "宽带接入网改造技术规范书_郑州.docx", compareName: "基站设备技术规范书_城区_v1.0.docx", time: "2026-03-11 14:00:00", rate: 9, status: "completed" },
   { id: 5, target: "核心网NFV平台技术规范书_2026Q1.docx", compareName: "数据中心网络技术规范书_新建.docx", time: "2026-03-10 16:45:00", rate: 27, status: "completed" },
@@ -1351,7 +1351,7 @@ function closeLibraryModal() { document.getElementById('libraryModal').classList
 // ===== 引用素材（从知识库选择）弹窗 =====
 const kmMaterials = [
   { id: 'km1', name: '公司2023年端到端透明化监控建设项目技术规范书.docx', size: '2.1MB', time: '2026-03-10 10:22', user: '知识库', status: '已完成' },
-  { id: 'km2', name: '河南电信5G核心网建设技术规范书_v2.3.docx', size: '2.4MB', time: '2026-03-10 09:32', user: '知识库', status: '已完成' },
+  { id: 'km2', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', size: '2.4MB', time: '2026-03-10 09:32', user: '知识库', status: '已完成' },
 ];
 let refMaterialMode = 'target'; // 'target' | 'compare'
 let refMaterialSelectedId = null;
@@ -1939,7 +1939,7 @@ function getRateClass(rate) {
 
 const inlineCompareTemplates = [
   {
-    name: '河南电信云资源池扩容技术规范书_2026.docx',
+    name: 'XX公司云资源池扩容技术规范书_2026.docx',
     rate: 34,
     leftBlocks: [
       { text: '本项目建设5G核心网NFV基础设施平台，支持网络功能虚拟化，实现计算、存储、网络资源的统一管理与动态调度，满足5G网络对超低时延、高可靠性的承载需求。', level: 'match' },

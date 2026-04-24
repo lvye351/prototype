@@ -303,7 +303,7 @@
               <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
             </div>
             <div class="kb-row">
-              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">中国电信2025年河南公司智慧机房系统升级研发工程技术规范书V2.2.doc</span></div>
+              <div class="kb-file"><span class="kb-file-icon">📄</span><span class="kb-file-name">XX公司2025年智慧机房系统升级研发工程技术规范书V2.2.doc</span></div>
               <div class="kb-meta">2026-04-24</div><div class="kb-meta">更新：2026-04-24 10:26:33</div><div class="kb-meta">admin</div><div class="kb-meta">10.07MB</div>
               <div class="kb-actions"><span class="i-blue">◉</span><span class="i-cyan">◔</span><span class="i-gold">∠</span><span class="i-edit" onclick="openWordEditor()">✎</span><span class="i-purple">ⓘ</span><span class="kb-status ok">● 已完成</span><span class="i-red">🗑</span></div>
             </div>
@@ -469,12 +469,12 @@
   var pptKbFiltered = [];
   var pptKbDocs = {
     target: [
-      { id: 't1', name: '中国电信河南公司2025年智慧营维系统升级研发工程项目公开询比采购方案汇报.pptx', page: 22, source: '企业知识库' },
-      { id: 't2', name: '中国电信河南公司2025年网络优化平台升级采购方案汇报.pptx', page: 18, source: '企业知识库' }
+      { id: 't1', name: 'XX公司2025年智慧营维系统升级研发工程项目公开询比采购方案汇报.pptx', page: 22, source: '企业知识库' },
+      { id: 't2', name: 'XX公司2025年网络优化平台升级采购方案汇报.pptx', page: 18, source: '企业知识库' }
     ],
     baseline: [
-      { id: 'b1', name: '中国电信2025年河南公司智慧营维系统立项汇报-单项目', page: 16, source: '部门知识库' },
-      { id: 'b2', name: '中国电信河南公司智慧营维系统能力提升立项汇报（批复版）.pptx', page: 20, source: '部门知识库' }
+      { id: 'b1', name: 'XX公司2025年智慧营维系统立项汇报-单项目', page: 16, source: '部门知识库' },
+      { id: 'b2', name: 'XX公司智慧营维系统能力提升立项汇报（批复版）.pptx', page: 20, source: '部门知识库' }
     ]
   };
 
@@ -486,11 +486,11 @@
   }
   function mockPickPpt(which) {
     if (which === 'target') {
-      document.getElementById('targetPptName').textContent = '中国电信河南公司2025年智慧营维系统升级研发工程项目公开询比采购方案汇报.pptx';
+      document.getElementById('targetPptName').textContent = 'XX公司2025年智慧营维系统升级研发工程项目公开询比采购方案汇报.pptx';
       showToast('已选择：采购方案PPT');
       return;
     }
-    document.getElementById('baselinePptName').textContent = '中国电信2025年河南公司智慧营维系统立项汇报-单项目';
+    document.getElementById('baselinePptName').textContent = 'XX公司2025年智慧营维系统立项汇报-单项目';
     showToast('已选择：立项PPT');
   }
   function openPptKbModal(mode) {
@@ -588,8 +588,8 @@
     closePptKbModal();
   }
   var auditHistory = [
-    { id: 1, target: '中国电信河南公司2025年智慧营维系统升级研发工程项目公开询比采购方案汇报.pptx', baseline: '中国电信2025年河南公司智慧营维系统立项汇报-单项目', time: '2026-04-14 18:20', status: 'completed', issues: 17 },
-    { id: 2, target: '中国电信河南公司2025年网络优化平台升级采购方案汇报.pptx', baseline: '中国电信河南公司智慧营维系统能力提升立项汇报（批复版）.pptx', time: '2026-04-14 16:05', status: 'completed', issues: 9 }
+    { id: 1, target: 'XX公司2025年智慧营维系统升级研发工程项目公开询比采购方案汇报.pptx', baseline: 'XX公司2025年智慧营维系统立项汇报-单项目', time: '2026-04-14 18:20', status: 'completed', issues: 17 },
+    { id: 2, target: 'XX公司2025年网络优化平台升级采购方案汇报.pptx', baseline: 'XX公司智慧营维系统能力提升立项汇报（批复版）.pptx', time: '2026-04-14 16:05', status: 'completed', issues: 9 }
   ];
   var filteredAuditHistory = auditHistory.slice();
   var auditHistoryAutoRefreshTimer = null;
