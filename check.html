@@ -1156,7 +1156,7 @@
                 <div class="result-top-title">← 查重稽核结果</div>
                 <div class="result-top-btns">
                   <button class="btn btn-outline btn-sm" onclick="openStartCheckModal()">🔄 重新查重</button>
-                  <button type="button" class="btn btn-primary btn-sm" onclick="downloadCheckReportDocx()">📥 导出报告</button>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="downloadCheckReportExcel()">📥 导出报告</button>
                 </div>
               </div>
               <div class="result-top-meta" id="resultTopMeta">—</div>
@@ -2607,6 +2607,125 @@ async function downloadCheckReportDocx() {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
   showToast('报告已生成并下载');
+}
+
+function buildReportFilenameXls(target, compare, timeStr) {
+  const ta = sanitizeReportToken(target, 40);
+  const tc = sanitizeReportToken(compare, 40);
+  const tt = timeTokenFromSubmitTime(timeStr);
+  return `查重报告_${ta}_vs_${tc}_${tt}.xls`;
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function levelLabelForExcel(level) {
+  if (level === 'match') return '重复';
+  if (level === 'highlight') return '相似';
+  return '正常';
+}
+
+function levelClassForExcel(level) {
+  if (level === 'match') return 'dup';
+  if (level === 'highlight') return 'sim';
+  return '';
+}
+
+function buildCheckReportExcelHtml(p) {
+  const left = p.leftBlocks || [];
+  const right = p.rightBlocks || [];
+  const n = Math.max(left.length, right.length);
+  let rep = 0;
+  let sim = 0;
+  left.forEach(b => {
+    if (b.level === 'match') rep++;
+    else if (b.level === 'highlight') sim++;
+  });
+
+  const rows = [];
+  for (let i = 0; i < n; i++) {
+    const L = left[i];
+    const R = right[i];
+    const leftLevel = L && L.level;
+    const rightLevel = R && R.level;
+    const hasRisk = leftLevel === 'match' || leftLevel === 'highlight' || rightLevel === 'match' || rightLevel === 'highlight';
+    if (!hasRisk) continue;
+    rows.push(
+      `<tr>` +
+      `<td>${i + 1}</td>` +
+      `<td class="${levelClassForExcel(leftLevel)}">${escapeHtml(levelLabelForExcel(leftLevel))}</td>` +
+      `<td>${escapeHtml(L ? L.text : '（无对应段落）')}</td>` +
+      `<td class="${levelClassForExcel(rightLevel)}">${escapeHtml(levelLabelForExcel(rightLevel))}</td>` +
+      `<td>${escapeHtml(R ? R.text : '（无对应段落）')}</td>` +
+      `</tr>`
+    );
+  }
+
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 12px; color: #333; }
+    h2 { margin: 0 0 12px; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+    th, td { border: 1px solid #d9d9d9; padding: 6px 8px; vertical-align: top; word-break: break-all; }
+    th { background: #f5f7fa; }
+    .meta td { width: 25%; }
+    .dup { background: #ffebee; color: #c62828; font-weight: 700; }
+    .sim { background: #fff3e0; color: #e65100; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h2>技术规范书查重报告</h2>
+  <table class="meta">
+    <tr><td>任务发起时间</td><td>${escapeHtml(p.time)}</td><td>查重耗时</td><td>${escapeHtml(p.durationSec)} 秒</td></tr>
+    <tr><td>综合重复率</td><td>${escapeHtml(p.rate)}%</td><td>重复 / 相似段落</td><td>${rep} / ${sim}</td></tr>
+    <tr><td>目标文档</td><td colspan="3">${escapeHtml(p.target)}</td></tr>
+    <tr><td>历史对比文档</td><td colspan="3">${escapeHtml(p.compareName)}</td></tr>
+  </table>
+  <br/>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:56px;">序号</th>
+        <th style="width:72px;">目标类型</th>
+        <th>目标文档摘录</th>
+        <th style="width:72px;">对比类型</th>
+        <th>对比文档摘录</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.join('')}
+    </tbody>
+  </table>
+</body>
+</html>`;
+}
+
+function downloadCheckReportExcel() {
+  const payload = window._exportReportPayload;
+  if (!payload || !Array.isArray(payload.leftBlocks)) {
+    showToast('请先打开一条已完成记录的查重结果');
+    return;
+  }
+  const html = buildCheckReportExcelHtml(payload);
+  const blob = new Blob(['\uFEFF', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = buildReportFilenameXls(payload.target, payload.compareName, payload.time);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  showToast('Excel报告已生成并下载');
 }
 
 function goBack() {
