@@ -2647,8 +2647,6 @@ function buildCheckReportExcelHtml(p) {
     if (b.level === 'match') rep++;
     else if (b.level === 'highlight') sim++;
   });
-  const riskTotal = rep + sim;
-
   const rows = [];
   for (let i = 0; i < n; i++) {
     const L = left[i];
@@ -2687,7 +2685,7 @@ function buildCheckReportExcelHtml(p) {
   <h2>技术规范书查重报告</h2>
   <table class="meta">
     <tr><td>任务发起时间</td><td>${escapeHtml(p.time)}</td><td>查重耗时</td><td>${escapeHtml(p.durationSec)} 秒</td></tr>
-    <tr><td>综合重复率</td><td>${escapeHtml(p.rate)}%</td><td>重复 / 相似段落</td><td>${riskTotal}</td></tr>
+    <tr><td>综合重复率</td><td>${escapeHtml(p.rate)}%</td><td>重复 / 相似段落</td><td style="mso-number-format:'\@';">${rep}/${sim}</td></tr>
     <tr><td>目标文档</td><td colspan="3">${escapeHtml(p.target)}</td></tr>
     <tr><td>历史对比文档</td><td colspan="3">${escapeHtml(p.compareName)}</td></tr>
   </table>
