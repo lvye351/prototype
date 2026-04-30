@@ -2672,18 +2672,18 @@ function buildCheckReportExcelHtml(p) {
   <meta charset="UTF-8" />
   <style>
     body { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 12px; color: #333; }
-    h2 { margin: 0 0 12px; }
     table { border-collapse: collapse; width: 100%; table-layout: fixed; }
     th, td { border: 1px solid #d9d9d9; padding: 6px 8px; vertical-align: top; word-break: break-all; }
     th { background: #f5f7fa; }
     .meta td { width: 25%; }
+    .meta .meta-title { text-align: center; font-size: 16px; font-weight: 700; background: #f5f7fa; }
     .dup { background: #ffebee; color: #c62828; font-weight: 700; }
     .sim { background: #fff3e0; color: #e65100; font-weight: 700; }
   </style>
 </head>
 <body>
-  <h2>技术规范书查重报告</h2>
   <table class="meta">
+    <tr><td colspan="4" class="meta-title">技术规范书查重报告</td></tr>
     <tr><td>任务发起时间</td><td>${escapeHtml(p.time)}</td><td>查重耗时</td><td>${escapeHtml(p.durationSec)} 秒</td></tr>
     <tr><td>综合重复率</td><td>${escapeHtml(p.rate)}%</td><td>重复 / 相似段落</td><td style="mso-number-format:'\@';">${rep}/${sim}</td></tr>
     <tr><td>目标文档</td><td colspan="3">${escapeHtml(p.target)}</td></tr>
