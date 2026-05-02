@@ -2,13 +2,647 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>进入原型…</title>
-  <link rel="canonical" href="ppt-audit.html" />
-  <meta http-equiv="refresh" content="0;url=ppt-audit.html" />
-  <script>location.replace("ppt-audit.html");</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>智能写作系统 · 我的文稿</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
+      background: #f0f2f5;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+    }
+
+    /* 顶栏 · Figma Header 3:1707 */
+    .topbar {
+      height: 64px;
+      background: #001529;
+      display: flex;
+      align-items: center;
+      padding: 0 50px;
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 64px;
+      letter-spacing: 0.02em;
+    }
+
+    .layout { display: flex; min-height: calc(100vh - 64px); }
+
+    /* 侧栏 · Figma Aside */
+    .sidebar {
+      width: 200px;
+      background: #fff;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+    }
+    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
+    .side-group-h {
+      display: flex;
+      align-items: center;
+      padding: 0 24px 0 34px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1890ff;
+      border-right: 0.75px solid rgba(0, 0, 0, 0.06);
+    }
+    .side-sub { background: #fafafa; padding: 4px 0 8px; }
+    .menu-item {
+      position: relative;
+      padding: 0 16px 0 48px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.85);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .menu-item:hover { background: #f0f0f0; }
+    .menu-item.active {
+      background: #f1f1f1;
+      color: #1890ff;
+      font-weight: 400;
+    }
+    .menu-item.active::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #1890ff, #1fbdff);
+    }
+
+    .sidebar-foot {
+      border-top: 0.75px solid #f0f0f0;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+    }
+    .sf-av {
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background: #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+    }
+    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
+
+    /* 主内容区背景 #FAFAFA · 节点 3:1851 */
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 10px 24px;
+      background: linear-gradient(180deg, #fff 0%, #fafafa 100%);
+    }
+
+    /* Tab word文稿 / ppt文稿 · 3:1857 */
+    .figma-tabs-wrap {
+      margin-bottom: 0;
+      border-bottom: 0.75px solid rgba(0, 0, 0, 0.06);
+    }
+    .figma-tabs-row {
+      display: flex;
+      align-items: stretch;
+      padding-left: 10px;
+      gap: 32px;
+    }
+    .figma-tab {
+      position: relative;
+      padding: 11px 0 12px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 15.6px;
+      font-weight: 510;
+      line-height: 1.6;
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    .figma-tab:hover { color: #1470cc; }
+    .figma-tab.active {
+      color: #1470cc;
+      text-shadow: 0 0 0.25px rgba(20, 112, 204, 1);
+    }
+    .figma-tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: #1470cc;
+      border-radius: 1px;
+    }
+
+    /* 筛选表单 · 3:1879 */
+    .filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 12px 16px;
+      padding: 16px 0 16px;
+    }
+    .ff-group { display: flex; align-items: center; gap: 8px; }
+    .ff-group label { font-size: 14px; color: rgba(0, 0, 0, 0.85); white-space: nowrap; }
+    .ff-group input, .ff-group select {
+      height: 32px;
+      padding: 4px 11px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 200px;
+      outline: none;
+      font-family: inherit;
+    }
+    .ff-group input:focus, .ff-group select:focus { border-color: #1890ff; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: 0.92; }
+    .btn-primary {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #fff;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
+    }
+    .btn-default {
+      background: #fff;
+      border-color: #d9d9d9;
+      color: rgba(0, 0, 0, 0.85);
+    }
+
+    /* 表格卡片 · 3:1934 */
+    .table-card {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    thead th {
+      background: #fafafa;
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.85);
+      border-bottom: 0.75px solid rgba(0, 0, 0, 0.06);
+      vertical-align: middle;
+    }
+    tbody td {
+      padding: 12px 16px;
+      font-size: 14px;
+      border-bottom: 0.75px solid rgba(0, 0, 0, 0.06);
+      vertical-align: middle;
+      word-break: break-all;
+    }
+    tbody tr:hover td { background: #fafafa; }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .col-title { width: 18%; }
+    .col-op { width: 14%; min-width: 140px; }
+
+    .file-name {
+      color: #1470cc;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    .file-name:hover { text-decoration: underline; }
+
+    .link-btn {
+      color: #1890ff;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 6px;
+      border: none;
+      background: none;
+      font-family: inherit;
+    }
+    .link-btn:hover { text-decoration: underline; }
+    .link-btn.red { color: #ff4d4f; }
+
+    .badge {
+      display: inline-block;
+      padding: 0 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .badge-green { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
+    .badge-blue { background: #e6f7ff; border: 1px solid #91d5ff; color: #096dd9; }
+    .badge-gray { background: #fafafa; border: 1px solid #d9d9d9; color: rgba(0,0,0,.65); }
+
+    /* 分页 · 3:2400+ */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      padding: 16px 8px 8px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.65);
+    }
+    .pg-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .pg-btn:hover { border-color: #1890ff; color: #1890ff; }
+    .pg-btn.active { background: #1890ff; border-color: #1890ff; color: #fff; }
+    .pg-jump { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; }
+    .pg-jump input {
+      width: 48px;
+      height: 32px;
+      text-align: center;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .empty-state { text-align: center; padding: 48px 16px; color: rgba(0, 0, 0, 0.25); }
+    .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; padding: 28px 32px; min-width: 480px; max-width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: #1890ff; display: flex; align-items: center; gap: 8px; }
+    .modal-close { margin-left: auto; cursor: pointer; font-size: 20px; color: #aaa; line-height: 1; }
+    .modal-close:hover { color: #333; }
+    .upload-area {
+      border: 2px dashed #aac4ee; border-radius: 8px; padding: 32px; text-align: center;
+      cursor: pointer; transition: all .2s; margin-bottom: 16px;
+    }
+    .upload-area:hover, .upload-area.drag { border-color: #1890ff; background: #f0f5ff; }
+    .upload-area .upload-icon { font-size: 40px; color: #aac4ee; margin-bottom: 10px; }
+    .upload-area .upload-text { font-size: 14px; color: #888; }
+    .upload-area .upload-hint { font-size: 12px; color: #bbb; margin-top: 6px; }
+    .upload-area input[type=file] { display: none; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-outline { background: #fff; color: #1890ff; border: 1px solid #1890ff; }
+
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; background: #323232; color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 9999;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <p>若未自动跳转，请 <a href="ppt-audit.html">点此打开 PPT 稽核原型</a>。</p>
+
+<div class="topbar">
+  <span class="topbar-title">智能写作系统</span>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-scroll">
+      <div class="side-group-h">文档写作</div>
+      <div class="side-sub">
+        <div class="menu-item" onclick="showToast('对话写作功能开发中')">对话写作</div>
+        <div class="menu-item" onclick="showToast('分步写作功能开发中')">分步写作</div>
+        <div class="menu-item" onclick="showToast('PPT写作功能开发中')">ppt写作</div>
+        <div class="menu-item active" onclick="location.href='index.html'">我的文稿</div>
+        <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
+        <div class="menu-item" onclick="location.href='check.html'">技术规范书查重</div>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="sf-av">王</div>
+      <span class="sf-name">王海龙</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="figma-tabs-wrap">
+      <div class="figma-tabs-row">
+        <button type="button" class="figma-tab active" id="tabWord" onclick="switchAssetTab('word')">word文稿</button>
+        <button type="button" class="figma-tab" id="tabPpt" onclick="switchAssetTab('ppt')">ppt文稿</button>
+      </div>
+    </div>
+
+    <div class="filter-form">
+      <div class="ff-group">
+        <label for="filterTitle">标题</label>
+        <input type="text" id="filterTitle" placeholder="请输入标题关键词" />
+      </div>
+      <div class="ff-group">
+        <label for="filterStatus">状态</label>
+        <select id="filterStatus">
+          <option value="">全部</option>
+          <option value="已发布">已发布</option>
+          <option value="草稿">草稿</option>
+        </select>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="filterTable()">查询</button>
+      <button type="button" class="btn btn-default" onclick="resetSearch()">重置</button>
+      <button type="button" class="btn btn-primary" onclick="openUploadModal()">导入</button>
+    </div>
+
+    <div class="table-card">
+      <table id="docTable">
+        <thead>
+          <tr>
+            <th class="col-title">标题</th>
+            <th>一级类型</th>
+            <th>二级类型</th>
+            <th>模板名称</th>
+            <th>状态</th>
+            <th>字数</th>
+            <th>审核状态</th>
+            <th>创建人</th>
+            <th>最近编辑时间</th>
+            <th class="col-op">操作</th>
+          </tr>
+        </thead>
+        <tbody id="docTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span id="totalRecords">共 0 条</span>
+      <button type="button" class="pg-btn" onclick="showToast('上一页')">«</button>
+      <button type="button" class="pg-btn active">1</button>
+      <button type="button" class="pg-btn" onclick="showToast('下一页')">2</button>
+      <button type="button" class="pg-btn" onclick="showToast('末页')">»</button>
+      <span class="pg-jump">跳至 <input type="text" value="1" aria-label="页码" /> 页</span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="uploadModalTitle">导入文档</span>
+      <span class="modal-close" onclick="closeUploadModal()">×</span>
+    </div>
+    <div class="upload-area" id="dropArea" onclick="document.getElementById('fileInput').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="handleDrop(event)">
+      <div class="upload-icon">📂</div>
+      <div class="upload-text" id="uploadDropText">点击选择文件，或将文件拖拽至此处</div>
+      <div class="upload-hint" id="uploadDropHint">支持对应格式，单个不超过 50MB</div>
+      <input type="file" id="fileInput" onchange="handleFileSelect(event)"/>
+    </div>
+    <div id="selectedFile" style="display:none;background:#f0f5ff;padding:10px 14px;border-radius:6px;font-size:13px;color:#1a3a6b;margin-bottom:12px;">
+      📄 <span id="selectedFileName"></span>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeUploadModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmUpload()">确认上传</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const docs = [
+  { id: 1, kind: 'word', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', level1: '技术规范书', level2: '核心网', templateName: '电信技术规范模板', status: '已发布', wordCount: '12,580', auditStatus: '已通过', creator: '王海龙', editTime: '2026-03-10 09:32', createTime: '2026-03-09 18:20', size: '2.4MB', count: 3, hasHistory: true },
+  { id: 2, kind: 'word', name: 'XX公司云资源池扩容技术规范书_2026.docx', level1: '技术规范书', level2: '云计算', templateName: '通用采购模板', status: '已发布', wordCount: '9,210', auditStatus: '已通过', creator: '王海龙', editTime: '2026-03-11 14:15', createTime: '2026-03-11 10:05', size: '1.8MB', count: 2, hasHistory: true },
+  { id: 3, kind: 'word', name: 'XX公司传输网络设备采购技术规范书.docx', level1: '技术规范书', level2: '传输网', templateName: '设备采购模板', status: '草稿', wordCount: '8,102', auditStatus: '待审核', creator: '王海龙', editTime: '2026-03-12 10:08', createTime: '2026-03-12 08:10', size: '3.1MB', count: 1, hasHistory: true },
+  { id: 4, kind: 'word', name: '基站设备技术规范书_城区_v1.0.docx', level1: '技术规范书', level2: '无线', templateName: '无线侧模板', status: '草稿', wordCount: '6,400', auditStatus: '待审核', creator: '王海龙', editTime: '2026-03-12 16:44', createTime: '2026-03-12 15:20', size: '1.2MB', count: 0, hasHistory: false },
+  { id: 5, kind: 'word', name: '核心网NFV平台技术规范书_2026Q1.docx', level1: '技术规范书', level2: '虚拟化', templateName: 'NFV 模板', status: '已发布', wordCount: '11,200', auditStatus: '已通过', creator: '王海龙', editTime: '2026-03-13 09:00', createTime: '2026-03-12 19:40', size: '2.7MB', count: 2, hasHistory: true },
+  { id: 6, kind: 'ppt', name: '公开询比采购方案汇报.pptx', level1: '采购方案', level2: '汇报', templateName: '采购汇报标准页', status: '已发布', wordCount: '—', auditStatus: '已通过', creator: '王海龙', editTime: '2026-03-13 11:20', createTime: '2026-03-13 09:15', size: '4.1MB', count: 0, hasHistory: false },
+  { id: 7, kind: 'ppt', name: '智慧营维系统立项汇报-单项目.pptx', level1: '立项汇报', level2: '信息化', templateName: '立项汇报模板', status: '草稿', wordCount: '—', auditStatus: '待审核', creator: '王海龙', editTime: '2026-03-14 08:55', createTime: '2026-03-13 16:10', size: '5.2MB', count: 0, hasHistory: false },
+];
+
+let currentAssetTab = 'word';
+let filteredDocs = [];
+let selectedFile = null;
+
+function syncUploadUi() {
+  const isWord = currentAssetTab === 'word';
+  document.getElementById('uploadModalTitle').textContent = isWord ? '导入 Word 文稿' : '导入 PPT 文稿';
+  document.getElementById('uploadDropHint').textContent = isWord
+    ? '支持 .doc / .docx，单个不超过 50MB'
+    : '支持 .ppt / .pptx，单个不超过 50MB';
+  const input = document.getElementById('fileInput');
+  input.accept = isWord ? '.doc,.docx' : '.ppt,.pptx';
+}
+
+function switchAssetTab(tab) {
+  currentAssetTab = tab;
+  document.getElementById('tabWord').classList.toggle('active', tab === 'word');
+  document.getElementById('tabPpt').classList.toggle('active', tab === 'ppt');
+  filterTable();
+}
+
+function poolByTab() {
+  return docs.filter(d => d.kind === currentAssetTab);
+}
+
+function filterTable() {
+  const q = (document.getElementById('filterTitle').value || '').trim().toLowerCase();
+  const st = (document.getElementById('filterStatus').value || '').trim();
+  let pool = poolByTab();
+  if (q) pool = pool.filter(d => d.name.toLowerCase().includes(q));
+  if (st) pool = pool.filter(d => d.status === st);
+  filteredDocs = pool;
+  renderTable(filteredDocs);
+  document.getElementById('totalRecords').textContent = '共 ' + filteredDocs.length + ' 条';
+}
+
+function resetSearch() {
+  document.getElementById('filterTitle').value = '';
+  document.getElementById('filterStatus').value = '';
+  filterTable();
+}
+
+function statusBadge(status) {
+  if (status === '已发布') return '<span class="badge badge-green">' + status + '</span>';
+  return '<span class="badge badge-gray">' + status + '</span>';
+}
+
+function auditBadge(s) {
+  if (s === '已通过') return '<span class="badge badge-blue">' + s + '</span>';
+  return '<span class="badge badge-gray">' + s + '</span>';
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('docTbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="icon">📭</div><div>暂无数据</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(d => {
+    const titleClick = d.kind === 'word'
+      ? 'onclick="goCheck(' + d.id + ')"'
+      : 'onclick="goPptAudit(' + d.id + ')"';
+    const actions = d.kind === 'word'
+      ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goCheck(' + d.id + ')">查重</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();editDoc(' + d.id + ')">编辑</button> ' +
+        (d.hasHistory ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goHistory(' + d.id + ')">历史记录</button> ' : '') +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
+        '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>'
+      : '<button type="button" class="link-btn" onclick="event.stopPropagation();goPptAudit(' + d.id + ')">稽核</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
+        '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>';
+    return '<tr>' +
+      '<td><span class="file-name" ' + titleClick + '>' + escapeHtml(d.name) + '</span></td>' +
+      '<td>' + escapeHtml(d.level1) + '</td>' +
+      '<td>' + escapeHtml(d.level2) + '</td>' +
+      '<td>' + escapeHtml(d.templateName) + '</td>' +
+      '<td>' + statusBadge(d.status) + '</td>' +
+      '<td>' + escapeHtml(d.wordCount) + '</td>' +
+      '<td>' + auditBadge(d.auditStatus) + '</td>' +
+      '<td>' + escapeHtml(d.creator) + '</td>' +
+      '<td>' + escapeHtml(d.editTime) + '</td>' +
+      '<td>' + actions + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function goCheck(id) {
+  const doc = docs.find(d => d.id === id);
+  if (!doc || doc.kind !== 'word') return;
+  sessionStorage.setItem('targetDoc', JSON.stringify(doc));
+  location.href = 'check.html';
+}
+
+function goPptAudit(id) {
+  const doc = docs.find(d => d.id === id);
+  if (!doc) return;
+  sessionStorage.setItem('pptAuditTargetDoc', JSON.stringify({ name: doc.name, id: doc.id }));
+  location.href = 'ppt-audit.html';
+}
+
+function editDoc(id) { showToast('跳转编辑（原型）'); }
+
+function goHistory(id) {
+  const doc = docs.find(d => d.id === id);
+  sessionStorage.setItem('historyFilterTargetName', doc ? doc.name : '');
+  sessionStorage.setItem('historyExpectedCount', String(doc && doc.count != null ? doc.count : ''));
+  location.href = 'check.html';
+}
+
+function downloadDoc(id) { showToast('下载（原型）'); }
+
+function deleteDoc(id) {
+  if (!confirm('确定删除该文稿吗？')) return;
+  const idx = docs.findIndex(d => d.id === id);
+  if (idx !== -1) {
+    docs.splice(idx, 1);
+    filterTable();
+    showToast('已删除');
+  }
+}
+
+function openUploadModal() {
+  syncUploadUi();
+  document.getElementById('uploadModal').classList.add('show');
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').classList.remove('show');
+  selectedFile = null;
+  document.getElementById('selectedFile').style.display = 'none';
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) { selectedFile = file; showSelectedFile(file.name); }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropArea').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const okWord = currentAssetTab === 'word' && (file.name.endsWith('.doc') || file.name.endsWith('.docx'));
+  const okPpt = currentAssetTab === 'ppt' && (file.name.endsWith('.ppt') || file.name.endsWith('.pptx'));
+  if (okWord || okPpt) {
+    selectedFile = file;
+    showSelectedFile(file.name);
+  } else {
+    showToast(currentAssetTab === 'word' ? '请上传 .doc 或 .docx' : '请上传 .ppt 或 .pptx');
+  }
+}
+
+function showSelectedFile(name) {
+  document.getElementById('selectedFileName').textContent = name;
+  document.getElementById('selectedFile').style.display = 'block';
+}
+
+function confirmUpload() {
+  if (!selectedFile) { showToast('请先选择文件'); return; }
+  const now = new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
+  const kind = currentAssetTab;
+  const newDoc = {
+    id: Date.now(),
+    kind: kind,
+    name: selectedFile.name,
+    level1: kind === 'word' ? '技术规范书' : '演示文稿',
+    level2: '未分类',
+    templateName: '自定义上传',
+    status: '草稿',
+    wordCount: kind === 'word' ? '—' : '—',
+    auditStatus: '待审核',
+    creator: '王海龙',
+    editTime: now,
+    createTime: now,
+    size: (selectedFile.size / 1024 / 1024).toFixed(1) + 'MB',
+    count: 0,
+    hasHistory: false
+  };
+  docs.unshift(newDoc);
+  filterTable();
+  closeUploadModal();
+  showToast('上传成功');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(function () { t.style.display = 'none'; }, 2800);
+}
+
+switchAssetTab('word');
+</script>
 </body>
 </html>
