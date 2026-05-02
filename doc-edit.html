@@ -206,30 +206,61 @@
     .paper {
       max-width: 900px;
       margin: 0 auto;
-      min-height: 560px;
+      min-height: 620px;
       background: #fff;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       border-radius: 2px;
-      padding: 48px 56px 80px;
+      padding: 56px 72px 64px;
       line-height: 1.8;
       font-size: 15px;
       outline: none;
+      color: rgba(0, 0, 0, 0.88);
     }
     .paper:focus-visible { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(24, 144, 255, 0.25); }
 
-    .paper-title {
-      text-align: center;
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 48px;
-      line-height: 1.45;
-      color: rgba(0, 0, 0, 0.88);
+    /* 封面排版 · 对齐正式技术规范书封面（标题居中 + 底部单位/日期） */
+    .doc-cover {
+      display: flex;
+      flex-direction: column;
+      min-height: 560px;
     }
-    .paper-foot {
-      margin-top: 64px;
+    .doc-cover-spacer {
+      flex: 1;
+      min-height: 72px;
+      max-height: 22vh;
+    }
+    .doc-cover-title {
       text-align: center;
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.65);
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1.55;
+      letter-spacing: 0.06em;
+      padding: 0 24px;
+      margin: 0;
+      color: rgba(0, 0, 0, 0.92);
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    .doc-cover-anchor {
+      flex: 1.15;
+      min-height: 48px;
+    }
+    .doc-cover-bottom {
+      text-align: center;
+      padding-bottom: 8px;
+      flex-shrink: 0;
+    }
+    .doc-cover-org {
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      margin: 0 0 16px;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    .doc-cover-date {
+      font-size: 15px;
+      letter-spacing: 0.12em;
+      margin: 0;
+      color: rgba(0, 0, 0, 0.78);
     }
 
     /* 底栏 · Figma Footer：仅字数 + 右侧图标位 */
@@ -468,6 +499,7 @@
         <aside class="outline-aside">
           <div class="outline-head"></div>
           <div class="outline-body">
+            <div class="outline-item">封面</div>
             <div class="outline-item">1. 概述</div>
             <div class="outline-item">2. 技术要求</div>
             <div class="outline-item">3. 验收标准</div>
@@ -623,10 +655,55 @@
         '<div class="meta-block"><span class="meta-label">模板名称</span><span class="meta-val">' + escapeHtml(doc.templateName) + '</span></div>';
 
       var shortTitle = (doc.name || '技术规范书').replace(/\.(docx|doc)$/i, '');
+      var coverTitle = buildFormalCoverTitle(shortTitle);
+      var coverOrg = guessCoverOrg(shortTitle, doc);
+      var coverDateZh = editTimeToCnYearMonth(doc.editTime || doc.createTime);
+
       document.getElementById('editor').innerHTML =
-        '<div class="paper-title">' + escapeHtml(shortTitle) + '</div>' +
-        '<p>第一章　概述</p><p>本章说明项目建设背景、编制依据及适用范围……</p>' +
-        '<p>第二章　技术要求</p><p>设备性能指标应满足国家及行业相关标准……</p>';
+        '<div class="doc-cover">' +
+          '<div class="doc-cover-spacer"></div>' +
+          '<h1 class="doc-cover-title">' + escapeHtml(coverTitle) + '</h1>' +
+          '<div class="doc-cover-anchor"></div>' +
+          '<div class="doc-cover-bottom">' +
+            '<p class="doc-cover-org">' + escapeHtml(coverOrg) + '</p>' +
+            '<p class="doc-cover-date">' + escapeHtml(coverDateZh) + '</p>' +
+          '</div>' +
+        '</div>';
+
+      function digitsToCnYear(yStr) {
+        var map = '〇一二三四五六七八九';
+        return String(yStr).split('').map(function (c) {
+          var n = +c;
+          return map[n] != null ? map[n] : c;
+        }).join('');
+      }
+
+      function editTimeToCnYearMonth(iso) {
+        var m = String(iso || '').match(/(\d{4})-(\d{1,2})/);
+        if (!m) {
+          var d = new Date();
+          return digitsToCnYear(String(d.getFullYear())) + '年' + ['一','二','三','四','五','六','七','八','九','十','十一','十二'][d.getMonth()] + '月';
+        }
+        var mo = ['一','二','三','四','五','六','七','八','九','十','十一','十二'][+m[2] - 1] || m[2];
+        return digitsToCnYear(m[1]) + '年' + mo + '月';
+      }
+
+      function guessCoverOrg(title, d) {
+        if (/电信|河南/.test(title) || /电信|河南/.test(d.level1 || '')) {
+          return '中国电信河南分公司';
+        }
+        var pre = (title || '').split(/[\d_]|建设|技术|项目|采购|规范书|汇报|方案|v\d/i)[0];
+        if (pre && pre.length >= 2 && pre.length <= 12) return pre.replace(/公司$/, '') + '河南分公司';
+        return '中国电信河南分公司';
+      }
+
+      function buildFormalCoverTitle(base) {
+        if (/中国电信|端到端|透明化/.test(base)) return base;
+        if (/XX公司|示例/.test(base)) {
+          return '中国电信河南公司2023年端到端透明化监控建设项目技术规范书';
+        }
+        return base;
+      }
 
       function countChars() {
         var t = document.getElementById('editor').innerText || '';
