@@ -544,7 +544,12 @@ function goPptAudit(id) {
   location.href = 'ppt-audit.html';
 }
 
-function editDoc(id) { showToast('跳转编辑（原型）'); }
+function editDoc(id) {
+  var doc = docs.find(function (d) { return d.id === id; });
+  if (!doc || doc.kind !== 'word') return;
+  sessionStorage.setItem('editorDoc', JSON.stringify(doc));
+  location.href = 'word-edit.html';
+}
 
 function goHistory(id) {
   const doc = docs.find(d => d.id === id);

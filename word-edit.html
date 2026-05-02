@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>文档编辑 · 智能写作系统</title>
+  <!-- 界面参考 Figma node 2-188：https://www.figma.com/design/03CYRvbMSAt8nM6lyzpPbO/技术规范书稽核?node-id=2-188 -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f0f2f5;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 64px;
+      background: #001529;
+      display: flex;
+      align-items: center;
+      padding: 0 50px;
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .edit-strip {
+      background: #fff;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 12px 50px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .back-link {
+      color: #1470cc;
+      cursor: pointer;
+      font-size: 14px;
+      border: none;
+      background: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .doc-title-wrap { flex: 1; min-width: 200px; }
+    .doc-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.85);
+      word-break: break-all;
+    }
+    .doc-meta {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn-default {
+      background: #fff;
+      border-color: #d9d9d9;
+      color: rgba(0, 0, 0, 0.85);
+    }
+
+    .toolbar {
+      background: #fafafa;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 8px 50px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .toolbar button {
+      min-width: 32px;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .toolbar button:hover { border-color: #1890ff; color: #1890ff; }
+
+    .editor-wrap {
+      flex: 1;
+      padding: 16px 50px 32px;
+      display: flex;
+      justify-content: center;
+    }
+    .editor-paper {
+      width: 100%;
+      max-width: 900px;
+      min-height: calc(100vh - 260px);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      padding: 40px 48px 80px;
+      outline: none;
+      line-height: 1.75;
+      font-size: 15px;
+    }
+    .editor-paper:focus { box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2), 0 1px 4px rgba(0, 0, 0, 0.06); }
+
+    .empty-hint {
+      text-align: center;
+      padding: 80px 24px;
+      color: rgba(0, 0, 0, 0.35);
+    }
+    .empty-hint a { color: #1890ff; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #323232;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">智能写作系统</span>
+</div>
+
+<div id="editorRoot">
+  <div class="empty-hint" id="noDocPanel">
+    <p>未找到文稿上下文，请从「我的文稿」点击<strong>编辑</strong>进入。</p>
+    <p style="margin-top:12px;"><a href="index.html">返回我的文稿</a></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var raw = sessionStorage.getItem('editorDoc');
+  if (!raw) return;
+
+  var doc;
+  try {
+    doc = JSON.parse(raw);
+  } catch (e) {
+    return;
+  }
+  if (!doc || doc.kind !== 'word') return;
+
+  document.getElementById('noDocPanel').style.display = 'none';
+
+  var root = document.getElementById('editorRoot');
+  root.innerHTML =
+    '<div class="edit-strip">' +
+      '<button type="button" class="back-link" onclick="location.href=\'index.html\'">← 返回我的文稿</button>' +
+      '<div class="doc-title-wrap">' +
+        '<div class="doc-title" id="displayTitle"></div>' +
+        '<div class="doc-meta" id="displayMeta"></div>' +
+      '</div>' +
+      '<button type="button" class="btn btn-primary" onclick="saveDoc()">保存</button>' +
+      '<button type="button" class="btn btn-default" onclick="previewDoc()">预览</button>' +
+    '</div>' +
+    '<div class="toolbar">' +
+      '<button type="button" title="加粗" onclick="fmt(\'bold\')"><strong>B</strong></button>' +
+      '<button type="button" title="斜体" onclick="fmt(\'italic\')"><em>I</em></button>' +
+      '<button type="button" title="下划线" onclick="fmt(\'underline\')"><u>U</u></button>' +
+      '<button type="button" title="无序列表" onclick="fmt(\'insertUnorderedList\')">• 列表</button>' +
+      '<button type="button" title="有序列表" onclick="fmt(\'insertOrderedList\')">1. 列表</button>' +
+    '</div>' +
+    '<div class="editor-wrap">' +
+      '<div class="editor-paper" id="editorBody" contenteditable="true" spellcheck="false"></div>' +
+    '</div>';
+
+  document.getElementById('displayTitle').textContent = doc.name || '未命名文档';
+  document.getElementById('displayMeta').textContent =
+    [doc.level1, doc.level2, doc.templateName].filter(Boolean).join(' · ') || '—';
+
+  var bodyEl = document.getElementById('editorBody');
+  var stored = sessionStorage.getItem('editorDraft_' + doc.id);
+  if (stored) {
+    bodyEl.innerHTML = stored;
+  } else {
+    bodyEl.innerHTML =
+      '<p>【' + escapeHtml(doc.name || '文档') + '】</p>' +
+      '<p>在此编辑正文内容（原型）。保存将写入浏览器会话草稿。</p>';
+  }
+
+  window.fmt = function (cmd) {
+    document.execCommand(cmd, false, null);
+    bodyEl.focus();
+  };
+
+  window.saveDoc = function () {
+    sessionStorage.setItem('editorDraft_' + doc.id, bodyEl.innerHTML);
+    showToast('已保存到本地草稿');
+  };
+
+  window.previewDoc = function () {
+    showToast('预览功能开发中');
+  };
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(function () { t.style.display = 'none'; }, 2600);
+  }
+})();
+</script>
+</body>
+</html>
