@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>文档编辑 · 智能写作</title>
+  <!-- UI 参考 Figma node 2-188 https://www.figma.com/design/03CYRvbMSAt8nM6lyzpPbO/技术规范书稽核?node-id=2-188 -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
+      background: #f0f0f0;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      overflow: hidden;
+    }
+
+    .edit-shell {
+      display: flex;
+      height: 100vh;
+      min-height: 0;
+    }
+
+    .edit-main {
+      flex: 1;
+      min-width: 0;
+      padding: 1px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .edit-frame {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      background: #fafafa;
+      border: 1px solid #e6ebf0;
+      border-radius: 8px;
+      margin: 8px 0 8px 8px;
+      overflow: hidden;
+    }
+
+    .outline-aside {
+      width: 300px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 0.75px solid #e9e9e9;
+      display: flex;
+      flex-direction: column;
+    }
+    .outline-head {
+      height: 42px;
+      border-bottom: 0.75px solid #e9e9e9;
+      flex-shrink: 0;
+    }
+    .outline-body {
+      flex: 1;
+      overflow: auto;
+      padding: 12px 16px 16px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.65);
+    }
+    .outline-item {
+      padding: 6px 0;
+      border-bottom: 1px dashed #eee;
+      cursor: default;
+    }
+
+    .edit-center {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+
+    .meta-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 12px;
+      border-bottom: 0.75px solid #e6ebf0;
+      flex-shrink: 0;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px 4px 0;
+      color: #1470cc;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .meta-rest {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      min-height: 40px;
+    }
+    .meta-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 12px;
+    }
+    .meta-block:first-of-type { padding-left: 8px; }
+    .meta-label { font-size: 12px; color: #8c8c8c; }
+    .meta-val { font-size: 14px; color: rgba(0, 0, 0, 0.85); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meta-sep {
+      width: 1px;
+      height: 48px;
+      background: #e6ebf0;
+      margin: 0 4px;
+    }
+
+    .paper-wrap {
+      flex: 1;
+      overflow: auto;
+      padding: 16px;
+      min-height: 0;
+    }
+    .paper {
+      max-width: 1344px;
+      margin: 0 auto;
+      min-height: 480px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+      padding: 32px 40px;
+      line-height: 1.75;
+      font-size: 15px;
+      outline: none;
+    }
+    .paper:focus { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(24, 144, 255, 0.2); }
+
+    .edit-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-top: 0.75px solid #e9e9e9;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    .word-count {
+      font-size: 14px;
+      color: #b8c0cc;
+    }
+    .word-count strong { color: #b8c0cc; font-weight: 400; }
+    .footer-actions { display: flex; gap: 8px; }
+    .btn {
+      height: 32px;
+      padding: 0 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      font-family: inherit;
+    }
+    .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+    .btn-primary:hover { opacity: 0.9; }
+
+    /* 右侧 · 智能审校 + 竖向工具条 */
+    .edit-right {
+      display: flex;
+      flex-shrink: 0;
+      align-self: stretch;
+      padding: 8px 8px 8px 12px;
+      gap: 0;
+    }
+
+    .review-panel {
+      width: min(554px, 36vw);
+      min-width: 280px;
+      display: flex;
+      flex-direction: column;
+      background: #fafafa;
+      border: 1px solid #e6ebf0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .review-head {
+      height: 56px;
+      padding: 0 12px;
+      border-bottom: 0.75px solid #e6ebf0;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 500;
+      color: #1f2533;
+      flex-shrink: 0;
+    }
+    .review-tabs {
+      display: flex;
+      gap: 50px;
+      padding: 0 25px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fff;
+    }
+    .review-tab {
+      padding: 8px 0 10px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+    }
+    .review-tab.active { color: #1890ff; font-weight: 500; border-bottom: 2px solid #1890ff; margin-bottom: -1px; }
+    .review-body {
+      flex: 1;
+      overflow: auto;
+      padding: 12px;
+      background: #fff;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.65);
+      min-height: 120px;
+    }
+    .review-hint { color: #bfbfbf; text-align: center; padding: 24px 8px; }
+
+    .tool-rail {
+      width: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+      gap: 4px;
+      background: #fafafa;
+      border: 1px solid #e6ebf0;
+      border-radius: 8px;
+      margin-left: 8px;
+    }
+    .tool-btn {
+      width: 56px;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: none;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
+      cursor: pointer;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.85);
+      font-family: inherit;
+      padding: 6px 4px;
+      margin-bottom: 4px;
+    }
+    .tool-btn:hover { background: #f5f5f5; }
+    .tool-btn.active { background: #f0f5ff; }
+    .tool-btn .ico { font-size: 18px; line-height: 1; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      z-index: 99;
+    }
+  </style>
+</head>
+<body>
+  <div class="edit-shell">
+    <div class="edit-main">
+      <div class="edit-frame">
+        <aside class="outline-aside">
+          <div class="outline-head"></div>
+          <div class="outline-body" id="outlineBody">
+            <div class="outline-item">1. 概述</div>
+            <div class="outline-item">2. 技术要求</div>
+            <div class="outline-item">3. 验收标准</div>
+          </div>
+        </aside>
+        <div class="edit-center">
+          <div class="meta-toolbar">
+            <a class="back-link" href="index.html">← 返回</a>
+            <div class="meta-rest" id="metaRest"></div>
+          </div>
+          <div class="paper-wrap">
+            <div class="paper" id="editor" contenteditable="true" spellcheck="false"></div>
+          </div>
+          <div class="edit-footer">
+            <div class="word-count">字数：<strong id="wcDisplay">0</strong></div>
+            <div class="footer-actions">
+              <button type="button" class="btn" onclick="showToast('保存草稿（原型）')">保存草稿</button>
+              <button type="button" class="btn btn-primary" onclick="showToast('提交（原型）')">提交</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-right">
+      <div class="review-panel">
+        <div class="review-head">智能审校</div>
+        <div class="review-tabs">
+          <span class="review-tab active" onclick="switchReviewTab(0)">建议</span>
+          <span class="review-tab" onclick="switchReviewTab(1)">错别字</span>
+        </div>
+        <div class="review-body" id="reviewBody">
+          <p class="review-hint">暂无审校结果，保存后将自动分析文档。</p>
+        </div>
+      </div>
+      <div class="tool-rail" aria-label="写作工具">
+        <button type="button" class="tool-btn" onclick="showToast('格式刷')"><span class="ico">🖌</span>格式刷</button>
+        <button type="button" class="tool-btn" onclick="showToast('边写边搜')"><span class="ico">🔍</span>边写边搜</button>
+        <button type="button" class="tool-btn" onclick="showToast('文档展示')"><span class="ico">📄</span>文档展示</button>
+        <button type="button" class="tool-btn" onclick="showToast('金句素材')"><span class="ico">✨</span>金句素材</button>
+        <button type="button" class="tool-btn" onclick="showToast('范文素材')"><span class="ico">📑</span>范文素材</button>
+        <button type="button" class="tool-btn active" onclick="showToast('智能审校')"><span class="ico">✓</span>智能审校</button>
+        <button type="button" class="tool-btn" onclick="showToast('全文溯源')"><span class="ico">🔗</span>全文溯源</button>
+        <button type="button" class="tool-btn" onclick="showToast('模版套用')"><span class="ico">📋</span>模版套用</button>
+        <button type="button" class="tool-btn" onclick="showToast('历史报告')"><span class="ico">📊</span>历史报告</button>
+        <button type="button" class="tool-btn" onclick="showToast('历史版本')"><span class="ico">🕐</span>历史版本</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var raw = sessionStorage.getItem('editDocPayload');
+      if (!raw) {
+        location.href = 'index.html';
+        return;
+      }
+      var doc = {};
+      try {
+        doc = JSON.parse(raw);
+      } catch (e) {
+        location.href = 'index.html';
+        return;
+      }
+
+      function escapeHtml(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      var meta = document.getElementById('metaRest');
+      meta.innerHTML =
+        '<div class="meta-block"><span class="meta-label">标题</span><span class="meta-val" title="' + escapeHtml(doc.name) + '">' + escapeHtml(doc.name) + '</span></div>' +
+        '<span class="meta-sep"></span>' +
+        '<div class="meta-block"><span class="meta-label">一级类型</span><span class="meta-val">' + escapeHtml(doc.level1) + '</span></div>' +
+        '<span class="meta-sep"></span>' +
+        '<div class="meta-block"><span class="meta-label">二级类型</span><span class="meta-val">' + escapeHtml(doc.level2) + '</span></div>' +
+        '<span class="meta-sep"></span>' +
+        '<div class="meta-block"><span class="meta-label">模板名称</span><span class="meta-val">' + escapeHtml(doc.templateName) + '</span></div>';
+
+      var placeholder =
+        '<p><strong>' + escapeHtml(doc.name || '未命名文档') + '</strong></p>' +
+        '<p>（原型编辑区）此处为正文占位，可在此输入或粘贴「技术规范书」相关内容。</p>' +
+        '<p>智能审校、右侧工具条与底部字数统计为界面示意，与 <a href="https://www.figma.com/design/03CYRvbMSAt8nM6lyzpPbO/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83%E4%B9%A6%E7%A8%BD%E6%A0%B8?node-id=2-188" target="_blank" rel="noopener">Figma 设计稿</a> 布局对齐。</p>';
+      var ed = document.getElementById('editor');
+      ed.innerHTML = placeholder;
+
+      function countWords() {
+        var t = ed.innerText || '';
+        return t.replace(/\s/g, '').length;
+      }
+
+      function updateWc() {
+        var n = countWords();
+        document.getElementById('wcDisplay').textContent = n;
+      }
+
+      ed.addEventListener('input', updateWc);
+      updateWc();
+
+      window.switchReviewTab = function (i) {
+        var tabs = document.querySelectorAll('.review-tab');
+        tabs.forEach(function (el, j) {
+          el.classList.toggle('active', j === i);
+        });
+        document.getElementById('reviewBody').innerHTML =
+          i === 0
+            ? '<p class="review-hint">暂无修改建议。</p>'
+            : '<p class="review-hint">未发现错别字。</p>';
+      };
+
+      window.showToast = function (msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(function () {
+          t.style.display = 'none';
+        }, 2200);
+      };
+    })();
+  </script>
+</body>
+</html>

@@ -545,10 +545,13 @@ function goPptAudit(id) {
 }
 
 function editDoc(id) {
-  var doc = docs.find(function (d) { return d.id === id; });
-  if (!doc || doc.kind !== 'word') return;
-  sessionStorage.setItem('editorDoc', JSON.stringify(doc));
-  location.href = 'word-edit.html';
+  const doc = docs.find(d => d.id === id);
+  if (!doc || doc.kind !== 'word') {
+    showToast('仅 Word 文稿支持该编辑页');
+    return;
+  }
+  sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
+  location.href = 'doc-edit.html';
 }
 
 function goHistory(id) {
