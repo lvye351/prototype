@@ -1020,10 +1020,9 @@
 
       window.downloadReviewReportExcel = function () {
         var exportTime = new Date().toLocaleString('zh-CN', { hour12: false });
-        var fname = doc.name || '';
         var html = buildReviewReportExcelHtml({
-          docTitle: fname.replace(/\.(docx|doc)$/i, '') || fname,
-          fileName: fname,
+          docTitle: coverTitle,
+          fileName: doc.name || '',
           exportTime: exportTime
         }, getReviewReportRows());
         var blob = new Blob(['\uFEFF', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
