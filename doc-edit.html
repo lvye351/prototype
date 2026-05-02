@@ -967,11 +967,9 @@
 
       function buildReviewReportExcelHtml(meta, rows) {
         var esc = escapeHtml;
-        var fn = meta.fileName || meta.docTitle || '';
         var rowHtml = rows.map(function (r, i) {
           return '<tr>' +
             '<td class="col-no">' + (i + 1) + '</td>' +
-            '<td class="col-fn">' + esc(fn) + '</td>' +
             '<td>' + esc(r.category) + '</td>' +
             '<td>' + esc(r.match) + '</td>' +
             '<td>' + esc(r.issue) + '</td>' +
@@ -994,16 +992,15 @@
 'table.data-grid tbody td.col-no { text-align: center; vertical-align: middle; }\n' +
 'table.data-grid .col-no { width: 48px; }\n' +
 'table.data-grid th.col-no { text-align: center; }\n' +
-'table.data-grid .col-fn { width: 220px; }\n' +
 '</style>\n</head>\n<body>\n' +
 '<table class="meta-info">\n' +
 '<tr><td colspan="2" class="meta-title">' + esc('智能审校报告') + '</td></tr>\n' +
 '<tr><td class="meta-lbl">' + esc('文档标题') + '</td><td class="meta-val">' + esc(meta.docTitle) + '</td></tr>\n' +
+'<tr><td class="meta-lbl">' + esc('文件名') + '</td><td class="meta-val">' + esc(meta.fileName || '') + '</td></tr>\n' +
 '<tr><td class="meta-lbl">' + esc('导出时间') + '</td><td class="meta-val">' + esc(meta.exportTime) + '</td></tr>\n' +
 '</table>\n' +
 '<table class="data-grid">\n<thead>\n<tr>' +
 '<th class="col-no">' + esc('序号') + '</th>' +
-'<th class="col-fn">' + esc('文件名') + '</th>' +
 '<th style="width:140px;">' + esc('类型') + '</th>' +
 '<th style="width:100px;">' + esc('匹配文本') + '</th>' +
 '<th>' + esc('问题') + '</th>' +
@@ -1023,9 +1020,10 @@
 
       window.downloadReviewReportExcel = function () {
         var exportTime = new Date().toLocaleString('zh-CN', { hour12: false });
+        var fname = doc.name || '';
         var html = buildReviewReportExcelHtml({
-          docTitle: doc.name || '',
-          fileName: doc.name || '',
+          docTitle: fname.replace(/\.(docx|doc)$/i, '') || fname,
+          fileName: fname,
           exportTime: exportTime
         }, getReviewReportRows());
         var blob = new Blob(['\uFEFF', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
