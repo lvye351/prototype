@@ -4,23 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>文档编辑 · 智能写作</title>
-  <!-- UI 参考 Figma node 2-188 https://www.figma.com/design/03CYRvbMSAt8nM6lyzpPbO/技术规范书稽核?node-id=2-188 -->
+  <!-- 稿：Figma file 03CYRvbMSAt8nM6lyzpPbO · Section 2:188 · 工具条取 2:620 · 智能审校侧栏取 2:878 -->
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
+      font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f0f0f0;
       color: rgba(0, 0, 0, 0.85);
       font-size: 14px;
       overflow: hidden;
     }
 
-    .edit-shell {
-      display: flex;
-      height: 100vh;
-      min-height: 0;
-    }
+    .edit-shell { display: flex; height: 100vh; min-height: 0; }
 
     .edit-main {
       flex: 1;
@@ -49,11 +45,7 @@
       display: flex;
       flex-direction: column;
     }
-    .outline-head {
-      height: 42px;
-      border-bottom: 0.75px solid #e9e9e9;
-      flex-shrink: 0;
-    }
+    .outline-head { height: 42px; border-bottom: 0.75px solid #e9e9e9; flex-shrink: 0; }
     .outline-body {
       flex: 1;
       overflow: auto;
@@ -62,7 +54,7 @@
       color: rgba(0, 0, 0, 0.65);
     }
     .outline-item {
-      padding: 6px 0;
+      padding: 8px 0;
       border-bottom: 1px dashed #eee;
       cursor: default;
     }
@@ -75,43 +67,131 @@
       background: #fff;
     }
 
-    .meta-toolbar {
+    /* —— 顶栏工具条 · 对齐 Figma 2:620 —— */
+    .ribbon-bar {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 0;
+      gap: 8px;
       padding: 12px;
       border-bottom: 0.75px solid #e6ebf0;
       flex-shrink: 0;
+      background: #fff;
     }
-    .back-link {
+    .ico-back {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       padding: 4px 8px 4px 0;
-      color: #1470cc;
+      color: #1890ff;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 18px;
+      line-height: 1;
     }
-    .back-link:hover { text-decoration: underline; }
-    .meta-rest {
-      flex: 1;
-      display: flex;
+    .ico-back:hover { opacity: 0.85; }
+
+    .btn-doc {
+      display: inline-flex;
       align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.85);
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
+    }
+    .btn-doc:hover { border-color: #1890ff; color: #1890ff; }
+
+    .vsep {
+      width: 1px;
+      height: 24px;
+      background: #e6ebf0;
+      margin: 0 4px;
+    }
+
+    .sel {
+      height: 32px;
+      padding: 0 28px 0 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      font-family: inherit;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    .sel.sm { min-width: 72px; }
+
+    .fmt-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
       flex-wrap: wrap;
+    }
+    .fmt {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    .fmt:hover { background: #f5f5f5; }
+    .fmt.on { background: #e6f7ff; color: #1890ff; }
+
+    .grow { flex: 1; min-width: 8px; }
+
+    .ico-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .ico-btn:hover { background: #fafafa; }
+
+    /* 属性条（标题 / 类型 / 模板） */
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
       gap: 0;
-      min-height: 40px;
+      padding: 8px 12px 10px;
+      border-bottom: 0.75px solid #f0f0f0;
+      flex-shrink: 0;
+      background: #fff;
     }
     .meta-block {
       display: flex;
       flex-direction: column;
       gap: 4px;
       padding: 0 12px;
+      justify-content: center;
     }
-    .meta-block:first-of-type { padding-left: 8px; }
+    .meta-block:first-child { padding-left: 4px; }
     .meta-label { font-size: 12px; color: #8c8c8c; }
-    .meta-val { font-size: 14px; color: rgba(0, 0, 0, 0.85); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .meta-val {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.85);
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     .meta-sep {
       width: 1px;
-      height: 48px;
+      align-self: stretch;
+      min-height: 40px;
       background: #e6ebf0;
       margin: 0 4px;
     }
@@ -121,21 +201,38 @@
       overflow: auto;
       padding: 16px;
       min-height: 0;
+      background: #fafafa;
     }
     .paper {
-      max-width: 1344px;
+      max-width: 900px;
       margin: 0 auto;
-      min-height: 480px;
+      min-height: 560px;
       background: #fff;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
-      padding: 32px 40px;
-      line-height: 1.75;
+      border-radius: 2px;
+      padding: 48px 56px 80px;
+      line-height: 1.8;
       font-size: 15px;
       outline: none;
     }
-    .paper:focus { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(24, 144, 255, 0.2); }
+    .paper:focus-visible { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(24, 144, 255, 0.25); }
 
+    .paper-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 48px;
+      line-height: 1.45;
+      color: rgba(0, 0, 0, 0.88);
+    }
+    .paper-foot {
+      margin-top: 64px;
+      text-align: center;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.65);
+    }
+
+    /* 底栏 · Figma Footer：仅字数 + 右侧图标位 */
     .edit-footer {
       display: flex;
       justify-content: space-between;
@@ -149,87 +246,182 @@
       font-size: 14px;
       color: #b8c0cc;
     }
-    .word-count strong { color: #b8c0cc; font-weight: 400; }
-    .footer-actions { display: flex; gap: 8px; }
-    .btn {
-      height: 32px;
-      padding: 0 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      border: 1px solid #d9d9d9;
-      background: #fff;
-      font-family: inherit;
+    .word-count strong {
+      font-weight: 400;
+      color: #b8c0cc;
     }
-    .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
-    .btn-primary:hover { opacity: 0.9; }
+    .footer-tools { display: flex; gap: 4px; }
 
-    /* 右侧 · 智能审校 + 竖向工具条 */
+    /* —— 右侧 · 智能审校 2:878 —— */
     .edit-right {
       display: flex;
       flex-shrink: 0;
       align-self: stretch;
       padding: 8px 8px 8px 12px;
-      gap: 0;
+      gap: 8px;
     }
 
     .review-panel {
-      width: min(554px, 36vw);
-      min-width: 280px;
+      width: min(520px, 38vw);
+      min-width: 300px;
       display: flex;
       flex-direction: column;
       background: #fafafa;
       border: 1px solid #e6ebf0;
       border-radius: 8px;
       overflow: hidden;
+      max-height: 100%;
     }
     .review-head {
       height: 56px;
       padding: 0 12px;
-      border-bottom: 0.75px solid #e6ebf0;
       display: flex;
       align-items: center;
       font-size: 16px;
       font-weight: 500;
       color: #1f2533;
+      border-bottom: 0.75px solid #e6ebf0;
       flex-shrink: 0;
+      background: #fafafa;
     }
+
     .review-tabs {
       display: flex;
-      gap: 50px;
-      padding: 0 25px;
-      border-bottom: 1px solid #f0f0f0;
+      flex-wrap: nowrap;
+      gap: 0;
+      padding: 0 8px;
       background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      overflow-x: auto;
+      flex-shrink: 0;
     }
     .review-tab {
-      padding: 8px 0 10px;
+      flex-shrink: 0;
+      padding: 12px 14px;
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.45);
+      color: rgba(0, 0, 0, 0.65);
       cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
     }
-    .review-tab.active { color: #1890ff; font-weight: 500; border-bottom: 2px solid #1890ff; margin-bottom: -1px; }
-    .review-body {
+    .review-tab:hover { color: #1890ff; }
+    .review-tab.active {
+      color: #1890ff;
+      font-weight: 500;
+      border-bottom-color: #1890ff;
+    }
+
+    .review-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+    .review-toolbar .lbl { color: rgba(0, 0, 0, 0.45); margin-right: 4px; }
+    .link-act {
+      border: none;
+      background: none;
+      color: #1890ff;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 2px 6px;
+      font-family: inherit;
+    }
+    .link-act:hover { text-decoration: underline; }
+    .mini-btn {
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .mini-btn:hover { border-color: #1890ff; color: #1890ff; }
+    .grow-r { flex: 1; }
+
+    .review-scroll {
       flex: 1;
       overflow: auto;
       padding: 12px;
       background: #fff;
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.65);
       min-height: 120px;
     }
-    .review-hint { color: #bfbfbf; text-align: center; padding: 24px 8px; }
+
+    .rv-card {
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+    .rv-card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .rv-card-head input { margin-top: 3px; }
+    .rv-type {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #fff7e6;
+      border: 1px solid #ffd591;
+      color: #d46b08;
+    }
+    .rv-line { font-size: 13px; margin-bottom: 8px; line-height: 1.55; color: rgba(0, 0, 0, 0.75); }
+    .rv-line .k { color: rgba(0, 0, 0, 0.45); margin-right: 4px; }
+    .rv-hit { color: #cf1322; font-weight: 600; }
+    .rv-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #e8e8e8;
+    }
+    .rv-actions .ignore {
+      height: 28px;
+      padding: 0 14px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .rv-actions .adopt {
+      height: 28px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 6px;
+      background: #1890ff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
 
     .tool-rail {
       width: 72px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 20px;
+      padding: 16px 0 12px;
       gap: 4px;
       background: #fafafa;
       border: 1px solid #e6ebf0;
       border-radius: 8px;
-      margin-left: 8px;
+      overflow-y: auto;
     }
     .tool-btn {
       width: 56px;
@@ -238,30 +430,30 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       border: none;
       border-radius: 8px;
       background: #fff;
       box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02);
       cursor: pointer;
-      font-size: 12px;
+      font-size: 11px;
       color: rgba(0, 0, 0, 0.85);
       font-family: inherit;
-      padding: 6px 4px;
-      margin-bottom: 4px;
+      padding: 6px 2px;
+      margin-bottom: 2px;
     }
     .tool-btn:hover { background: #f5f5f5; }
-    .tool-btn.active { background: #f0f5ff; }
-    .tool-btn .ico { font-size: 18px; line-height: 1; }
+    .tool-btn.active { background: #f0f5ff; color: #1890ff; }
+    .tool-btn .ico { font-size: 17px; line-height: 1; }
 
     .toast {
       position: fixed;
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.78);
       color: #fff;
-      padding: 10px 16px;
+      padding: 10px 18px;
       border-radius: 8px;
       font-size: 14px;
       display: none;
@@ -275,25 +467,55 @@
       <div class="edit-frame">
         <aside class="outline-aside">
           <div class="outline-head"></div>
-          <div class="outline-body" id="outlineBody">
+          <div class="outline-body">
             <div class="outline-item">1. 概述</div>
             <div class="outline-item">2. 技术要求</div>
             <div class="outline-item">3. 验收标准</div>
           </div>
         </aside>
+
         <div class="edit-center">
-          <div class="meta-toolbar">
-            <a class="back-link" href="index.html">← 返回</a>
-            <div class="meta-rest" id="metaRest"></div>
+          <div class="ribbon-bar">
+            <a class="ico-back" href="index.html" title="返回">←</a>
+            <button type="button" class="btn-doc" onclick="showToast('保存（原型）')">💾 保存</button>
+            <button type="button" class="btn-doc" onclick="showToast('导出（原型）')">📁 导出</button>
+            <span class="vsep"></span>
+            <select class="sel" title="字体">
+              <option selected>微软雅黑</option>
+              <option>宋体</option>
+              <option>黑体</option>
+            </select>
+            <select class="sel sm" title="字号">
+              <option>初号</option>
+              <option selected>小四</option>
+              <option>五号</option>
+            </select>
+            <span class="fmt-group">
+              <button type="button" class="fmt on" title="加粗"><strong>B</strong></button>
+              <button type="button" class="fmt" title="倾斜"><em>I</em></button>
+              <button type="button" class="fmt" title="下划线"><u>U</u></button>
+              <button type="button" class="fmt" title="删除线">S</button>
+            </span>
+            <select class="sel" style="min-width:88px" title="段落样式">
+              <option selected>正文</option>
+              <option>标题 1</option>
+              <option>标题 2</option>
+            </select>
+            <span class="grow"></span>
+            <button type="button" class="ico-btn" onclick="showToast('查找')" title="查找">🔍</button>
+            <button type="button" class="ico-btn" onclick="showToast('全屏')" title="全屏">⛶</button>
           </div>
+
+          <div class="meta-bar" id="metaRest"></div>
+
           <div class="paper-wrap">
             <div class="paper" id="editor" contenteditable="true" spellcheck="false"></div>
           </div>
+
           <div class="edit-footer">
-            <div class="word-count">字数：<strong id="wcDisplay">0</strong></div>
-            <div class="footer-actions">
-              <button type="button" class="btn" onclick="showToast('保存草稿（原型）')">保存草稿</button>
-              <button type="button" class="btn btn-primary" onclick="showToast('提交（原型）')">提交</button>
+            <span class="word-count">字数：<strong id="wcDisplay">0</strong></span>
+            <div class="footer-tools">
+              <button type="button" class="ico-btn" onclick="showToast('缩放')" title="视图">⊕</button>
             </div>
           </div>
         </div>
@@ -303,14 +525,56 @@
     <div class="edit-right">
       <div class="review-panel">
         <div class="review-head">智能审校</div>
-        <div class="review-tabs">
-          <span class="review-tab active" onclick="switchReviewTab(0)">建议</span>
-          <span class="review-tab" onclick="switchReviewTab(1)">错别字</span>
+        <div class="review-tabs" role="tablist">
+          <button type="button" class="review-tab active" data-i="0">全部检测</button>
+          <button type="button" class="review-tab" data-i="1">规范检测</button>
+          <button type="button" class="review-tab" data-i="2">安全检测</button>
+          <button type="button" class="review-tab" data-i="3">风格检测</button>
+          <button type="button" class="review-tab" data-i="4">逻辑检测</button>
         </div>
-        <div class="review-body" id="reviewBody">
-          <p class="review-hint">暂无审校结果，保存后将自动分析文档。</p>
+        <div class="review-toolbar">
+          <span class="lbl">审校结果</span>
+          <button type="button" class="link-act" onclick="showToast('全部高亮')">全部高亮</button>
+          <button type="button" class="link-act" onclick="showToast('重新审校')">重新审校</button>
+          <span class="grow-r"></span>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(0,0,0,.65);cursor:pointer;">
+            <input type="checkbox" /> 全选
+          </label>
+          <button type="button" class="mini-btn" onclick="showToast('批量采纳')">批量采纳</button>
+          <button type="button" class="mini-btn" onclick="showToast('批量忽略')">批量忽略</button>
+        </div>
+        <div class="review-scroll" id="reviewScroll">
+          <!-- 文案结构来自 Figma 导出节点中的「匹配文本 / 违规原因 / 修改建议 / 修改结果」 -->
+          <div class="rv-card">
+            <div class="rv-card-head">
+              <input type="checkbox" />
+              <span class="rv-type">数字表达异常</span>
+            </div>
+            <div class="rv-line"><span class="k">匹配文本：</span><span class="rv-hit">1.2</span></div>
+            <div class="rv-line"><span class="k">违规原因：</span>数字表达异常，「1.2」未明确单位或含义，表达不完整。</div>
+            <div class="rv-line"><span class="k">修改建议：</span>建议补充完整表达为「1.2」或「1.2倍」等具体含义。</div>
+            <div class="rv-line"><span class="k">修改结果：</span>1.2倍</div>
+            <div class="rv-actions">
+              <button type="button" class="ignore" onclick="showToast('已忽略')">忽略</button>
+              <button type="button" class="adopt" onclick="showToast('已采纳')">采纳</button>
+            </div>
+          </div>
+          <div class="rv-card">
+            <div class="rv-card-head">
+              <input type="checkbox" />
+              <span class="rv-type">数字表达异常</span>
+            </div>
+            <div class="rv-line"><span class="k">匹配文本：</span><span class="rv-hit">1.3</span></div>
+            <div class="rv-line"><span class="k">违规原因：</span>数字表达异常，「1.3」未明确单位或含义，无法判断其具体所指。</div>
+            <div class="rv-line"><span class="k">修改建议：</span>建议补全为「1.3」或明确其含义，如「1.3倍」「1.3米」等。</div>
+            <div class="rv-actions">
+              <button type="button" class="ignore" onclick="showToast('已忽略')">忽略</button>
+              <button type="button" class="adopt" onclick="showToast('已采纳')">采纳</button>
+            </div>
+          </div>
         </div>
       </div>
+
       <div class="tool-rail" aria-label="写作工具">
         <button type="button" class="tool-btn" onclick="showToast('格式刷')"><span class="ico">🖌</span>格式刷</button>
         <button type="button" class="tool-btn" onclick="showToast('边写边搜')"><span class="ico">🔍</span>边写边搜</button>
@@ -349,8 +613,7 @@
           .replace(/"/g, '&quot;');
       }
 
-      var meta = document.getElementById('metaRest');
-      meta.innerHTML =
+      document.getElementById('metaRest').innerHTML =
         '<div class="meta-block"><span class="meta-label">标题</span><span class="meta-val" title="' + escapeHtml(doc.name) + '">' + escapeHtml(doc.name) + '</span></div>' +
         '<span class="meta-sep"></span>' +
         '<div class="meta-block"><span class="meta-label">一级类型</span><span class="meta-val">' + escapeHtml(doc.level1) + '</span></div>' +
@@ -359,45 +622,40 @@
         '<span class="meta-sep"></span>' +
         '<div class="meta-block"><span class="meta-label">模板名称</span><span class="meta-val">' + escapeHtml(doc.templateName) + '</span></div>';
 
-      var placeholder =
-        '<p><strong>' + escapeHtml(doc.name || '未命名文档') + '</strong></p>' +
-        '<p>（原型编辑区）此处为正文占位，可在此输入或粘贴「技术规范书」相关内容。</p>' +
-        '<p>智能审校、右侧工具条与底部字数统计为界面示意，与 <a href="https://www.figma.com/design/03CYRvbMSAt8nM6lyzpPbO/%E6%8A%80%E6%9C%AF%E8%A7%84%E8%8C%83%E4%B9%A6%E7%A8%BD%E6%A0%B8?node-id=2-188" target="_blank" rel="noopener">Figma 设计稿</a> 布局对齐。</p>';
-      var ed = document.getElementById('editor');
-      ed.innerHTML = placeholder;
+      var shortTitle = (doc.name || '技术规范书').replace(/\.(docx|doc)$/i, '');
+      document.getElementById('editor').innerHTML =
+        '<div class="paper-title">' + escapeHtml(shortTitle) + '</div>' +
+        '<p>第一章　概述</p><p>本章说明项目建设背景、编制依据及适用范围……</p>' +
+        '<p>第二章　技术要求</p><p>设备性能指标应满足国家及行业相关标准……</p>';
 
-      function countWords() {
-        var t = ed.innerText || '';
+      function countChars() {
+        var t = document.getElementById('editor').innerText || '';
         return t.replace(/\s/g, '').length;
       }
 
       function updateWc() {
-        var n = countWords();
-        document.getElementById('wcDisplay').textContent = n;
+        document.getElementById('wcDisplay').textContent = countChars();
       }
 
-      ed.addEventListener('input', updateWc);
+      document.getElementById('editor').addEventListener('input', updateWc);
       updateWc();
 
-      window.switchReviewTab = function (i) {
-        var tabs = document.querySelectorAll('.review-tab');
-        tabs.forEach(function (el, j) {
-          el.classList.toggle('active', j === i);
+      document.querySelectorAll('.review-tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var i = btn.getAttribute('data-i');
+          document.querySelectorAll('.review-tab').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-i') === i);
+          });
+          showToast('切换：' + btn.textContent.trim());
         });
-        document.getElementById('reviewBody').innerHTML =
-          i === 0
-            ? '<p class="review-hint">暂无修改建议。</p>'
-            : '<p class="review-hint">未发现错别字。</p>';
-      };
+      });
 
       window.showToast = function (msg) {
         var t = document.getElementById('toast');
         t.textContent = msg;
         t.style.display = 'block';
-        clearTimeout(window._toastTimer);
-        window._toastTimer = setTimeout(function () {
-          t.style.display = 'none';
-        }, 2200);
+        clearTimeout(window.__tt);
+        window.__tt = setTimeout(function () { t.style.display = 'none'; }, 2000);
       };
     })();
   </script>
