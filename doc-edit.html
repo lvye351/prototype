@@ -347,13 +347,22 @@
 
     .review-toolbar {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
+      flex-direction: column;
+      gap: 10px;
       padding: 10px 12px;
       background: #fff;
       border-bottom: 1px solid #f0f0f0;
       font-size: 13px;
+    }
+    .review-toolbar-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .review-toolbar-row--batch {
+      justify-content: flex-end;
+      padding-top: 2px;
     }
     .review-toolbar .lbl { color: rgba(0, 0, 0, 0.45); margin-right: 4px; }
     .link-act {
@@ -377,7 +386,14 @@
       font-family: inherit;
     }
     .mini-btn:hover { border-color: #1890ff; color: #1890ff; }
-    .grow-r { flex: 1; }
+    .batch-select-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.65);
+      cursor: pointer;
+    }
 
     .review-scroll {
       flex: 1;
@@ -388,12 +404,15 @@
     }
 
     .rv-card {
+      display: flex;
+      flex-direction: column;
       border: 1px solid #f0f0f0;
       border-radius: 8px;
       padding: 12px;
       margin-bottom: 12px;
       background: #fafafa;
     }
+    .rv-body { flex: 1; min-height: 0; }
     .rv-card-head {
       display: flex;
       align-items: flex-start;
@@ -415,20 +434,28 @@
     .rv-actions {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
       gap: 8px;
-      margin-top: 12px;
-      padding-top: 10px;
+      width: 100%;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px dashed #e8e8e8;
+      flex-shrink: 0;
     }
     .rv-actions .ignore {
       height: 28px;
       padding: 0 14px;
-      border: 1px solid #d9d9d9;
+      border: 1px solid #1890ff;
       border-radius: 6px;
       background: #fff;
+      color: #1890ff;
       cursor: pointer;
       font-size: 13px;
       font-family: inherit;
+    }
+    .rv-actions .ignore:hover {
+      border-color: #40a9ff;
+      color: #40a9ff;
     }
     .rv-actions .adopt {
       height: 28px;
@@ -565,27 +592,32 @@
           <button type="button" class="review-tab" data-i="4">逻辑检测</button>
         </div>
         <div class="review-toolbar">
-          <span class="lbl">审校结果</span>
-          <button type="button" class="link-act" onclick="showToast('全部高亮')">全部高亮</button>
-          <button type="button" class="link-act" onclick="showToast('重新审校')">重新审校</button>
-          <span class="grow-r"></span>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(0,0,0,.65);cursor:pointer;">
-            <input type="checkbox" /> 全选
-          </label>
-          <button type="button" class="mini-btn" onclick="showToast('批量采纳')">批量采纳</button>
-          <button type="button" class="mini-btn" onclick="showToast('批量忽略')">批量忽略</button>
+          <div class="review-toolbar-row">
+            <span class="lbl">审校结果</span>
+            <button type="button" class="link-act" onclick="showToast('全部高亮')">全部高亮</button>
+            <button type="button" class="link-act" onclick="showToast('重新审校')">重新审校</button>
+          </div>
+          <div class="review-toolbar-row review-toolbar-row--batch">
+            <label class="batch-select-all">
+              <input type="checkbox" /> 全选
+            </label>
+            <button type="button" class="mini-btn" onclick="showToast('批量采纳')">批量采纳</button>
+            <button type="button" class="mini-btn" onclick="showToast('批量忽略')">批量忽略</button>
+          </div>
         </div>
         <div class="review-scroll" id="reviewScroll">
           <!-- 文案结构来自 Figma 导出节点中的「匹配文本 / 违规原因 / 修改建议 / 修改结果」 -->
           <div class="rv-card">
             <div class="rv-card-head">
               <input type="checkbox" />
-              <span class="rv-type">数字表达异常</span>
+              <span class="rv-type">类型：数字表达异常</span>
             </div>
-            <div class="rv-line"><span class="k">匹配文本：</span><span class="rv-hit">1.2</span></div>
-            <div class="rv-line"><span class="k">违规原因：</span>数字表达异常，「1.2」未明确单位或含义，表达不完整。</div>
-            <div class="rv-line"><span class="k">修改建议：</span>建议补充完整表达为「1.2」或「1.2倍」等具体含义。</div>
-            <div class="rv-line"><span class="k">修改结果：</span>1.2倍</div>
+            <div class="rv-body">
+              <div class="rv-line"><span class="k">匹配文本：</span><span class="rv-hit">1.2</span></div>
+              <div class="rv-line"><span class="k">违规原因：</span>数字表达异常，「1.2」未明确单位或含义，表达不完整。</div>
+              <div class="rv-line"><span class="k">修改建议：</span>建议补充完整表达为「1.2」或「1.2倍」等具体含义。</div>
+              <div class="rv-line"><span class="k">修改结果：</span>1.2倍</div>
+            </div>
             <div class="rv-actions">
               <button type="button" class="ignore" onclick="showToast('已忽略')">忽略</button>
               <button type="button" class="adopt" onclick="showToast('已采纳')">采纳</button>
@@ -594,11 +626,13 @@
           <div class="rv-card">
             <div class="rv-card-head">
               <input type="checkbox" />
-              <span class="rv-type">数字表达异常</span>
+              <span class="rv-type">类型：数字表达异常</span>
             </div>
-            <div class="rv-line"><span class="k">匹配文本：</span><span class="rv-hit">1.3</span></div>
-            <div class="rv-line"><span class="k">违规原因：</span>数字表达异常，「1.3」未明确单位或含义，无法判断其具体所指。</div>
-            <div class="rv-line"><span class="k">修改建议：</span>建议补全为「1.3」或明确其含义，如「1.3倍」「1.3米」等。</div>
+            <div class="rv-body">
+              <div class="rv-line"><span class="k">匹配文本：</span><span class="rv-hit">1.3</span></div>
+              <div class="rv-line"><span class="k">违规原因：</span>数字表达异常，「1.3」未明确单位或含义，无法判断其具体所指。</div>
+              <div class="rv-line"><span class="k">修改建议：</span>建议补全为「1.3」或明确其含义，如「1.3倍」「1.3米」等。</div>
+            </div>
             <div class="rv-actions">
               <button type="button" class="ignore" onclick="showToast('已忽略')">忽略</button>
               <button type="button" class="adopt" onclick="showToast('已采纳')">采纳</button>
