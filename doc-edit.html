@@ -363,15 +363,6 @@
       color: rgba(0, 0, 0, 0.45);
       font-size: 12px;
     }
-    .review-template-meta {
-      max-width: 54%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: 12px;
-      color: #8c8c8c;
-      text-align: right;
-    }
     .tpl-mask {
       position: fixed;
       inset: 0;
@@ -401,73 +392,95 @@
       color: #20262e;
     }
     .tpl-modal-body { padding: 12px 16px 0; }
-    .tpl-search {
-      width: 100%;
-      height: 42px;
-      border: 1px solid #8dc5f8;
-      border-radius: 6px;
-      padding: 0 12px;
-      font-family: inherit;
-      font-size: 13px;
-      outline: none;
-    }
-    .tpl-search:focus {
-      border-color: #5caef6;
-      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.18);
-    }
-    .tpl-list {
-      margin-top: 10px;
-      max-height: 340px;
-      overflow: auto;
-      border: 1px solid #e9edf2;
-      border-radius: 6px;
-      background: #fff;
-    }
-    .tpl-item {
+    .tpl-toolbar {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 9px 12px;
-      min-height: 40px;
-      border-bottom: 1px solid #f1f3f5;
-      cursor: pointer;
+      flex-wrap: wrap;
     }
-    .tpl-item:last-child { border-bottom: none; }
-    .tpl-item:hover { background: #fafcff; }
-    .tpl-item.active {
-      background: #d9f3ff;
-      outline: 1px solid #a9dbfb;
-      outline-offset: -1px;
-    }
-    .tpl-dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 1px solid #d0d5dc;
-      position: relative;
-      flex-shrink: 0;
+    .tpl-search {
+      flex: 1;
+      min-width: 160px;
+      height: 32px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 10px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
       background: #fff;
     }
-    .tpl-item.active .tpl-dot {
-      border-color: #1890ff;
+    .tpl-search:focus {
+      border-color: #40a9ff;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.14);
     }
-    .tpl-item.active .tpl-dot::after {
-      content: '';
-      position: absolute;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #1890ff;
-      top: 2.5px;
-      left: 2.5px;
+    .tpl-filter {
+      width: 148px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      color: rgba(0, 0, 0, 0.85);
+      background: #fff;
+      cursor: pointer;
     }
-    .tpl-text {
-      min-width: 0;
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.88);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .tpl-filter:focus {
+      border-color: #40a9ff;
+      outline: none;
+    }
+    .tpl-table-wrap {
+      margin-top: 10px;
+      max-height: 320px;
+      overflow: auto;
+      border: 1px solid #e8e8e8;
+      border-radius: 4px;
+      background: #fff;
+    }
+    .tpl-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+    .tpl-table thead th {
+      background: #fafafa;
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .tpl-table thead th.col-radio { width: 44px; text-align: center; }
+    .tpl-table thead th:nth-child(2) { width: 36%; }
+    .tpl-table thead th:nth-child(3) { width: 28%; }
+    .tpl-table thead th:nth-child(4) { width: 28%; }
+    .tpl-row {
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .tpl-row:last-child td { border-bottom: none; }
+    .tpl-row:hover td { background: #fafafa; }
+    .tpl-row.active td {
+      background: #e6f7ff;
+    }
+    .tpl-table td {
+      padding: 9px 12px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f0f0f0;
+      word-break: break-all;
+    }
+    .tpl-table td.col-radio-cell {
+      text-align: center;
+      width: 44px;
+    }
+    .tpl-radio {
+      width: 14px;
+      height: 14px;
+      accent-color: #1890ff;
+      cursor: pointer;
+      margin: 0;
     }
     .tpl-empty {
       padding: 18px 12px;
@@ -803,7 +816,6 @@
               <span class="txt" id="reviewTemplateText"></span>
               <span class="arr">▼</span>
             </button>
-            <span class="review-template-meta" id="reviewTemplateMeta"></span>
           </div>
           <div class="review-toolbar-row review-toolbar-row--primary">
             <span class="lbl">审校结果</span>
@@ -1052,8 +1064,28 @@
     <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择Word文体模板">
       <div class="tpl-modal-head">选择Word文体模板</div>
       <div class="tpl-modal-body">
-        <input id="tplSearch" class="tpl-search" placeholder="输入模板名称/类型/模板类型筛选" />
-        <div class="tpl-list" id="tplList"></div>
+        <div class="tpl-toolbar">
+          <input id="tplSearch" class="tpl-search" placeholder="请输入模板名称" autocomplete="off" />
+          <select id="tplCategoryFilter" class="tpl-filter" title="按类型筛选">
+            <option value="">全部</option>
+            <option value="系统内置文体">系统内置文体</option>
+            <option value="部门文体">部门文体</option>
+            <option value="企业文体">企业文体</option>
+          </select>
+        </div>
+        <div class="tpl-table-wrap">
+          <table class="tpl-table">
+            <thead>
+              <tr>
+                <th class="col-radio"></th>
+                <th>模板名称</th>
+                <th>类型</th>
+                <th>模板类型</th>
+              </tr>
+            </thead>
+            <tbody id="tplList"></tbody>
+          </table>
+        </div>
       </div>
       <div class="tpl-modal-foot">
         <button type="button" class="tpl-btn" id="tplCancel">取消</button>
@@ -1186,80 +1218,80 @@
       })();
 
       var reviewTemplatePool = [
-        { name: '项目建议书-lh-lh', docType: '系统内置文件', tplType: '工作_工作', hasOutline: '无', enabled: '开启' },
-        { name: '技术规范书', docType: '系统内置文件', tplType: '工作_工作', hasOutline: '有', enabled: '开启' },
-        { name: '报告请用模板', docType: '系统内置文件', tplType: 'BI数据类型', hasOutline: '有', enabled: '开启' },
-        { name: '月底运营看报', docType: '系统内置文件', tplType: 'BI数据类型', hasOutline: '有', enabled: '开启' },
-        { name: '浩然科技工作报告', docType: '企业文件', tplType: '工作_工作', hasOutline: '无', enabled: '开启' },
-        { name: '铁塔-环保行业报告', docType: '系统内置文件', tplType: '报告', hasOutline: '无', enabled: '开启' },
-        { name: '浙江copy69有大纲', docType: '企业文件', tplType: '报告', hasOutline: '有', enabled: '开启' },
-        { name: '产品解决方案报告', docType: '企业文件', tplType: '工作报告', hasOutline: '有', enabled: '开启' }
+        { id: '1', name: '项目建议书', docType: '企业文体', tplType: '报告' },
+        { id: '2', name: '技术规范书', docType: '系统内置文体', tplType: '报告' },
+        { id: '3', name: '企业工作计划', docType: '企业文体', tplType: '工作' },
+        { id: '4', name: '课题研究类通知', docType: '系统内置文体', tplType: '通知' },
+        { id: '5', name: '内部培训', docType: '部门文体', tplType: '讲话' },
+        { id: '6', name: '月度运营通报', docType: '企业文体', tplType: '报告' },
+        { id: '7', name: '报告通用模板', docType: '系统内置文体', tplType: '报告' },
+        { id: '8', name: '采购方案说明', docType: '部门文体', tplType: '工作' }
       ];
 
       var reviewTemplateTrigger = document.getElementById('reviewTemplateTrigger');
       var reviewTemplateText = document.getElementById('reviewTemplateText');
-      var reviewTemplateMeta = document.getElementById('reviewTemplateMeta');
       var tplMask = document.getElementById('tplMask');
       var tplSearch = document.getElementById('tplSearch');
+      var tplCategoryFilter = document.getElementById('tplCategoryFilter');
       var tplList = document.getElementById('tplList');
       var tplCancel = document.getElementById('tplCancel');
       var tplConfirm = document.getElementById('tplConfirm');
       var selectedTemplate = reviewTemplatePool[0];
       var pendingTemplate = selectedTemplate;
 
-      function optionText(t) {
-        return t.name + '｜' + t.docType + '｜' + t.tplType + '｜' + t.enabled;
+      function renderTemplateHeader(t) {
+        reviewTemplateText.textContent = t.name;
       }
 
-      function matchTemplates(keyword) {
-        var key = String(keyword || '').trim().toLowerCase();
-        if (!key) return reviewTemplatePool.slice();
+      function getFilteredTemplates() {
+        var keyword = String(tplSearch ? tplSearch.value : '').trim().toLowerCase();
+        var cat = tplCategoryFilter ? tplCategoryFilter.value : '';
         return reviewTemplatePool.filter(function (t) {
-          return (t.name + ' ' + t.docType + ' ' + t.tplType + ' ' + t.enabled).toLowerCase().indexOf(key) !== -1;
+          if (cat && t.docType !== cat) return false;
+          if (!keyword) return true;
+          var blob = (t.name + ' ' + t.docType + ' ' + t.tplType).toLowerCase();
+          return blob.indexOf(keyword) !== -1;
         });
       }
 
-      function renderTemplateHeader(t) {
-        reviewTemplateText.textContent = optionText(t);
-        reviewTemplateMeta.textContent = t.hasOutline + '大纲｜' + t.docType + '｜' + t.tplType + '｜' + t.enabled;
-      }
-
-      function renderTemplateList(keyword) {
-        var matched = matchTemplates(keyword);
+      function renderTemplateList() {
+        var matched = getFilteredTemplates();
         if (!matched.length) {
-          tplList.innerHTML = '<div class="tpl-empty">未匹配到模板</div>';
+          tplList.innerHTML = '<tr><td colspan="4" class="tpl-empty">未匹配到模板</td></tr>';
           return;
         }
         tplList.innerHTML = matched.map(function (t) {
-          var active = pendingTemplate && pendingTemplate.name === t.name ? ' active' : '';
-          return '<div class="tpl-item' + active + '" data-name="' + escapeHtml(t.name) + '">' +
-            '<span class="tpl-dot"></span>' +
-            '<span class="tpl-text">' + escapeHtml(optionText(t)) + '</span>' +
-            '</div>';
+          var active = pendingTemplate && pendingTemplate.id === t.id;
+          return '<tr class="tpl-row' + (active ? ' active' : '') + '" data-id="' + escapeHtml(t.id) + '">' +
+            '<td class="col-radio-cell"><input type="radio" name="tplPick" class="tpl-radio"' + (active ? ' checked' : '') + ' tabindex="-1" /></td>' +
+            '<td>' + escapeHtml(t.name) + '</td>' +
+            '<td>' + escapeHtml(t.docType) + '</td>' +
+            '<td>' + escapeHtml(t.tplType) + '</td>' +
+            '</tr>';
         }).join('');
       }
 
       tplList.addEventListener('click', function (e) {
-        var item = e.target.closest('.tpl-item');
-        if (!item) return;
-        var name = item.getAttribute('data-name') || '';
-        var found = reviewTemplatePool.find(function (t) { return t.name === name; });
+        var row = e.target.closest('.tpl-row');
+        if (!row) return;
+        var id = row.getAttribute('data-id');
+        var found = reviewTemplatePool.find(function (t) { return t.id === id; });
         if (!found) return;
         pendingTemplate = found;
-        renderTemplateList(tplSearch.value);
+        renderTemplateList();
       });
 
       reviewTemplateTrigger.addEventListener('click', function () {
         pendingTemplate = selectedTemplate;
         tplSearch.value = '';
-        renderTemplateList('');
+        tplCategoryFilter.value = '';
+        renderTemplateList();
         tplMask.classList.add('show');
         setTimeout(function () { tplSearch.focus(); }, 0);
       });
 
-      tplSearch.addEventListener('input', function () {
-        renderTemplateList(tplSearch.value);
-      });
+      tplSearch.addEventListener('input', renderTemplateList);
+      tplCategoryFilter.addEventListener('change', renderTemplateList);
 
       tplCancel.addEventListener('click', function () {
         tplMask.classList.remove('show');
