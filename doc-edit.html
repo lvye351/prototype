@@ -319,9 +319,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
+      padding: 0 0 8px;
       background: #fff;
       border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 2px;
       flex-shrink: 0;
     }
     .review-template-label {
@@ -784,22 +785,23 @@
     <div class="edit-right">
       <div class="review-panel">
         <div class="review-head">智能审校</div>
-        <div class="review-template-bar">
-          <span class="review-template-label">Word文体模板</span>
-          <button type="button" class="review-template-trigger" id="reviewTemplateTrigger">
-            <span class="txt" id="reviewTemplateText"></span>
-            <span class="arr">▼</span>
-          </button>
-          <span class="review-template-meta" id="reviewTemplateMeta"></span>
-        </div>
         <div class="review-tabs" role="tablist">
           <button type="button" class="review-tab active" data-i="0">全部检测</button>
           <button type="button" class="review-tab" data-i="1">规范检测</button>
           <button type="button" class="review-tab" data-i="2">安全检测</button>
           <button type="button" class="review-tab" data-i="3">风格检测</button>
           <button type="button" class="review-tab" data-i="4">逻辑检测</button>
+          <button type="button" class="review-tab" data-i="5">遵循性检测</button>
         </div>
         <div class="review-toolbar">
+          <div class="review-template-bar">
+            <span class="review-template-label">Word文体模板</span>
+            <button type="button" class="review-template-trigger" id="reviewTemplateTrigger">
+              <span class="txt" id="reviewTemplateText"></span>
+              <span class="arr">▼</span>
+            </button>
+            <span class="review-template-meta" id="reviewTemplateMeta"></span>
+          </div>
           <div class="review-toolbar-row review-toolbar-row--primary">
             <span class="lbl">审校结果</span>
             <button type="button" class="btn-export-review-xls" onclick="downloadReviewReportExcel()">导出报告</button>
