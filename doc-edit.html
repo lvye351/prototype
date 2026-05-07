@@ -363,6 +363,77 @@
       color: rgba(0, 0, 0, 0.45);
       font-size: 12px;
     }
+    .review-template-trigger.is-empty .txt {
+      color: #bfbfbf;
+    }
+    .review-empty {
+      padding: 28px 16px;
+      text-align: center;
+      font-size: 13px;
+      color: #8c8c8c;
+      line-height: 1.6;
+    }
+    .tm-root {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    .tm-node {
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
+    }
+    .tm-node--hl {
+      background: #f0f0f0;
+    }
+    .tm-head {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 10px 10px 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      text-align: left;
+      color: inherit;
+    }
+    .tm-head:hover { background: rgba(0, 0, 0, 0.02); }
+    .tm-caret {
+      display: inline-block;
+      width: 14px;
+      flex-shrink: 0;
+      color: #8c8c8c;
+      font-size: 11px;
+      transition: transform 0.15s;
+      margin-top: 2px;
+    }
+    .tm-node.open .tm-caret { transform: rotate(90deg); }
+    .tm-num { flex-shrink: 0; color: rgba(0, 0, 0, 0.65); }
+    .tm-title { flex: 1; min-width: 0; }
+    .tm-fixed {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
+    }
+    .tm-body {
+      display: none;
+      padding: 0 12px 12px 36px;
+      background: #fff;
+      border-top: 1px dashed #eee;
+    }
+    .tm-node.open .tm-body { display: block; }
+    .tm-pair {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+      line-height: 1.55;
+    }
+    .tm-pair:last-child { margin-bottom: 0; }
+    .tm-pair .k { color: rgba(0, 0, 0, 0.45); margin-right: 4px; }
+    .tm-none { color: #8c8c8c; font-size: 12px; padding: 4px 0; }
     .tpl-mask {
       position: fixed;
       inset: 0;
@@ -807,7 +878,7 @@
           <button type="button" class="review-tab" data-i="2">安全检测</button>
           <button type="button" class="review-tab" data-i="3">风格检测</button>
           <button type="button" class="review-tab" data-i="4">逻辑检测</button>
-          <button type="button" class="review-tab" data-i="5">遵循性检测</button>
+          <button type="button" class="review-tab" data-i="5">模板检测</button>
         </div>
         <div class="review-toolbar">
           <div class="review-template-bar is-hidden" id="reviewTemplateBar" aria-hidden="true">
@@ -822,7 +893,7 @@
             <button type="button" class="btn-export-review-xls" onclick="downloadReviewReportExcel()">导出报告</button>
             <span class="review-toolbar-spacer"></span>
             <button type="button" class="link-act" onclick="showToast('全部高亮')">全部高亮</button>
-            <button type="button" class="link-act" onclick="showToast('重新审校')">重新审校</button>
+            <button type="button" class="link-act" id="btnStartOrRedoReview">发起审校</button>
           </div>
           <div class="review-toolbar-row review-toolbar-row--batch">
             <label class="batch-select-all">
@@ -1189,6 +1260,108 @@
       document.getElementById('editor').addEventListener('input', updateWc);
       updateWc();
 
+      var reviewScrollEl = document.getElementById('reviewScroll');
+      var REVIEW_SCROLL_DEFAULT_HTML = reviewScrollEl.innerHTML;
+      var TEMPLATE_TAB_EMPTY_HTML =
+        '<div class="review-empty">请选择 Word 文体模板后，点击「发起审校」查看章节语句修改。</div>';
+
+      function getActiveReviewTabIndex() {
+        var a = document.querySelector('.review-tab.active');
+        return a ? a.getAttribute('data-i') : '0';
+      }
+
+      function updateReviewPrimaryBtn(hasAudited) {
+        var btn = document.getElementById('btnStartOrRedoReview');
+        if (!btn) return;
+        btn.textContent = hasAudited ? '重新审校' : '发起审校';
+      }
+
+      function buildTemplateAuditHtml() {
+        var chapters = [
+          { n: 1, title: '概述', fixed: true, hl: false, mods: [
+              { o: '本项目围绕透明化监控开展相关建设工作。', m: '本项目围绕端到端透明化监控开展建设，并与省级运维平台接口规范对齐。' }
+            ] },
+          { n: 2, title: '工程概述', fixed: false, mods: [
+              { o: '工程建设周期约12个月。', m: '工程建设周期约12个月（含联调与试运行）。' }
+            ] },
+          { n: 3, title: '总体技术要求', fixed: false, mods: [
+              { o: '系统可用性不低于99%。', m: '系统可用性不低于99.9%，并提供度量口径与考核办法。' }
+            ] },
+          { n: 4, title: '建设方案', fixed: false, mods: [] },
+          { n: 5, title: '网络信息安全要求', fixed: true, mods: [
+              { o: '应满足国家相关法律法规要求。', m: '应满足国家相关法律法规及等级保护相关要求，并给出合规映射说明。' }
+            ] },
+          { n: 6, title: '安装、调试、开通及试运行', fixed: true, mods: [
+              { o: '完成安装后即可上线。', m: '完成安装、调试与试运行验收后方可正式上线，并提交试运行报告。' }
+            ] },
+          { n: 7, title: '响应供应商成交后需提供的技术文档', fixed: true, hl: true, mods: [
+              { o: '成交后30日内提交文档。', m: '成交后30日内提交文档清单及交付计划，并经甲方确认后执行。' }
+            ] },
+          { n: 8, title: '保修', fixed: true, mods: [] },
+          { n: 9, title: '软件测评相关要求', fixed: true, mods: [] },
+          { n: 10, title: '功能需求清单', fixed: false, mods: [] }
+        ];
+        var parts = ['<div class="tm-root">'];
+        chapters.forEach(function (ch) {
+          var fixedSuffix = ch.fixed ? '（固定章节与内容）' : '';
+          var hl = ch.hl ? ' tm-node--hl' : '';
+          var hasMods = ch.mods && ch.mods.length > 0;
+          parts.push('<div class="tm-node' + (hasMods ? ' open' : '') + hl + '">');
+          parts.push('<button type="button" class="tm-head">');
+          parts.push('<span class="tm-caret">▸</span>');
+          parts.push('<span class="tm-num">' + ch.n + '</span>');
+          parts.push('<span class="tm-title">' + escapeHtml(ch.title) + '</span>');
+          parts.push('<span class="tm-fixed">' + escapeHtml(fixedSuffix) + '</span>');
+          parts.push('</button><div class="tm-body">');
+          if (hasMods) {
+            ch.mods.forEach(function (p) {
+              parts.push('<div class="tm-pair">');
+              parts.push('<div><span class="k">原句：</span>' + escapeHtml(p.o) + '</div>');
+              parts.push('<div><span class="k">修改为：</span>' + escapeHtml(p.m) + '</div>');
+              parts.push('</div>');
+            });
+          } else {
+            parts.push('<div class="tm-none">本章节未检出与模板不一致的语句修改。</div>');
+          }
+          parts.push('</div></div>');
+        });
+        parts.push('</div>');
+        return parts.join('');
+      }
+
+      function applyReviewTabContent(tabIndex) {
+        updateReviewPrimaryBtn(false);
+        if (tabIndex === '5') {
+          reviewScrollEl.innerHTML = TEMPLATE_TAB_EMPTY_HTML;
+        } else {
+          reviewScrollEl.innerHTML = REVIEW_SCROLL_DEFAULT_HTML;
+        }
+      }
+
+      reviewScrollEl.addEventListener('click', function (e) {
+        var head = e.target.closest('.tm-head');
+        if (!head) return;
+        e.preventDefault();
+        var node = head.closest('.tm-node');
+        if (node) node.classList.toggle('open');
+      });
+
+      document.getElementById('btnStartOrRedoReview').addEventListener('click', function () {
+        var tab = getActiveReviewTabIndex();
+        if (tab === '5') {
+          if (!selectedTemplate) {
+            showToast('请先选择 Word 文体模板');
+            return;
+          }
+          reviewScrollEl.innerHTML = buildTemplateAuditHtml();
+          updateReviewPrimaryBtn(true);
+          showToast('模板检测完成');
+        } else {
+          updateReviewPrimaryBtn(true);
+          showToast('审校完成');
+        }
+      });
+
       function syncReviewTemplateBar(tabIndex) {
         var bar = document.getElementById('reviewTemplateBar');
         if (!bar) return;
@@ -1208,13 +1381,16 @@
             b.classList.toggle('active', b.getAttribute('data-i') === i);
           });
           syncReviewTemplateBar(i);
+          applyReviewTabContent(i);
           showToast('切换：' + btn.textContent.trim());
         });
       });
 
-      (function initReviewTemplateBar() {
+      (function initReviewTabUi() {
         var active = document.querySelector('.review-tab.active');
-        syncReviewTemplateBar(active ? active.getAttribute('data-i') : '0');
+        var idx = active ? active.getAttribute('data-i') : '0';
+        syncReviewTemplateBar(idx);
+        applyReviewTabContent(idx);
       })();
 
       var reviewTemplatePool = [
@@ -1236,11 +1412,17 @@
       var tplList = document.getElementById('tplList');
       var tplCancel = document.getElementById('tplCancel');
       var tplConfirm = document.getElementById('tplConfirm');
-      var selectedTemplate = reviewTemplatePool[0];
-      var pendingTemplate = selectedTemplate;
+      var selectedTemplate = null;
+      var pendingTemplate = null;
 
       function renderTemplateHeader(t) {
-        reviewTemplateText.textContent = t.name;
+        if (!t) {
+          reviewTemplateText.textContent = '请选择模板';
+          reviewTemplateTrigger.classList.add('is-empty');
+        } else {
+          reviewTemplateText.textContent = t.name;
+          reviewTemplateTrigger.classList.remove('is-empty');
+        }
       }
 
       function getFilteredTemplates() {
@@ -1261,7 +1443,7 @@
           return;
         }
         tplList.innerHTML = matched.map(function (t) {
-          var active = pendingTemplate && pendingTemplate.id === t.id;
+          var active = pendingTemplate && String(pendingTemplate.id) === String(t.id);
           return '<tr class="tpl-row' + (active ? ' active' : '') + '" data-id="' + escapeHtml(t.id) + '">' +
             '<td class="col-radio-cell"><input type="radio" name="tplPick" class="tpl-radio"' + (active ? ' checked' : '') + ' tabindex="-1" /></td>' +
             '<td>' + escapeHtml(t.name) + '</td>' +
@@ -1298,17 +1480,21 @@
       });
 
       tplConfirm.addEventListener('click', function () {
-        selectedTemplate = pendingTemplate || selectedTemplate;
+        if (!pendingTemplate) {
+          showToast('请选择一条模板');
+          return;
+        }
+        selectedTemplate = pendingTemplate;
         renderTemplateHeader(selectedTemplate);
         tplMask.classList.remove('show');
-        showToast('文体模板：' + selectedTemplate.name);
+        showToast('已选择模板：' + selectedTemplate.name);
       });
 
       tplMask.addEventListener('click', function (e) {
         if (e.target === tplMask) tplMask.classList.remove('show');
       });
 
-      renderTemplateHeader(selectedTemplate);
+      renderTemplateHeader(null);
 
       function getReviewReportRows() {
         return [
