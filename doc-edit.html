@@ -315,6 +315,186 @@
       flex-shrink: 0;
       background: #fafafa;
     }
+    .review-template-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    .review-template-label {
+      color: rgba(0, 0, 0, 0.65);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .review-template-trigger {
+      flex: 1;
+      min-width: 110px;
+      height: 30px;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 0 10px;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.85);
+      font-family: inherit;
+      text-align: left;
+      background: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .review-template-trigger:hover {
+      border-color: #40a9ff;
+    }
+    .review-template-trigger .txt {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 8px;
+    }
+    .review-template-trigger .arr {
+      color: rgba(0, 0, 0, 0.45);
+      font-size: 12px;
+    }
+    .review-template-meta {
+      max-width: 54%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+      color: #8c8c8c;
+      text-align: right;
+    }
+    .tpl-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.46);
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .tpl-mask.show { display: flex; }
+    .tpl-modal {
+      width: min(760px, calc(100vw - 44px));
+      max-height: min(78vh, 620px);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tpl-modal-head {
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.2;
+      border-bottom: 1px solid #eceff3;
+      color: #20262e;
+    }
+    .tpl-modal-body { padding: 12px 16px 0; }
+    .tpl-search {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #8dc5f8;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+    .tpl-search:focus {
+      border-color: #5caef6;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.18);
+    }
+    .tpl-list {
+      margin-top: 10px;
+      max-height: 340px;
+      overflow: auto;
+      border: 1px solid #e9edf2;
+      border-radius: 6px;
+      background: #fff;
+    }
+    .tpl-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      min-height: 40px;
+      border-bottom: 1px solid #f1f3f5;
+      cursor: pointer;
+    }
+    .tpl-item:last-child { border-bottom: none; }
+    .tpl-item:hover { background: #fafcff; }
+    .tpl-item.active {
+      background: #d9f3ff;
+      outline: 1px solid #a9dbfb;
+      outline-offset: -1px;
+    }
+    .tpl-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid #d0d5dc;
+      position: relative;
+      flex-shrink: 0;
+      background: #fff;
+    }
+    .tpl-item.active .tpl-dot {
+      border-color: #1890ff;
+    }
+    .tpl-item.active .tpl-dot::after {
+      content: '';
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #1890ff;
+      top: 2.5px;
+      left: 2.5px;
+    }
+    .tpl-text {
+      min-width: 0;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.88);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tpl-empty {
+      padding: 18px 12px;
+      text-align: center;
+      color: #8c8c8c;
+      font-size: 13px;
+    }
+    .tpl-modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 10px 16px 14px;
+      border-top: 1px solid #f0f0f0;
+      margin-top: 12px;
+    }
+    .tpl-btn {
+      height: 28px;
+      min-width: 58px;
+      padding: 0 14px;
+      border-radius: 6px;
+      border: 1px solid #d9d9d9;
+      background: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+    }
+    .tpl-btn.primary {
+      border-color: #1890ff;
+      background: #1890ff;
+      color: #fff;
+    }
 
     .review-tabs {
       display: flex;
@@ -604,6 +784,14 @@
     <div class="edit-right">
       <div class="review-panel">
         <div class="review-head">智能审校</div>
+        <div class="review-template-bar">
+          <span class="review-template-label">Word文体模板</span>
+          <button type="button" class="review-template-trigger" id="reviewTemplateTrigger">
+            <span class="txt" id="reviewTemplateText"></span>
+            <span class="arr">▼</span>
+          </button>
+          <span class="review-template-meta" id="reviewTemplateMeta"></span>
+        </div>
         <div class="review-tabs" role="tablist">
           <button type="button" class="review-tab active" data-i="0">全部检测</button>
           <button type="button" class="review-tab" data-i="1">规范检测</button>
@@ -855,6 +1043,20 @@
     </div>
   </div>
 
+  <div class="tpl-mask" id="tplMask">
+    <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择Word文体模板">
+      <div class="tpl-modal-head">选择Word文体模板</div>
+      <div class="tpl-modal-body">
+        <input id="tplSearch" class="tpl-search" placeholder="输入模板名称/类型/模板类型筛选" />
+        <div class="tpl-list" id="tplList"></div>
+      </div>
+      <div class="tpl-modal-foot">
+        <button type="button" class="tpl-btn" id="tplCancel">取消</button>
+        <button type="button" class="tpl-btn primary" id="tplConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -959,6 +1161,99 @@
           showToast('切换：' + btn.textContent.trim());
         });
       });
+
+      var reviewTemplatePool = [
+        { name: '项目建议书-lh-lh', docType: '系统内置文件', tplType: '工作_工作', hasOutline: '无', enabled: '开启' },
+        { name: '技术规范书', docType: '系统内置文件', tplType: '工作_工作', hasOutline: '有', enabled: '开启' },
+        { name: '报告请用模板', docType: '系统内置文件', tplType: 'BI数据类型', hasOutline: '有', enabled: '开启' },
+        { name: '月底运营看报', docType: '系统内置文件', tplType: 'BI数据类型', hasOutline: '有', enabled: '开启' },
+        { name: '浩然科技工作报告', docType: '企业文件', tplType: '工作_工作', hasOutline: '无', enabled: '开启' },
+        { name: '铁塔-环保行业报告', docType: '系统内置文件', tplType: '报告', hasOutline: '无', enabled: '开启' },
+        { name: '浙江copy69有大纲', docType: '企业文件', tplType: '报告', hasOutline: '有', enabled: '开启' },
+        { name: '产品解决方案报告', docType: '企业文件', tplType: '工作报告', hasOutline: '有', enabled: '开启' }
+      ];
+
+      var reviewTemplateTrigger = document.getElementById('reviewTemplateTrigger');
+      var reviewTemplateText = document.getElementById('reviewTemplateText');
+      var reviewTemplateMeta = document.getElementById('reviewTemplateMeta');
+      var tplMask = document.getElementById('tplMask');
+      var tplSearch = document.getElementById('tplSearch');
+      var tplList = document.getElementById('tplList');
+      var tplCancel = document.getElementById('tplCancel');
+      var tplConfirm = document.getElementById('tplConfirm');
+      var selectedTemplate = reviewTemplatePool[0];
+      var pendingTemplate = selectedTemplate;
+
+      function optionText(t) {
+        return t.name + '｜' + t.docType + '｜' + t.tplType + '｜' + t.enabled;
+      }
+
+      function matchTemplates(keyword) {
+        var key = String(keyword || '').trim().toLowerCase();
+        if (!key) return reviewTemplatePool.slice();
+        return reviewTemplatePool.filter(function (t) {
+          return (t.name + ' ' + t.docType + ' ' + t.tplType + ' ' + t.enabled).toLowerCase().indexOf(key) !== -1;
+        });
+      }
+
+      function renderTemplateHeader(t) {
+        reviewTemplateText.textContent = optionText(t);
+        reviewTemplateMeta.textContent = t.hasOutline + '大纲｜' + t.docType + '｜' + t.tplType + '｜' + t.enabled;
+      }
+
+      function renderTemplateList(keyword) {
+        var matched = matchTemplates(keyword);
+        if (!matched.length) {
+          tplList.innerHTML = '<div class="tpl-empty">未匹配到模板</div>';
+          return;
+        }
+        tplList.innerHTML = matched.map(function (t) {
+          var active = pendingTemplate && pendingTemplate.name === t.name ? ' active' : '';
+          return '<div class="tpl-item' + active + '" data-name="' + escapeHtml(t.name) + '">' +
+            '<span class="tpl-dot"></span>' +
+            '<span class="tpl-text">' + escapeHtml(optionText(t)) + '</span>' +
+            '</div>';
+        }).join('');
+      }
+
+      tplList.addEventListener('click', function (e) {
+        var item = e.target.closest('.tpl-item');
+        if (!item) return;
+        var name = item.getAttribute('data-name') || '';
+        var found = reviewTemplatePool.find(function (t) { return t.name === name; });
+        if (!found) return;
+        pendingTemplate = found;
+        renderTemplateList(tplSearch.value);
+      });
+
+      reviewTemplateTrigger.addEventListener('click', function () {
+        pendingTemplate = selectedTemplate;
+        tplSearch.value = '';
+        renderTemplateList('');
+        tplMask.classList.add('show');
+        setTimeout(function () { tplSearch.focus(); }, 0);
+      });
+
+      tplSearch.addEventListener('input', function () {
+        renderTemplateList(tplSearch.value);
+      });
+
+      tplCancel.addEventListener('click', function () {
+        tplMask.classList.remove('show');
+      });
+
+      tplConfirm.addEventListener('click', function () {
+        selectedTemplate = pendingTemplate || selectedTemplate;
+        renderTemplateHeader(selectedTemplate);
+        tplMask.classList.remove('show');
+        showToast('文体模板：' + selectedTemplate.name);
+      });
+
+      tplMask.addEventListener('click', function (e) {
+        if (e.target === tplMask) tplMask.classList.remove('show');
+      });
+
+      renderTemplateHeader(selectedTemplate);
 
       function getReviewReportRows() {
         return [
