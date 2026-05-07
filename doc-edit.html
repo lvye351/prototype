@@ -325,6 +325,9 @@
       margin-bottom: 2px;
       flex-shrink: 0;
     }
+    .review-template-bar.is-hidden {
+      display: none;
+    }
     .review-template-label {
       color: rgba(0, 0, 0, 0.65);
       font-size: 13px;
@@ -794,7 +797,7 @@
           <button type="button" class="review-tab" data-i="5">遵循性检测</button>
         </div>
         <div class="review-toolbar">
-          <div class="review-template-bar">
+          <div class="review-template-bar is-hidden" id="reviewTemplateBar" aria-hidden="true">
             <span class="review-template-label">Word文体模板</span>
             <button type="button" class="review-template-trigger" id="reviewTemplateTrigger">
               <span class="txt" id="reviewTemplateText"></span>
@@ -1154,15 +1157,33 @@
       document.getElementById('editor').addEventListener('input', updateWc);
       updateWc();
 
+      function syncReviewTemplateBar(tabIndex) {
+        var bar = document.getElementById('reviewTemplateBar');
+        if (!bar) return;
+        var show = tabIndex === '5';
+        bar.classList.toggle('is-hidden', !show);
+        bar.setAttribute('aria-hidden', show ? 'false' : 'true');
+        var maskEl = document.getElementById('tplMask');
+        if (!show && maskEl && maskEl.classList.contains('show')) {
+          maskEl.classList.remove('show');
+        }
+      }
+
       document.querySelectorAll('.review-tab').forEach(function (btn) {
         btn.addEventListener('click', function () {
           var i = btn.getAttribute('data-i');
           document.querySelectorAll('.review-tab').forEach(function (b) {
             b.classList.toggle('active', b.getAttribute('data-i') === i);
           });
+          syncReviewTemplateBar(i);
           showToast('切换：' + btn.textContent.trim());
         });
       });
+
+      (function initReviewTemplateBar() {
+        var active = document.querySelector('.review-tab.active');
+        syncReviewTemplateBar(active ? active.getAttribute('data-i') : '0');
+      })();
 
       var reviewTemplatePool = [
         { name: '项目建议书-lh-lh', docType: '系统内置文件', tplType: '工作_工作', hasOutline: '无', enabled: '开启' },
