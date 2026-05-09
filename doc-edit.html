@@ -197,6 +197,7 @@
     }
 
     .paper-wrap {
+      position: relative;
       flex: 1;
       overflow: auto;
       padding: 16px;
@@ -204,6 +205,7 @@
       background: #fafafa;
     }
     .paper {
+      position: relative;
       max-width: 900px;
       margin: 0 auto;
       min-height: 620px;
@@ -1475,19 +1477,35 @@
           if (!text) return false;
           var range = sel.getRangeAt(0);
           if (!editorEl.contains(range.commonAncestorContainer)) return false;
-          var rect = range.getBoundingClientRect();
-          if (!rect || (rect.width === 0 && rect.height === 0)) return false;
+          var clientRects = range.getClientRects();
+          var anchor;
+          if (clientRects && clientRects.length > 0) {
+            anchor = clientRects[clientRects.length - 1];
+          } else {
+            anchor = range.getBoundingClientRect();
+          }
+          if (!anchor || (anchor.width === 0 && anchor.height === 0)) return false;
           var wrapRect = paperWrap.getBoundingClientRect();
-          var bubbleW = bubble.offsetWidth || 720;
-          var top = rect.top - wrapRect.top + paperWrap.scrollTop + rect.height + 8;
-          var left = rect.left - wrapRect.left + paperWrap.scrollLeft + (rect.width / 2) - (bubbleW / 2);
+          bubble.classList.add('show');
+          var bubbleW = Math.min(720, Math.max(280, bubble.offsetWidth || 720));
+          var gap = 4;
+          var top = anchor.bottom - wrapRect.top + paperWrap.scrollTop + gap;
+          var left = anchor.left - wrapRect.left + paperWrap.scrollLeft + (anchor.width / 2) - (bubbleW / 2);
           var maxLeft = paperWrap.clientWidth - bubbleW - 12;
           if (left < 12) left = 12;
           if (left > maxLeft) left = Math.max(12, maxLeft);
+          bubble.style.width = bubbleW + 'px';
           bubble.style.left = left + 'px';
           bubble.style.top = top + 'px';
-          bubble.classList.add('show');
           lastSelectedText = text;
+          requestAnimationFrame(function () {
+            var bubbleH = bubble.offsetHeight || 160;
+            var visBottom = paperWrap.scrollTop + paperWrap.clientHeight;
+            var bubbleBottom = top + bubbleH;
+            if (bubbleBottom > visBottom - 8) {
+              paperWrap.scrollTop += bubbleBottom - visBottom + 16;
+            }
+          });
           return true;
         }
 
