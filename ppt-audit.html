@@ -11,11 +11,18 @@
     .topbar .logo img { width: 26px; height: 26px; display: block; }
 
     .layout { display: flex; min-height: calc(100vh - 52px); }
-    .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8ecf0; padding: 16px 0; flex-shrink: 0; }
-    .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; color: #555; display: flex; align-items: center; gap: 8px; transition: all .2s; }
-    .sidebar .menu-item:hover { background: #f0f5ff; color: #126DFF; }
-    .sidebar .menu-item.active { background: #e8f0fe; color: #126DFF; font-weight: 600; border-left: 3px solid #126DFF; }
-    .sidebar .section-title { font-size: 11px; color: #aaa; padding: 16px 24px 6px; text-transform: uppercase; }
+    /* 统一侧栏样式（与 index.html / chat-write / ppt-write 对齐） */
+    .sidebar { width: 200px; background: #fff; flex-shrink: 0; display: flex; flex-direction: column; box-shadow: 2px 0 8px rgba(0,0,0,.06); }
+    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
+    .side-group-h { display: flex; align-items: center; padding: 0 24px 0 34px; height: 40px; font-size: 14px; font-weight: 400; color: #1890ff; border-right: 0.75px solid rgba(0,0,0,.06); }
+    .side-sub { background: #fafafa; padding: 4px 0 8px; }
+    .sidebar .menu-item { position: relative; padding: 0 16px 0 48px; height: 40px; line-height: 40px; font-size: 14px; color: rgba(0,0,0,.85); cursor: pointer; transition: background .15s; display: block; gap: 0; }
+    .sidebar .menu-item:hover { background: #f0f0f0; color: rgba(0,0,0,.85); }
+    .sidebar .menu-item.active { background: #f1f1f1; color: #1890ff; font-weight: 400; border-left: none; }
+    .sidebar .menu-item.active::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #1890ff, #1fbdff); }
+    .sidebar-foot { border-top: 0.75px solid #f0f0f0; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #fff; }
+    .sf-av { width: 24px; height: 24px; border-radius: 12px; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
 
     .content { flex: 1; padding: 24px; min-width: 0; }
     .page-head { display: flex; justify-content: flex-start; align-items: center; gap: 12px; margin-bottom: 14px; }
@@ -199,16 +206,20 @@
 
 <div class="layout">
   <div class="sidebar">
-    <div class="section-title">知识管理</div>
-    <div class="menu-item" id="menuPersonalKb" onclick="openMainView('kb')">.个人知识库</div>
-    <div class="menu-item" onclick="showToast('🔎 知识查询功能开发中')">.知识查询</div>
-    <div class="menu-item" onclick="showToast('🏢 企业知识库功能开发中')">.企业知识库</div>
-    <div class="menu-item" onclick="showToast('🏬 部门知识库功能开发中')">.部门知识库</div>
-    <div class="section-title">文档管理</div>
-    <div class="menu-item" onclick="location.href='index.html'">.word写作</div>
-    <div class="menu-item" onclick="location.href='index.html'">.我的文稿</div>
-    <div class="menu-item" onclick="location.href='check.html'">.技术规范书查重</div>
-    <div class="menu-item active" id="menuAudit" onclick="openMainView('audit')">.采购方案PPT稽核</div>
+    <div class="sidebar-scroll">
+      <div class="side-group-h">文档写作</div>
+      <div class="side-sub">
+        <div class="menu-item" onclick="location.href='chat-write.html'">对话写作</div>
+        <div class="menu-item" onclick="location.href='ppt-write.html'">ppt写作</div>
+        <div class="menu-item" onclick="location.href='index.html'">我的文稿</div>
+        <div class="menu-item active" id="menuAudit" onclick="openMainView('audit')">采购方案PPT稽核</div>
+        <div class="menu-item" onclick="location.href='check.html'">技术规范书查重</div>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="sf-av">王</div>
+      <span class="sf-name">王海龙</span>
+    </div>
   </div>
 
   <div class="content">
@@ -856,12 +867,10 @@ rowsHtml +
     var auditView = document.getElementById('auditMainView');
     var kbView = document.getElementById('kbMainView');
     var menuAudit = document.getElementById('menuAudit');
-    var menuKb = document.getElementById('menuPersonalKb');
-    if (!auditView || !kbView || !menuAudit || !menuKb) return;
+    if (!auditView || !menuAudit) return;
     var isKb = view === 'kb';
-    kbView.classList.toggle('show', isKb);
+    if (kbView) kbView.classList.toggle('show', isKb);
     auditView.classList.toggle('show', !isKb);
-    menuKb.classList.toggle('active', isKb);
     menuAudit.classList.toggle('active', !isKb);
   }
 

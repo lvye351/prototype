@@ -46,24 +46,17 @@
     .side-group-h {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 22px 0 18px;
+      padding: 0 24px 0 34px;
       height: 40px;
       font-size: 14px;
       font-weight: 400;
       color: #1890ff;
-      cursor: pointer;
-      user-select: none;
+      border-right: 0.75px solid rgba(0, 0, 0, 0.06);
     }
-    .side-group-h .arr { font-size: 11px; color: #bbb; transition: transform .2s; }
-    .side-group-h.collapsed .arr { transform: rotate(-90deg); }
-    .side-group-h .lbl { display: inline-flex; align-items: center; gap: 8px; }
-    .side-group-h .lbl .ic { font-size: 13px; }
     .side-sub { background: #fafafa; padding: 4px 0 8px; }
-    .side-sub.collapsed { display: none; }
     .menu-item {
       position: relative;
-      padding: 0 16px 0 44px;
+      padding: 0 16px 0 48px;
       height: 40px;
       line-height: 40px;
       font-size: 14px;
@@ -517,44 +510,13 @@
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-scroll" id="sideScroll">
-      <div class="side-group-h" onclick="toggleGroup(this)">
-        <span class="lbl"><span class="ic">📁</span>文档写作</span>
-        <span class="arr">∨</span>
-      </div>
+      <div class="side-group-h">文档写作</div>
       <div class="side-sub">
         <div class="menu-item active">对话写作</div>
         <div class="menu-item" onclick="location.href='ppt-write.html'">ppt写作</div>
         <div class="menu-item" onclick="goMyDocs()">我的文稿</div>
         <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
         <div class="menu-item" onclick="location.href='check.html'">技术规范书查重</div>
-      </div>
-
-      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
-        <span class="lbl"><span class="ic">📂</span>模板运营</span>
-        <span class="arr">∨</span>
-      </div>
-      <div class="side-sub collapsed">
-        <div class="menu-item" onclick="showToast('文体模板管理功能开发中')">文体模板管理</div>
-        <div class="menu-item" onclick="showToast('模板市场功能开发中')">模板市场</div>
-      </div>
-
-      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
-        <span class="lbl"><span class="ic">📂</span>知识库管理</span>
-        <span class="arr">∨</span>
-      </div>
-      <div class="side-sub collapsed">
-        <div class="menu-item" onclick="showToast('个人知识库功能开发中')">个人知识库</div>
-        <div class="menu-item" onclick="showToast('部门知识库功能开发中')">部门知识库</div>
-        <div class="menu-item" onclick="showToast('企业知识库功能开发中')">企业知识库</div>
-      </div>
-
-      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
-        <span class="lbl"><span class="ic">📂</span>系统管理</span>
-        <span class="arr">∨</span>
-      </div>
-      <div class="side-sub collapsed">
-        <div class="menu-item" onclick="showToast('用户管理功能开发中')">用户管理</div>
-        <div class="menu-item" onclick="showToast('日志审计功能开发中')">日志审计</div>
       </div>
     </div>
     <div class="sidebar-foot">
@@ -692,14 +654,6 @@ function showToast(msg) {
   t.style.display = 'block';
   clearTimeout(showToast._t);
   showToast._t = setTimeout(function () { t.style.display = 'none'; }, 2400);
-}
-
-function toggleGroup(headEl) {
-  if (!headEl) return;
-  const sub = headEl.nextElementSibling;
-  if (!sub || !sub.classList.contains('side-sub')) return;
-  const collapsed = headEl.classList.toggle('collapsed');
-  sub.classList.toggle('collapsed', collapsed);
 }
 
 const HISTORY = [
