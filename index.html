@@ -323,6 +323,61 @@
       padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 9999;
       display: none;
     }
+
+    /* 文体模板选择弹框 */
+    .modal-tpl { min-width: 720px; max-width: 92vw; padding: 0; }
+    .modal-tpl .modal-tpl-head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 22px; border-bottom: 1px solid #eceff3;
+    }
+    .modal-tpl .modal-tpl-title {
+      font-size: 16px; font-weight: 600; color: #20262e; line-height: 1.2; flex: 1;
+    }
+    .modal-tpl .modal-tpl-desc {
+      padding: 8px 22px 0; font-size: 12px; color: #888; line-height: 1.6;
+    }
+    .modal-tpl .modal-tpl-toolbar {
+      display: flex; align-items: center; gap: 10px; padding: 10px 22px 12px;
+    }
+    .modal-tpl .tpl-search {
+      flex: 1; min-width: 160px; height: 32px;
+      border: 1px solid #d9d9d9; border-radius: 6px; padding: 0 10px;
+      font-family: inherit; font-size: 13px; outline: none;
+    }
+    .modal-tpl .tpl-search:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.14); }
+    .modal-tpl .tpl-filter {
+      width: 148px; height: 32px; padding: 0 10px;
+      border: 1px solid #d9d9d9; border-radius: 6px;
+      font-size: 13px; font-family: inherit; color: rgba(0,0,0,.85);
+      background: #fff; cursor: pointer;
+    }
+    .modal-tpl .tpl-table-wrap {
+      max-height: 360px; overflow: auto;
+      border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0;
+    }
+    .modal-tpl table.tpl-table {
+      width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px;
+    }
+    .modal-tpl .tpl-table thead th {
+      background: #fafafa; padding: 10px 12px; text-align: left; font-weight: 600;
+      color: rgba(0,0,0,.85); border-bottom: 1px solid #e8e8e8;
+    }
+    .modal-tpl .tpl-table thead th.col-radio { width: 44px; text-align: center; }
+    .modal-tpl .tpl-table thead th:nth-child(2) { width: 38%; }
+    .modal-tpl .tpl-table thead th:nth-child(3) { width: 28%; }
+    .modal-tpl .tpl-table thead th:nth-child(4) { width: 28%; }
+    .modal-tpl .tpl-row {
+      cursor: pointer; border-bottom: 1px solid #f0f0f0;
+    }
+    .modal-tpl .tpl-row td { padding: 9px 12px; vertical-align: middle; word-break: break-all; }
+    .modal-tpl .tpl-row td.col-radio-cell { text-align: center; }
+    .modal-tpl .tpl-row:hover td { background: #fafafa; }
+    .modal-tpl .tpl-row.active td { background: #e6f7ff; }
+    .modal-tpl .tpl-radio { width: 14px; height: 14px; accent-color: #1890ff; cursor: pointer; margin: 0; }
+    .modal-tpl .tpl-empty { padding: 20px; text-align: center; color: #8c8c8c; font-size: 13px; }
+    .modal-tpl .modal-tpl-foot {
+      display: flex; justify-content: flex-end; gap: 10px; padding: 12px 22px 16px;
+    }
   </style>
 </head>
 <body>
@@ -431,14 +486,51 @@
   </div>
 </div>
 
+<!-- 转写项目建议书 · 选择文体模板弹框 -->
+<div class="modal-overlay" id="proposalTplModal">
+  <div class="modal modal-tpl" role="dialog" aria-modal="true" aria-label="选择项目建议书文体模板">
+    <div class="modal-tpl-head">
+      <div class="modal-tpl-title">转写项目建议书 · 选择文体模板</div>
+      <span class="modal-close" onclick="closeProposalTplModal()">×</span>
+    </div>
+    <div class="modal-tpl-desc" id="proposalTplDesc">基于 <span id="proposalTplFromName">—</span> 转写为项目建议书；请选择文体模板。</div>
+    <div class="modal-tpl-toolbar">
+      <input id="proposalTplSearch" class="tpl-search" placeholder="请输入模板名称" autocomplete="off" />
+      <select id="proposalTplCategory" class="tpl-filter" title="按类型筛选">
+        <option value="">全部</option>
+        <option value="系统内置文体">系统内置文体</option>
+        <option value="部门文体">部门文体</option>
+        <option value="企业文体">企业文体</option>
+      </select>
+    </div>
+    <div class="tpl-table-wrap">
+      <table class="tpl-table">
+        <thead>
+          <tr>
+            <th class="col-radio"></th>
+            <th>模板名称</th>
+            <th>类型</th>
+            <th>模板类型</th>
+          </tr>
+        </thead>
+        <tbody id="proposalTplList"></tbody>
+      </table>
+    </div>
+    <div class="modal-tpl-foot">
+      <button type="button" class="btn btn-outline" onclick="closeProposalTplModal()">取消</button>
+      <button type="button" class="btn btn-primary" onclick="confirmProposalTpl()">确定</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const docs = [
   { id: 1, kind: 'word', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', level1: '技术规范书', level2: '核心网', templateName: '电信技术规范模板', status: '已发布', wordCount: '12,580', creator: '王海龙', editTime: '2026-03-10 09:32', createTime: '2026-03-09 18:20', size: '2.4MB', count: 3, hasHistory: true },
   { id: 2, kind: 'word', name: 'XX公司云资源池扩容技术规范书_2026.docx', level1: '技术规范书', level2: '云计算', templateName: '通用采购模板', status: '已发布', wordCount: '9,210', creator: '王海龙', editTime: '2026-03-11 14:15', createTime: '2026-03-11 10:05', size: '1.8MB', count: 2, hasHistory: true },
-  { id: 3, kind: 'word', name: 'XX公司传输网络设备采购技术规范书.docx', level1: '技术规范书', level2: '传输网', templateName: '设备采购模板', status: '草稿', wordCount: '8,102', creator: '王海龙', editTime: '2026-03-12 10:08', createTime: '2026-03-12 08:10', size: '3.1MB', count: 1, hasHistory: true },
-  { id: 4, kind: 'word', name: '基站设备技术规范书_城区_v1.0.docx', level1: '技术规范书', level2: '无线', templateName: '无线侧模板', status: '草稿', wordCount: '6,400', creator: '王海龙', editTime: '2026-03-12 16:44', createTime: '2026-03-12 15:20', size: '1.2MB', count: 0, hasHistory: false },
+  { id: 3, kind: 'word', name: '关于召开2026年传输网络规划评审会的通知.docx', level1: '会议通知', level2: '评审会议', templateName: '会议通知通用模板', status: '草稿', wordCount: '1,820', creator: '王海龙', editTime: '2026-03-12 10:08', createTime: '2026-03-12 08:10', size: '0.6MB', count: 1, hasHistory: true },
+  { id: 4, kind: 'word', name: '2026年Q1无线网络建设工作总结报告.docx', level1: '工作报告', level2: '季度总结', templateName: '季度工作报告模板', status: '草稿', wordCount: '6,400', creator: '王海龙', editTime: '2026-03-12 16:44', createTime: '2026-03-12 15:20', size: '1.2MB', count: 0, hasHistory: false },
   { id: 5, kind: 'word', name: '核心网NFV平台技术规范书_2026Q1.docx', level1: '技术规范书', level2: '虚拟化', templateName: 'NFV 模板', status: '已发布', wordCount: '11,200', creator: '王海龙', editTime: '2026-03-13 09:00', createTime: '2026-03-12 19:40', size: '2.7MB', count: 2, hasHistory: true },
   { id: 6, kind: 'ppt', name: '公开询比采购方案汇报.pptx', level1: '采购方案', level2: '汇报', templateName: '采购汇报标准页', status: '已发布', wordCount: '—', creator: '王海龙', editTime: '2026-03-13 11:20', createTime: '2026-03-13 09:15', size: '4.1MB', count: 0, hasHistory: false },
   { id: 7, kind: 'ppt', name: '智慧营维系统立项汇报-单项目.pptx', level1: '立项汇报', level2: '信息化', templateName: '立项汇报模板', status: '草稿', wordCount: '—', creator: '王海龙', editTime: '2026-03-14 08:55', createTime: '2026-03-13 16:10', size: '5.2MB', count: 0, hasHistory: false },
@@ -501,10 +593,12 @@ function renderTable(data) {
     const titleClick = d.kind === 'word'
       ? 'onclick="goCheck(' + d.id + ')"'
       : 'onclick="goPptAudit(' + d.id + ')"';
+    const isTechSpec = d.kind === 'word' && d.level1 === '技术规范书';
     const actions = d.kind === 'word'
       ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goCheck(' + d.id + ')">查重</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();editDoc(' + d.id + ')">编辑</button> ' +
         (d.hasHistory ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goHistory(' + d.id + ')">历史记录</button> ' : '') +
+        (isTechSpec ? '<button type="button" class="link-btn" onclick="event.stopPropagation();convertToProposal(' + d.id + ')">转写项目建议书</button> ' : '') +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
         '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>'
       : '<button type="button" class="link-btn" onclick="event.stopPropagation();goPptAudit(' + d.id + ')">稽核</button> ' +
@@ -553,6 +647,132 @@ function editDoc(id) {
   sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
   location.href = 'doc-edit.html';
 }
+
+const proposalTplPool = [
+  { id: 'pp1', name: '项目建议书 · 通用模板',     docType: '系统内置文体', tplType: '建议书' },
+  { id: 'pp2', name: '项目建议书 · 信息化项目版', docType: '企业文体',     tplType: '建议书' },
+  { id: 'tg1', name: '可行性研究报告',             docType: '系统内置文体', tplType: '报告' },
+  { id: 'tg2', name: '招标技术需求书',             docType: '部门文体',     tplType: '招投标' },
+  { id: 'tg3', name: '系统设计说明书',             docType: '系统内置文体', tplType: '报告' },
+  { id: 'tg4', name: '通用章节模板',               docType: '企业文体',     tplType: '通用' }
+];
+
+let proposalTplPickedId = '';
+let proposalSourceDocId = null;
+
+function getProposalTplFiltered() {
+  const kw = (document.getElementById('proposalTplSearch').value || '').trim().toLowerCase();
+  const cat = document.getElementById('proposalTplCategory').value || '';
+  return proposalTplPool.filter(t => {
+    if (cat && t.docType !== cat) return false;
+    if (!kw) return true;
+    return (t.name + ' ' + t.docType + ' ' + t.tplType).toLowerCase().indexOf(kw) !== -1;
+  });
+}
+
+function renderProposalTplList() {
+  const tbody = document.getElementById('proposalTplList');
+  const matched = getProposalTplFiltered();
+  if (!matched.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="tpl-empty">未匹配到模板</td></tr>';
+    return;
+  }
+  tbody.innerHTML = matched.map(t => {
+    const active = proposalTplPickedId === t.id;
+    return '<tr class="tpl-row' + (active ? ' active' : '') + '" data-id="' + escapeHtml(t.id) + '">' +
+      '<td class="col-radio-cell"><input type="radio" name="proposalTplPick" class="tpl-radio"' + (active ? ' checked' : '') + ' tabindex="-1" /></td>' +
+      '<td>' + escapeHtml(t.name) + '</td>' +
+      '<td>' + escapeHtml(t.docType) + '</td>' +
+      '<td>' + escapeHtml(t.tplType) + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function convertToProposal(id) {
+  const doc = docs.find(d => d.id === id);
+  if (!doc || doc.kind !== 'word' || doc.level1 !== '技术规范书') {
+    showToast('仅技术规范书支持转写项目建议书');
+    return;
+  }
+  proposalSourceDocId = doc.id;
+  document.getElementById('proposalTplFromName').textContent = doc.name;
+  const search = document.getElementById('proposalTplSearch');
+  const cat = document.getElementById('proposalTplCategory');
+  search.value = '项目建议书';
+  cat.value = '';
+  const matched = getProposalTplFiltered();
+  proposalTplPickedId = matched.length ? matched[0].id : '';
+  renderProposalTplList();
+  document.getElementById('proposalTplModal').classList.add('show');
+  setTimeout(() => search.focus(), 0);
+}
+
+function closeProposalTplModal() {
+  document.getElementById('proposalTplModal').classList.remove('show');
+}
+
+function confirmProposalTpl() {
+  if (!proposalTplPickedId) {
+    showToast('请选择一个文体模板');
+    return;
+  }
+  const tpl = proposalTplPool.find(t => t.id === proposalTplPickedId);
+  const doc = docs.find(d => d.id === proposalSourceDocId);
+  if (!tpl || !doc) { closeProposalTplModal(); return; }
+  const newName = doc.name
+    .replace(/技术规范书/g, '项目建议书')
+    .replace(/_v[\d.]+/i, '');
+  const payload = Object.assign({}, doc, {
+    id: 'proposal-' + doc.id,
+    name: newName,
+    level1: '项目建议书',
+    level2: doc.level2,
+    templateName: tpl.name,
+    status: '草稿',
+    fromTechSpecId: doc.id,
+    fromTechSpecName: doc.name,
+    convertMode: 'tech-spec-to-proposal',
+    proposalTplId: tpl.id,
+    proposalTplDocType: tpl.docType,
+    proposalTplType: tpl.tplType
+  });
+  sessionStorage.setItem('editDocPayload', JSON.stringify(payload));
+  closeProposalTplModal();
+  showToast('已选模板：' + tpl.name + '，正在转写…');
+  setTimeout(function () { location.href = 'doc-edit.html'; }, 200);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const list = document.getElementById('proposalTplList');
+  const search = document.getElementById('proposalTplSearch');
+  const cat = document.getElementById('proposalTplCategory');
+  const overlay = document.getElementById('proposalTplModal');
+  if (list) {
+    list.addEventListener('click', function (e) {
+      const row = e.target.closest && e.target.closest('.tpl-row');
+      if (!row) return;
+      proposalTplPickedId = row.getAttribute('data-id') || '';
+      renderProposalTplList();
+    });
+  }
+  if (search) search.addEventListener('input', function () {
+    const matched = getProposalTplFiltered();
+    if (!matched.find(t => t.id === proposalTplPickedId)) {
+      proposalTplPickedId = matched.length ? matched[0].id : '';
+    }
+    renderProposalTplList();
+  });
+  if (cat) cat.addEventListener('change', function () {
+    const matched = getProposalTplFiltered();
+    if (!matched.find(t => t.id === proposalTplPickedId)) {
+      proposalTplPickedId = matched.length ? matched[0].id : '';
+    }
+    renderProposalTplList();
+  });
+  if (overlay) overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeProposalTplModal();
+  });
+});
 
 function goHistory(id) {
   const doc = docs.find(d => d.id === id);

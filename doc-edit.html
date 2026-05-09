@@ -54,9 +54,18 @@
       color: rgba(0, 0, 0, 0.65);
     }
     .outline-item {
-      padding: 8px 0;
+      padding: 8px 6px;
       border-bottom: 1px dashed #eee;
-      cursor: default;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.15s;
+      line-height: 1.55;
+    }
+    .outline-item:hover { background: #f6f8fb; }
+    .outline-item.is-active {
+      background: #f0f0f0;
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
     }
 
     .edit-center {
@@ -248,7 +257,7 @@
       position: absolute;
       z-index: 80;
       display: none;
-      width: 720px;
+      width: 640px;
       max-width: calc(100vw - 32px);
       background: #fff;
       border: 1px solid #d6e0ff;
@@ -262,18 +271,22 @@
     .ai-bubble-toolbar {
       display: flex;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 6px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: thin;
     }
+    .ai-bubble-toolbar::-webkit-scrollbar { height: 4px; }
+    .ai-bubble-toolbar::-webkit-scrollbar-thumb { background: #e1e6f0; border-radius: 2px; }
     .ai-bubble-handle {
-      width: 18px;
-      height: 28px;
+      width: 14px;
+      height: 26px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       color: #8c8c8c;
       cursor: grab;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 1;
       flex-shrink: 0;
     }
@@ -281,17 +294,19 @@
     .ai-shortcut {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      height: 30px;
-      padding: 0 12px;
+      gap: 4px;
+      height: 26px;
+      padding: 0 9px;
       border: 1px solid #d6e0ff;
-      border-radius: 18px;
+      border-radius: 14px;
       background: #fff;
       color: #1447e6;
-      font-size: 13px;
+      font-size: 12px;
       font-family: inherit;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .ai-shortcut:hover {
       background: #f0f5ff;
@@ -305,8 +320,20 @@
       background: #faf2ff;
       border-color: #8200db;
     }
+    /* 一级标题模式：仅显示「章节生成」；非一级标题：隐藏「章节生成」 */
+    .ai-bubble.is-h1-mode .ai-shortcut[data-cmd] { display: none; }
+    .ai-bubble:not(.is-h1-mode) #aiBtnChapterGen { display: none; }
+
+    .ai-shortcut.teal {
+      color: #08979c;
+      border-color: #b5f5ec;
+    }
+    .ai-shortcut.teal:hover {
+      background: #e6fffb;
+      border-color: #08979c;
+    }
     .ai-shortcut .ico {
-      font-size: 14px;
+      font-size: 12px;
       line-height: 1;
     }
     .ai-bubble-spacer { flex: 1; min-width: 8px; }
@@ -314,15 +341,17 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      height: 30px;
-      padding: 0 12px;
+      height: 26px;
+      padding: 0 10px;
       border: 1px solid #ffccc7;
-      border-radius: 18px;
+      border-radius: 14px;
       background: #fff;
       color: #ff4d4f;
-      font-size: 13px;
+      font-size: 12px;
       font-family: inherit;
       cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .ai-close:hover {
       background: #fff1f0;
@@ -335,6 +364,47 @@
       padding: 10px 12px 8px;
       background: #fff;
     }
+    .ai-meta-bar {
+      display: none;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .ai-bubble-input.is-chapter-gen .ai-meta-bar { display: flex; }
+    .ai-meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: #f0f5ff;
+      color: #1447e6;
+      border: 1px solid #d6e4ff;
+      font-size: 12px;
+      max-width: 100%;
+    }
+    .ai-meta-tag .k {
+      color: rgba(0, 0, 0, 0.45);
+      font-weight: 500;
+    }
+    .ai-meta-tag .v {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ai-meta-tag.is-template { background: #fff7e6; border-color: #ffd591; color: #d46b08; }
+    .ai-meta-tag.is-template .k { color: rgba(212, 107, 8, 0.55); }
+    .ai-meta-tag.is-ref { background: #e6f5ec; border-color: #b7eb8f; color: #1a7a4b; }
+    .ai-meta-tag.is-ref .k { color: rgba(26, 122, 75, 0.55); }
+    .ai-meta-tag .x {
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.35);
+      font-size: 14px;
+      line-height: 1;
+      padding-left: 2px;
+    }
+    .ai-meta-tag .x:hover { color: rgba(0, 0, 0, 0.65); }
     .ai-bubble-input textarea {
       width: 100%;
       min-height: 64px;
@@ -351,9 +421,52 @@
     .ai-bubble-input textarea::placeholder { color: #bfbfbf; }
     .ai-bubble-actions {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
       margin-top: 4px;
+      gap: 8px;
+    }
+    .ai-ref-slot {
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .ai-ref-btn {
+      display: none;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px dashed #40a9ff;
+      border-radius: 6px;
+      background: #f5fbff;
+      color: #1890ff;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .ai-ref-btn:hover {
+      background: #e6f7ff;
+      border-style: solid;
+    }
+    .ai-ref-btn .picked-name {
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ai-ref-btn.is-picked {
+      border-style: solid;
+      border-color: #1a7a4b;
+      background: #e6f5ec;
+      color: #1a7a4b;
+    }
+    .ai-ref-btn.is-picked:hover {
+      background: #d8efe1;
+    }
+    .ai-bubble-input.is-chapter-gen .ai-ref-btn {
+      display: inline-flex;
     }
     .ai-send {
       display: inline-flex;
@@ -745,6 +858,165 @@
       color: #fff;
     }
 
+    /* —— 知识库（参考资料）选择弹框 —— */
+    .kb-mask {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.46);
+      z-index: 130;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .kb-mask.show { display: flex; }
+    .kb-modal {
+      width: min(720px, calc(100vw - 44px));
+      max-height: min(78vh, 600px);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .kb-mh {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      border-bottom: 1px solid #eceff3;
+    }
+    .kb-mh-text { flex: 1; min-width: 0; }
+    .kb-mh-title { font-size: 16px; font-weight: 600; color: #20262e; line-height: 1.2; }
+    .kb-mh-desc { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.6; }
+    .kb-mh-close {
+      cursor: pointer;
+      width: 28px; height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 22px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .kb-mh-close:hover { background: #f5f5f5; color: #333; }
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-bottom: 1px solid #eee;
+      background: #fafbff;
+    }
+    .kb-select {
+      padding: 6px 28px 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      color: #333;
+      min-width: 200px;
+      font-family: inherit;
+    }
+    .kb-search-wrap { flex: 1; min-width: 160px; position: relative; }
+    .kb-search-wrap input {
+      width: 100%;
+      padding: 7px 12px 7px 32px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .kb-search-wrap input:focus { border-color: #1890ff; }
+    .kb-search-wrap .icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      font-size: 13px;
+    }
+    .kb-body {
+      display: flex;
+      min-height: 260px;
+      max-height: 44vh;
+    }
+    .kb-dir {
+      width: 140px;
+      flex-shrink: 0;
+      border-right: 1px solid #eee;
+      padding: 12px 10px;
+      background: #f9fafb;
+      font-size: 12px;
+      color: #666;
+    }
+    .kb-dir-title { font-weight: 700; color: #333; margin-bottom: 8px; }
+    .kb-dir-empty { color: #ccc; font-size: 12px; }
+    .kb-list {
+      flex: 1;
+      min-width: 0;
+      overflow-y: auto;
+      padding: 8px 14px;
+    }
+    .kb-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #eef2f6;
+      margin-bottom: 8px;
+      background: #fff;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .kb-row:hover { background: #f7faff; }
+    .kb-row.selected { background: #e8f0fe; border-color: #cfe0ff; }
+    .kb-row .icon {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      background: #e6f5ec;
+      color: #1a7a4b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .kb-row .name {
+      flex: 1; min-width: 0;
+      font-size: 13px;
+      color: #333;
+      font-weight: 500;
+      word-break: break-all;
+    }
+    .kb-row .meta {
+      font-size: 12px;
+      color: #999;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .kb-row .status {
+      font-size: 12px;
+      color: #1a7a4b;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-weight: 600;
+    }
+    .kb-foot {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px 14px;
+      border-top: 1px solid #f0f0f0;
+    }
+    .kb-foot-left {
+      flex: 1;
+      font-size: 13px;
+      color: #666;
+    }
+
     .review-tabs {
       display: flex;
       flex-wrap: nowrap;
@@ -975,10 +1247,16 @@
         <aside class="outline-aside">
           <div class="outline-head"></div>
           <div class="outline-body">
-            <div class="outline-item">封面</div>
-            <div class="outline-item">1. 概述</div>
-            <div class="outline-item">2. 技术要求</div>
-            <div class="outline-item">3. 验收标准</div>
+            <div class="outline-item has-children" data-target="chap-1">▸ 1 概述</div>
+            <div class="outline-item has-children" data-target="chap-2">▸ 2 工程概述</div>
+            <div class="outline-item has-children" data-target="chap-3">▸ 3 总体技术要求</div>
+            <div class="outline-item has-children" data-target="chap-4">▸ 4 建设方案</div>
+            <div class="outline-item has-children" data-target="chap-5">▸ 5 网络信息安全要求</div>
+            <div class="outline-item has-children" data-target="chap-6">▸ 6 安装、调试、开通及试运行</div>
+            <div class="outline-item" data-target="chap-7">7 响应供应商成交后需提供的技术文档</div>
+            <div class="outline-item is-active" data-target="chap-8">8 保修</div>
+            <div class="outline-item" data-target="chap-9">9 ★软件测评相关要求</div>
+            <div class="outline-item" data-target="chap-10">10 功能需求清单</div>
           </div>
         </aside>
 
@@ -1027,12 +1305,17 @@
                 <button type="button" class="ai-shortcut" data-cmd="续写"><span class="ico">✎</span>续写</button>
                 <button type="button" class="ai-shortcut" data-cmd="缩写"><span class="ico">⤡</span>缩写</button>
                 <button type="button" class="ai-shortcut purple" data-cmd="出处查询"><span class="ico">🔍</span>出处查询</button>
+                <button type="button" class="ai-shortcut teal" id="aiBtnChapterGen"><span class="ico">📄</span>章节生成</button>
                 <span class="ai-bubble-spacer"></span>
                 <button type="button" class="ai-close" id="aiBubbleClose"><span>✕</span>关闭</button>
               </div>
-              <div class="ai-bubble-input">
+              <div class="ai-bubble-input" id="aiBubbleInputWrap">
+                <div class="ai-meta-bar" id="aiMetaBar"></div>
                 <textarea id="aiBubbleText" placeholder="对已选文本，输入您的指令或者使用快捷按钮修改内容。长按可拖拽AI编辑框哦~"></textarea>
                 <div class="ai-bubble-actions">
+                  <span class="ai-ref-slot">
+                    <button type="button" class="ai-ref-btn" id="aiBubbleRefBtn">参考资料</button>
+                  </span>
                   <button type="button" class="ai-send" id="aiBubbleSend"><span>➤</span>发送</button>
                 </div>
               </div>
@@ -1345,6 +1628,84 @@
     </div>
   </div>
 
+  <!-- 章节生成 · 选择 Word 文体模板弹框 -->
+  <div class="tpl-mask" id="tplGenMask" aria-hidden="true">
+    <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择Word文体模板">
+      <div class="tpl-modal-head">章节生成 · 选择 Word 文体模板</div>
+      <div class="tpl-modal-body">
+        <div class="tpl-toolbar">
+          <input id="tplGenSearch" class="tpl-search" placeholder="请输入模板名称" autocomplete="off" />
+          <select id="tplGenCategoryFilter" class="tpl-filter" title="按类型筛选">
+            <option value="">全部</option>
+            <option value="系统内置文体">系统内置文体</option>
+            <option value="部门文体">部门文体</option>
+            <option value="企业文体">企业文体</option>
+          </select>
+        </div>
+        <div class="tpl-table-wrap">
+          <table class="tpl-table">
+            <thead>
+              <tr>
+                <th class="col-radio"></th>
+                <th>模板名称</th>
+                <th>类型</th>
+                <th>模板类型</th>
+              </tr>
+            </thead>
+            <tbody id="tplGenList"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tpl-modal-foot">
+        <button type="button" class="tpl-btn" id="tplGenCancel">取消</button>
+        <button type="button" class="tpl-btn primary" id="tplGenConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 知识库（参考资料）选择弹框 -->
+  <div class="kb-mask" id="kbMask" aria-hidden="true">
+    <div class="kb-modal" role="dialog" aria-modal="true" aria-label="从知识库选择参考资料">
+      <div class="kb-mh">
+        <div class="kb-mh-text">
+          <div class="kb-mh-title">从知识库选择参考资料</div>
+          <div class="kb-mh-desc">选择知识库已完成解析的资料用于本次章节生成；当前支持 .doc / .docx / .xlsx，单文件最大 50MB。</div>
+        </div>
+        <span class="kb-mh-close" id="kbClose" title="关闭">×</span>
+      </div>
+      <div class="kb-toolbar">
+        <select class="kb-select" aria-label="知识库">
+          <option>张三的个人知识库</option>
+          <option>企业共享知识库</option>
+          <option>部门知识库</option>
+        </select>
+        <div class="kb-search-wrap">
+          <span class="icon">🔎</span>
+          <input type="text" id="kbSearch" placeholder="搜索资料名称…" />
+        </div>
+      </div>
+      <div class="kb-body">
+        <div class="kb-dir">
+          <div class="kb-dir-title">素材目录</div>
+          <div class="kb-dir-empty">—</div>
+        </div>
+        <div class="kb-list" id="kbList">
+          <div class="kb-row" data-id="kb-fnlist" data-name="功能清单.xlsx">
+            <span class="icon">XLS</span>
+            <span class="name">功能清单.xlsx</span>
+            <span class="meta">128KB · 2026-04-21 16:08</span>
+            <span class="status">已完成</span>
+          </div>
+        </div>
+      </div>
+      <div class="kb-foot">
+        <span class="kb-foot-left" id="kbFootHint">已选中 0 项</span>
+        <button type="button" class="tpl-btn" id="kbCancel">取消</button>
+        <button type="button" class="tpl-btn primary" id="kbConfirm">确定</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1392,6 +1753,22 @@
             '<p class="doc-cover-date">' + escapeHtml(coverDateZh) + '</p>' +
           '</div>' +
         '</div>' +
+        '<h2 id="chap-1">1 概述</h2>' +
+        '<p>为支撑公司端到端透明化监控建设需要，规范本项目设备、软件、服务的技术要求和验收标准，特编制本技术规范书。本规范书是本次招标采购的技术依据，与商务文件具有同等效力。</p>' +
+        '<p>投标供应商应严格按照本规范书要求进行响应；如有偏离应单独列出偏离表，并附说明。最终以本规范书及合同条款为准。</p>' +
+
+        '<h2 id="chap-2">2 工程概述</h2>' +
+        '<p>本工程拟在公司现有运维体系基础上，建设端到端透明化监控平台，实现网络与业务全链路的指标采集、关联分析、可视化呈现与统一告警。建设范围覆盖采集探针部署、汇聚节点改造、平台软件交付、配套服务实施等。</p>' +
+        '<p>项目周期：合同签订后 12 个月内完成全部建设、试运行并通过终验；建设地点：河南省辖各核心机房及指定汇聚节点。</p>' +
+
+        '<h2 id="chap-3">3 总体技术要求</h2>' +
+        '<h3>3.1 总体原则</h3>' +
+        '<p>遵循"先进性、安全性、可扩展性、经济性"原则，平台采用主流分布式架构，支持横向扩展、多活部署、灰度发布；接口须遵循公司既有接入规范，关键模块具备国产化适配能力。</p>' +
+        '<h3>3.2 性能要求</h3>' +
+        '<p>采集时延 ≤ 5 秒；指标查询 P95 响应 ≤ 2 秒；并发用户 ≥ 500；月度可用率 ≥ 99.9%。</p>' +
+        '<h3>3.3 兼容性要求</h3>' +
+        '<p>需兼容主流网元厂商（华为/中兴/爱立信/诺基亚等）的标准接口与日志格式；与公司一级网管、CRM、计费等周边系统的接口须按既有规范完成对接。</p>' +
+
         '<h2 id="chap-4">4 建设方案</h2>' +
         '<h3>4.1 总体架构</h3>' +
         '<p>本项目按照"采集层 — 汇聚层 — 平台层 — 应用层"四层架构设计，整体满足端到端透明化监控需求，并兼顾未来 3 年的容量与扩展能力。各层之间通过标准接口解耦，平台层支持横向扩展与多活部署。</p>' +
@@ -1408,6 +1785,42 @@
           '<li>开发与单元测试：T+4 月内完成主要功能模块。</li>' +
           '<li>系统集成与试运行：T+8 月内完成上线试运行，并通过试运行验收。</li>' +
           '<li>正式投产与终验：T+12 月内完成全部交付并组织终验。</li>' +
+        '</ul>' +
+
+        '<h2 id="chap-5">5 网络信息安全要求</h2>' +
+        '<p>系统建设需对齐等保三级与公司信息安全管理规范，关键能力包括：访问控制、身份鉴别、安全审计、数据加密、漏洞管理与应急响应。</p>' +
+        '<p>所有特权操作须留痕；用户口令须满足复杂度与定期更换要求；对外接口必须经过统一安全审查与渗透测试方可上线。</p>' +
+
+        '<h2 id="chap-6">6 安装、调试、开通及试运行</h2>' +
+        '<p>供应商负责设备到货后的开箱、上架、加电、配置、联调直至业务正式开通。试运行期不少于 30 天，期间出现的功能、性能、稳定性问题由供应商负责整改。</p>' +
+        '<p>试运行期满，经甲乙双方共同签署《试运行验收报告》后方可进入正式运行；终验在正式运行 3 个月稳定后组织。</p>' +
+
+        '<h2 id="chap-7">7 响应供应商成交后需提供的技术文档</h2>' +
+        '<p>成交供应商应在合同约定时点提供以下技术文档（电子版 + 纸质版各一套）：</p>' +
+        '<ul>' +
+          '<li>《系统总体设计说明书》《详细设计说明书》</li>' +
+          '<li>《接口规范说明书》《数据字典》</li>' +
+          '<li>《部署与运维手册》《用户操作手册》</li>' +
+          '<li>《测试方案》《测试报告》《试运行报告》</li>' +
+          '<li>《培训方案》《培训资料》</li>' +
+        '</ul>' +
+
+        '<h2 id="chap-8">8 保修</h2>' +
+        '<p>整体保修期不少于 3 年，自终验合格之日起计。保修期内供应商应提供 7×24 小时响应服务，重大故障 30 分钟内响应、4 小时内到达现场、24 小时内闭环。</p>' +
+        '<p>保修期内涉及的硬件备件、软件升级、补丁更新、版本兼容性维护均由供应商无偿提供；保修期满后可根据实际情况续签维保服务协议。</p>' +
+
+        '<h2 id="chap-9">9 ★软件测评相关要求</h2>' +
+        '<p>本项目交付的应用软件须通过具备 CMA/CNAS 资质第三方机构的软件测评，含功能性、性能效率、安全性、兼容性、可维护性、易用性等核心质量特性。</p>' +
+        '<p>测评报告作为终验必要材料；如未通过测评，供应商须自费整改至通过为止。</p>' +
+
+        '<h2 id="chap-10">10 功能需求清单</h2>' +
+        '<p>详细功能需求请参见随附《功能需求清单.xlsx》，本节列出关键功能域：</p>' +
+        '<ul>' +
+          '<li>采集与接入：多协议探针、文件/数据库采集、流量镜像采集</li>' +
+          '<li>指标计算：实时聚合、复合指标、多维下钻</li>' +
+          '<li>告警管理：阈值/趋势/异常检测、告警抑制与升级</li>' +
+          '<li>可视化：拓扑视图、业务大屏、自助报表</li>' +
+          '<li>开放能力：API 网关、Webhook、对外推送</li>' +
         '</ul>';
 
       function digitsToCnYear(yStr) {
@@ -1465,15 +1878,181 @@
         var bubbleClose = document.getElementById('aiBubbleClose');
         var bubbleText = document.getElementById('aiBubbleText');
         var bubbleSend = document.getElementById('aiBubbleSend');
+        var bubbleInputWrap = document.getElementById('aiBubbleInputWrap');
+        var aiBtnChapterGen = document.getElementById('aiBtnChapterGen');
+        var aiBubbleRefBtn = document.getElementById('aiBubbleRefBtn');
         if (!editorEl || !paperWrap || !bubble) return;
 
         var lastSelectedText = '';
+        var lastSavedRange = null;
+        var chapterGenMode = false;
+        var chapterTplPicked = false;
+        var chapterTplName = '';
+        var chapterRefPicked = false;
+        var chapterRefName = '';
+        var currentH2Title = '';
         var manuallyHidden = false;
         var isDragging = false;
         var dragOffsetX = 0;
         var dragOffsetY = 0;
 
+        function findEnclosingH2(range) {
+          if (!range) return null;
+          var n = range.commonAncestorContainer;
+          if (n && n.nodeType === 3) n = n.parentNode;
+          while (n && n !== editorEl) {
+            if (n.nodeName === 'H2') return n;
+            n = n.parentNode;
+          }
+          try {
+            var frag = range.cloneContents();
+            if (frag && frag.querySelector) {
+              var h2 = frag.querySelector('h2');
+              if (h2) return h2;
+            }
+          } catch (e) { /* noop */ }
+          return null;
+        }
+        function isH1Selection(range) {
+          return !!findEnclosingH2(range);
+        }
+        function getDefaultGenInstr(title) {
+          if (/建设方案/.test(title || '')) {
+            return '建设方案章节分二级论述功能要求。';
+          }
+          return '';
+        }
+
+        var aiMetaBar = document.getElementById('aiMetaBar');
+
+        function refreshRefBtnLabel() {
+          if (!aiBubbleRefBtn) return;
+          aiBubbleRefBtn.textContent = '参考资料';
+          if (chapterRefPicked && chapterRefName) {
+            aiBubbleRefBtn.classList.add('is-picked');
+            aiBubbleRefBtn.title = '已选参考资料：' + chapterRefName + '（点击可重新选择）';
+          } else {
+            aiBubbleRefBtn.classList.remove('is-picked');
+            aiBubbleRefBtn.title = '从知识库选择参考资料';
+          }
+        }
+
+        function refreshMetaBar() {
+          if (!aiMetaBar) return;
+          var html = '';
+          if (chapterTplPicked && chapterTplName) {
+            html += '<span class="ai-meta-tag is-template" title="Word文体模板：' + escapeHtml(chapterTplName) + '">' +
+              '<span class="k">📄 文体模板</span>' +
+              '<span class="v">' + escapeHtml(chapterTplName) + '</span>' +
+              '<span class="x" data-clear="tpl" title="重选模板">×</span>' +
+              '</span>';
+          }
+          if (chapterRefPicked && chapterRefName) {
+            html += '<span class="ai-meta-tag is-ref" title="参考资料：' + escapeHtml(chapterRefName) + '">' +
+              '<span class="k">📎 参考资料</span>' +
+              '<span class="v">' + escapeHtml(chapterRefName) + '</span>' +
+              '<span class="x" data-clear="ref" title="移除参考资料">×</span>' +
+              '</span>';
+          }
+          aiMetaBar.innerHTML = html;
+        }
+
+        if (aiMetaBar) {
+          aiMetaBar.addEventListener('click', function (e) {
+            var x = e.target && e.target.closest && e.target.closest('[data-clear]');
+            if (!x) return;
+            var k = x.getAttribute('data-clear');
+            if (k === 'tpl') {
+              openTplGenModal();
+            } else if (k === 'ref') {
+              chapterRefPicked = false;
+              chapterRefName = '';
+              refreshRefBtnLabel();
+              refreshMetaBar();
+            }
+          });
+        }
+
+        function resetChapterGenState() {
+          chapterGenMode = false;
+          chapterTplPicked = false;
+          chapterTplName = '';
+          chapterRefPicked = false;
+          chapterRefName = '';
+          if (bubbleInputWrap) bubbleInputWrap.classList.remove('is-chapter-gen');
+          if (bubbleText) {
+            bubbleText.placeholder = '对已选文本，输入您的指令或者使用快捷按钮修改内容。长按可拖拽AI编辑框哦~';
+          }
+          refreshRefBtnLabel();
+          refreshMetaBar();
+        }
+
+        function buildChapterGenHtml(instr, withRef, refName, tplName) {
+          var useFnList = !!(withRef && refName && /功能清单/.test(refName));
+          if (useFnList) {
+            return '' +
+              '<h2>10 功能需求清单</h2>' +
+              '<p>本节依据《' + escapeHtml(refName) + '》整理，列出本项目应实现的核心功能模块及其关键能力要点。最终交付以《功能清单.xlsx》全量条目为准。</p>' +
+              '<h3>10.1 采集与接入</h3>' +
+              '<ul>' +
+                '<li>支持 SNMP、Telemetry、Syslog、SNMP Trap、NetFlow/IPFIX 等多协议采集。</li>' +
+                '<li>支持文件、数据库、Kafka、HTTP 等多种业务数据接入方式。</li>' +
+                '<li>具备探针下发、采集模板管理与采集任务调度能力。</li>' +
+              '</ul>' +
+              '<h3>10.2 指标计算与存储</h3>' +
+              '<ul>' +
+                '<li>提供秒级实时聚合、多维下钻、复合指标编排能力。</li>' +
+                '<li>热数据 ≥ 30 天，冷数据按合规要求归档不少于 12 个月。</li>' +
+                '<li>支持指标口径、单位、命名规范统一管理与版本化。</li>' +
+              '</ul>' +
+              '<h3>10.3 告警与事件管理</h3>' +
+              '<ul>' +
+                '<li>支持阈值、趋势、基线、异常检测等多种告警策略。</li>' +
+                '<li>具备告警去重、抑制、关联、升级与值班排班能力。</li>' +
+                '<li>支持与短信、邮件、企业 IM、工单系统的多通道联动。</li>' +
+              '</ul>' +
+              '<h3>10.4 可视化与报表</h3>' +
+              '<ul>' +
+                '<li>提供拓扑视图、业务大屏、自助式报表与导出能力。</li>' +
+                '<li>支持多角色（运维、运营、管理）差异化视图配置。</li>' +
+              '</ul>' +
+              '<h3>10.5 开放与集成</h3>' +
+              '<ul>' +
+                '<li>提供统一 API 网关，对外暴露 RESTful 接口与 Webhook。</li>' +
+                '<li>具备与一级网管、CRM、计费、OSS/BSS 等周边系统的集成能力。</li>' +
+              '</ul>' +
+              '<h3>10.6 安全与运维</h3>' +
+              '<ul>' +
+                '<li>覆盖账号、权限、审计、密钥管理与等保三级合规要求。</li>' +
+                '<li>提供平台自身的健康度监控、容量预测与备份恢复能力。</li>' +
+              '</ul>';
+          }
+          var instrLine = instr ? '<p>本节按写作要求"' + escapeHtml(instr) + '"组织：</p>' : '';
+          return '' +
+            instrLine +
+            '<p>本节围绕项目目标与关键能力进行系统性阐述，整体遵循"先进性、安全性、可扩展性、经济性"原则，对齐公司既有规范与等级保护要求。</p>' +
+            '<p>一、总体目标：在统一指标体系下实现网络与业务视图的可观测、可告警、可追溯。二、关键能力：采集归一、指标计算、关联分析、工单联动。三、实施路径：分阶段上线、灰度切换、试运行与终验收口。</p>' +
+            '<p>四、保障措施：建立常态化的运行评估与版本演进机制，并在试运行期内根据实际指标反馈持续优化配置与策略。</p>';
+        }
+
+        function replaceRangeWithHtml(range, htmlStr) {
+          var r = range.cloneRange();
+          r.deleteContents();
+          var tpl = document.createElement('template');
+          tpl.innerHTML = htmlStr.trim();
+          var frag = document.createDocumentFragment();
+          while (tpl.content.firstChild) frag.appendChild(tpl.content.firstChild);
+          r.insertNode(frag);
+          try {
+            r.collapse(false);
+            var sel2 = window.getSelection();
+            sel2.removeAllRanges();
+            sel2.addRange(r);
+          } catch (e2) { /* noop */ }
+        }
+
         function showBubbleAtSelection() {
+          resetChapterGenState();
           var sel = window.getSelection();
           if (!sel || sel.rangeCount === 0) return false;
           var text = String(sel.toString() || '').trim();
@@ -1489,8 +2068,16 @@
           }
           if (!anchor || (anchor.width === 0 && anchor.height === 0)) return false;
           var wrapRect = paperWrap.getBoundingClientRect();
+          var h2El = findEnclosingH2(range);
+          if (h2El) {
+            currentH2Title = String(h2El.textContent || '').trim();
+            bubble.classList.add('is-h1-mode');
+          } else {
+            currentH2Title = '';
+            bubble.classList.remove('is-h1-mode');
+          }
           bubble.classList.add('show');
-          var bubbleW = Math.min(720, Math.max(280, bubble.offsetWidth || 720));
+          var bubbleW = Math.min(640, Math.max(280, bubble.offsetWidth || 640));
           var gap = 4;
           var top = anchor.bottom - wrapRect.top + paperWrap.scrollTop + gap;
           var left = anchor.left - wrapRect.left + paperWrap.scrollLeft + (anchor.width / 2) - (bubbleW / 2);
@@ -1501,6 +2088,11 @@
           bubble.style.left = left + 'px';
           bubble.style.top = top + 'px';
           lastSelectedText = text;
+          try {
+            lastSavedRange = range.cloneRange();
+          } catch (e) {
+            lastSavedRange = null;
+          }
           requestAnimationFrame(function () {
             var bubbleH = bubble.offsetHeight || 160;
             var visBottom = paperWrap.scrollTop + paperWrap.clientHeight;
@@ -1514,7 +2106,11 @@
 
         function hideBubble() {
           bubble.classList.remove('show');
+          bubble.classList.remove('is-h1-mode');
           lastSelectedText = '';
+          lastSavedRange = null;
+          currentH2Title = '';
+          resetChapterGenState();
           if (bubbleText) bubbleText.value = '';
           updateSendBtn();
         }
@@ -1522,7 +2118,7 @@
         function updateSendBtn() {
           if (!bubbleSend || !bubbleText) return;
           var hasText = !!String(bubbleText.value || '').trim();
-          bubbleSend.classList.toggle('enabled', hasText);
+          bubbleSend.classList.toggle('enabled', hasText || chapterGenMode);
         }
 
         function handleSelectionChange() {
@@ -1548,12 +2144,20 @@
         });
         document.addEventListener('selectionchange', function () {
           if (document.activeElement === bubbleText) return;
+          var kbMaskEl = document.getElementById('kbMask');
+          if (kbMaskEl && kbMaskEl.classList.contains('show')) return;
+          var tplGenMaskEl = document.getElementById('tplGenMask');
+          if (tplGenMaskEl && tplGenMaskEl.classList.contains('show')) return;
           if (!editorEl.contains(window.getSelection().anchorNode)) return;
           handleSelectionChange();
         });
         document.addEventListener('mousedown', function (e) {
           if (bubble.contains(e.target)) return;
           if (editorEl.contains(e.target)) return;
+          var kbMaskEl = document.getElementById('kbMask');
+          if (kbMaskEl && kbMaskEl.classList.contains('show') && kbMaskEl.contains(e.target)) return;
+          var tplGenMaskEl = document.getElementById('tplGenMask');
+          if (tplGenMaskEl && tplGenMaskEl.classList.contains('show') && tplGenMaskEl.contains(e.target)) return;
           hideBubble();
         });
 
@@ -1565,7 +2169,7 @@
           hideBubble();
         });
 
-        bubble.querySelectorAll('.ai-shortcut').forEach(function (btn) {
+        bubble.querySelectorAll('.ai-shortcut[data-cmd]').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var cmd = btn.getAttribute('data-cmd');
             var snippet = lastSelectedText ? lastSelectedText.slice(0, 18) : '';
@@ -1573,13 +2177,237 @@
           });
         });
 
+        if (aiBtnChapterGen && bubbleInputWrap) {
+          aiBtnChapterGen.addEventListener('click', function () {
+            openTplGenModal();
+          });
+        }
+        if (aiBubbleRefBtn) {
+          aiBubbleRefBtn.addEventListener('click', function () {
+            openKbModal();
+          });
+        }
+
+        // ===== 章节生成 · Word 文体模板弹框 =====
+        var tplGenMask = document.getElementById('tplGenMask');
+        var tplGenList = document.getElementById('tplGenList');
+        var tplGenSearch = document.getElementById('tplGenSearch');
+        var tplGenCategoryFilter = document.getElementById('tplGenCategoryFilter');
+        var tplGenCancel = document.getElementById('tplGenCancel');
+        var tplGenConfirm = document.getElementById('tplGenConfirm');
+        var tplGenPool = [
+          { id: 'g1', name: '技术规范书', docType: '系统内置文体', tplType: '报告' },
+          { id: 'g2', name: '项目建议书', docType: '企业文体', tplType: '报告' },
+          { id: 'g3', name: '可行性研究报告', docType: '系统内置文体', tplType: '报告' },
+          { id: 'g4', name: '招标技术需求书', docType: '部门文体', tplType: '招投标' },
+          { id: 'g5', name: '系统设计说明书', docType: '系统内置文体', tplType: '报告' },
+          { id: 'g6', name: '运维方案说明', docType: '部门文体', tplType: '工作' },
+          { id: 'g7', name: '通用章节模板', docType: '企业文体', tplType: '通用' }
+        ];
+        var tplGenPending = null;
+
+        function getTplGenFiltered() {
+          var kw = String(tplGenSearch ? tplGenSearch.value : '').trim().toLowerCase();
+          var cat = tplGenCategoryFilter ? tplGenCategoryFilter.value : '';
+          return tplGenPool.filter(function (t) {
+            if (cat && t.docType !== cat) return false;
+            if (!kw) return true;
+            return (t.name + ' ' + t.docType + ' ' + t.tplType).toLowerCase().indexOf(kw) !== -1;
+          });
+        }
+
+        function renderTplGenList() {
+          if (!tplGenList) return;
+          var matched = getTplGenFiltered();
+          if (!matched.length) {
+            tplGenList.innerHTML = '<tr><td colspan="4" class="tpl-empty">未匹配到模板</td></tr>';
+            return;
+          }
+          tplGenList.innerHTML = matched.map(function (t) {
+            var active = tplGenPending && String(tplGenPending.id) === String(t.id);
+            return '<tr class="tpl-row' + (active ? ' active' : '') + '" data-id="' + escapeHtml(t.id) + '">' +
+              '<td class="col-radio-cell"><input type="radio" name="tplGenPick" class="tpl-radio"' + (active ? ' checked' : '') + ' tabindex="-1" /></td>' +
+              '<td>' + escapeHtml(t.name) + '</td>' +
+              '<td>' + escapeHtml(t.docType) + '</td>' +
+              '<td>' + escapeHtml(t.tplType) + '</td>' +
+              '</tr>';
+          }).join('');
+        }
+
+        function openTplGenModal() {
+          if (!tplGenMask) return;
+          tplGenPending = chapterTplPicked
+            ? tplGenPool.find(function (t) { return t.name === chapterTplName; }) || null
+            : null;
+          if (tplGenSearch) tplGenSearch.value = '';
+          if (tplGenCategoryFilter) tplGenCategoryFilter.value = '';
+          renderTplGenList();
+          tplGenMask.classList.add('show');
+          tplGenMask.setAttribute('aria-hidden', 'false');
+          setTimeout(function () { if (tplGenSearch) tplGenSearch.focus(); }, 0);
+        }
+        function closeTplGenModal() {
+          if (!tplGenMask) return;
+          tplGenMask.classList.remove('show');
+          tplGenMask.setAttribute('aria-hidden', 'true');
+        }
+
+        if (tplGenList) {
+          tplGenList.addEventListener('click', function (e) {
+            var row = e.target.closest && e.target.closest('.tpl-row');
+            if (!row) return;
+            var id = row.getAttribute('data-id');
+            var found = tplGenPool.find(function (t) { return t.id === id; });
+            if (!found) return;
+            tplGenPending = found;
+            renderTplGenList();
+          });
+        }
+        if (tplGenSearch) tplGenSearch.addEventListener('input', renderTplGenList);
+        if (tplGenCategoryFilter) tplGenCategoryFilter.addEventListener('change', renderTplGenList);
+        if (tplGenCancel) tplGenCancel.addEventListener('click', closeTplGenModal);
+        if (tplGenMask) {
+          tplGenMask.addEventListener('click', function (e) {
+            if (e.target === tplGenMask) closeTplGenModal();
+          });
+        }
+        if (tplGenConfirm) {
+          tplGenConfirm.addEventListener('click', function () {
+            if (!tplGenPending) {
+              showToast('请选择一个文体模板');
+              return;
+            }
+            chapterTplPicked = true;
+            chapterTplName = tplGenPending.name;
+            chapterGenMode = true;
+            if (bubbleInputWrap) bubbleInputWrap.classList.add('is-chapter-gen');
+            if (bubbleText) {
+              bubbleText.placeholder = '请输入章节生成的要求（结构、侧重点、字数等）；可点击「参考资料」从知识库选择素材；点击发送后将覆盖当前所选章节。';
+              var defaultInstr = getDefaultGenInstr(currentH2Title);
+              if (defaultInstr && !String(bubbleText.value || '').trim()) {
+                bubbleText.value = defaultInstr;
+              }
+            }
+            refreshMetaBar();
+            updateSendBtn();
+            closeTplGenModal();
+            showToast('已选模板：' + chapterTplName);
+            try { if (bubbleText) bubbleText.focus(); } catch (e) { /* noop */ }
+          });
+        }
+
+        var kbMask = document.getElementById('kbMask');
+        var kbList = document.getElementById('kbList');
+        var kbClose = document.getElementById('kbClose');
+        var kbCancel = document.getElementById('kbCancel');
+        var kbConfirm = document.getElementById('kbConfirm');
+        var kbFootHint = document.getElementById('kbFootHint');
+        var kbSearch = document.getElementById('kbSearch');
+        var kbPickedId = '';
+        var kbPickedName = '';
+
+        function syncKbFootHint() {
+          if (!kbFootHint) return;
+          kbFootHint.textContent = kbPickedId ? '已选中 1 项：' + kbPickedName : '已选中 0 项';
+        }
+
+        function openKbModal() {
+          if (!kbMask) return;
+          kbPickedId = '';
+          kbPickedName = '';
+          if (kbList) {
+            kbList.querySelectorAll('.kb-row').forEach(function (r) { r.classList.remove('selected'); });
+          }
+          if (kbSearch) kbSearch.value = '';
+          syncKbFootHint();
+          kbMask.classList.add('show');
+          kbMask.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeKbModal() {
+          if (!kbMask) return;
+          kbMask.classList.remove('show');
+          kbMask.setAttribute('aria-hidden', 'true');
+        }
+
+        if (kbList) {
+          kbList.addEventListener('click', function (e) {
+            var row = e.target.closest && e.target.closest('.kb-row');
+            if (!row) return;
+            kbList.querySelectorAll('.kb-row').forEach(function (r) { r.classList.remove('selected'); });
+            row.classList.add('selected');
+            kbPickedId = row.getAttribute('data-id') || '';
+            kbPickedName = row.getAttribute('data-name') || '';
+            syncKbFootHint();
+          });
+        }
+        if (kbSearch) {
+          kbSearch.addEventListener('input', function () {
+            var q = String(kbSearch.value || '').trim().toLowerCase();
+            kbList.querySelectorAll('.kb-row').forEach(function (r) {
+              var n = (r.getAttribute('data-name') || '').toLowerCase();
+              r.style.display = (!q || n.indexOf(q) !== -1) ? '' : 'none';
+            });
+          });
+        }
+        if (kbClose) kbClose.addEventListener('click', closeKbModal);
+        if (kbCancel) kbCancel.addEventListener('click', closeKbModal);
+        if (kbMask) {
+          kbMask.addEventListener('click', function (e) {
+            if (e.target === kbMask) closeKbModal();
+          });
+        }
+        if (kbConfirm) {
+          kbConfirm.addEventListener('click', function () {
+            if (!kbPickedId) {
+              showToast('请先选择一项参考资料');
+              return;
+            }
+            chapterRefPicked = true;
+            chapterRefName = kbPickedName;
+            refreshRefBtnLabel();
+            refreshMetaBar();
+            closeKbModal();
+            showToast('已选参考资料：' + chapterRefName + '，请在输入框输入要求后发送');
+            if (bubbleText) {
+              try { bubbleText.focus(); } catch (e) { /* noop */ }
+            }
+          });
+        }
+
         bubbleText.addEventListener('input', updateSendBtn);
         bubbleText.addEventListener('focus', function () {
           manuallyHidden = false;
         });
         bubbleSend.addEventListener('click', function () {
           if (!bubbleSend.classList.contains('enabled')) return;
-          showToast('已发送：' + bubbleText.value.trim().slice(0, 24));
+          var instr = bubbleText.value.trim();
+          if (chapterGenMode) {
+            if (!lastSavedRange) {
+              showToast('选区已失效，请关闭后重新选中要覆盖的章节');
+              return;
+            }
+            var ok = false;
+            try {
+              var r = lastSavedRange.cloneRange();
+              var genHtml = buildChapterGenHtml(instr, chapterRefPicked, chapterRefName, chapterTplName);
+              editorEl.focus();
+              replaceRangeWithHtml(r, genHtml);
+              if (typeof updateWc === 'function') updateWc();
+              showToast('已生成并替换所选章节');
+              ok = true;
+            } catch (err) {
+              showToast('替换失败，请重新选择章节后再试');
+            }
+            if (ok) {
+              bubbleText.value = '';
+              updateSendBtn();
+              manuallyHidden = true;
+              hideBubble();
+            }
+            return;
+          }
+          showToast('已发送：' + instr.slice(0, 24) + (instr.length > 24 ? '…' : ''));
           bubbleText.value = '';
           updateSendBtn();
         });
