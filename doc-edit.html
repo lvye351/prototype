@@ -217,6 +217,162 @@
       color: rgba(0, 0, 0, 0.88);
     }
     .paper:focus-visible { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 2px rgba(24, 144, 255, 0.25); }
+    .paper h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.92);
+      margin: 28px 0 12px;
+      letter-spacing: 0.02em;
+    }
+    .paper h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.88);
+      margin: 22px 0 10px;
+    }
+    .paper p {
+      margin: 0 0 12px;
+      text-indent: 2em;
+    }
+    .paper ul {
+      margin: 0 0 12px 0;
+      padding-left: 28px;
+    }
+    .paper li { margin-bottom: 4px; }
+    .paper ::selection { background: rgba(24, 144, 255, 0.22); }
+
+    /* 选中悬浮 AI 编辑框 */
+    .ai-bubble {
+      position: absolute;
+      z-index: 80;
+      display: none;
+      width: 720px;
+      max-width: calc(100vw - 32px);
+      background: #fff;
+      border: 1px solid #d6e0ff;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(20, 71, 230, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+      padding: 10px 12px 12px;
+      font-family: inherit;
+      user-select: none;
+    }
+    .ai-bubble.show { display: block; }
+    .ai-bubble-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .ai-bubble-handle {
+      width: 18px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #8c8c8c;
+      cursor: grab;
+      font-size: 16px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .ai-bubble-handle:active { cursor: grabbing; }
+    .ai-shortcut {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #d6e0ff;
+      border-radius: 18px;
+      background: #fff;
+      color: #1447e6;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ai-shortcut:hover {
+      background: #f0f5ff;
+      border-color: #1447e6;
+    }
+    .ai-shortcut.purple {
+      color: #8200db;
+      border-color: #e9d5ff;
+    }
+    .ai-shortcut.purple:hover {
+      background: #faf2ff;
+      border-color: #8200db;
+    }
+    .ai-shortcut .ico {
+      font-size: 14px;
+      line-height: 1;
+    }
+    .ai-bubble-spacer { flex: 1; min-width: 8px; }
+    .ai-close {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #ffccc7;
+      border-radius: 18px;
+      background: #fff;
+      color: #ff4d4f;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .ai-close:hover {
+      background: #fff1f0;
+      border-color: #ff4d4f;
+    }
+    .ai-bubble-input {
+      margin-top: 10px;
+      border: 1px solid #4096ff;
+      border-radius: 10px;
+      padding: 10px 12px 8px;
+      background: #fff;
+    }
+    .ai-bubble-input textarea {
+      width: 100%;
+      min-height: 64px;
+      max-height: 180px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.85);
+      line-height: 1.6;
+      background: transparent;
+    }
+    .ai-bubble-input textarea::placeholder { color: #bfbfbf; }
+    .ai-bubble-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .ai-send {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 28px;
+      padding: 0 12px;
+      border: none;
+      border-radius: 6px;
+      background: #f5f5f5;
+      color: #bfbfbf;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: not-allowed;
+    }
+    .ai-send.enabled {
+      background: #1447e6;
+      color: #fff;
+      cursor: pointer;
+    }
+    .ai-send.enabled:hover { background: #0b3bcc; }
 
     /* 封面排版 · 对齐正式技术规范书封面（标题居中 + 底部单位/日期） */
     .doc-cover {
@@ -855,8 +1011,27 @@
 
           <div class="meta-bar" id="metaRest"></div>
 
-          <div class="paper-wrap">
+          <div class="paper-wrap" id="paperWrap">
             <div class="paper" id="editor" contenteditable="true" spellcheck="false"></div>
+            <div class="ai-bubble" id="aiBubble" contenteditable="false">
+              <div class="ai-bubble-toolbar">
+                <span class="ai-bubble-handle" title="拖拽移动" id="aiBubbleHandle">⠿</span>
+                <button type="button" class="ai-shortcut" data-cmd="润色"><span class="ico">✨</span>润色</button>
+                <button type="button" class="ai-shortcut" data-cmd="改写"><span class="ico">↻</span>改写</button>
+                <button type="button" class="ai-shortcut" data-cmd="扩写"><span class="ico">⤢</span>扩写</button>
+                <button type="button" class="ai-shortcut" data-cmd="续写"><span class="ico">✎</span>续写</button>
+                <button type="button" class="ai-shortcut" data-cmd="缩写"><span class="ico">⤡</span>缩写</button>
+                <button type="button" class="ai-shortcut purple" data-cmd="出处查询"><span class="ico">🔍</span>出处查询</button>
+                <span class="ai-bubble-spacer"></span>
+                <button type="button" class="ai-close" id="aiBubbleClose"><span>✕</span>关闭</button>
+              </div>
+              <div class="ai-bubble-input">
+                <textarea id="aiBubbleText" placeholder="对已选文本，输入您的指令或者使用快捷按钮修改内容。长按可拖拽AI编辑框哦~"></textarea>
+                <div class="ai-bubble-actions">
+                  <button type="button" class="ai-send" id="aiBubbleSend"><span>➤</span>发送</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="edit-footer">
@@ -1211,7 +1386,24 @@
             '<p class="doc-cover-org">' + escapeHtml(coverOrg) + '</p>' +
             '<p class="doc-cover-date">' + escapeHtml(coverDateZh) + '</p>' +
           '</div>' +
-        '</div>';
+        '</div>' +
+        '<h2 id="chap-4">4 建设方案</h2>' +
+        '<h3>4.1 总体架构</h3>' +
+        '<p>本项目按照"采集层 — 汇聚层 — 平台层 — 应用层"四层架构设计，整体满足端到端透明化监控需求，并兼顾未来 3 年的容量与扩展能力。各层之间通过标准接口解耦，平台层支持横向扩展与多活部署。</p>' +
+        '<p>采集层负责从网元设备、业务系统、第三方平台获取性能、告警、配置、日志等多源异构数据；汇聚层完成清洗、归一与时序写入；平台层提供统一的指标计算、关联分析和可视化能力；应用层面向运维、运营和管理岗位提供差异化视图与报表。</p>' +
+        '<h3>4.2 网络与接入方案</h3>' +
+        '<p>采集探针、采集服务器与汇聚集群之间采用专用 VLAN 互联，关键链路双归属冗余；与省级运维平台、网管系统的对接均通过受控的接口网关，按最小权限原则授权；对外暴露的接口须经过 API 网关进行统一鉴权、限流与审计。</p>' +
+        '<h3>4.3 平台部署方案</h3>' +
+        '<p>平台层采用容器化部署，基于 Kubernetes 实现编排与调度，关键组件均采用主备或多副本方式部署，单点故障可在 30 秒内自动切换；存储层使用分布式时序数据库与对象存储相结合，热数据保留 30 天，温冷数据按合规要求分级归档不少于 12 个月。</p>' +
+        '<h3>4.4 安全防护方案</h3>' +
+        '<p>整体安全方案对齐等级保护三级要求：网络边界部署下一代防火墙与 IDS/IPS；主机层启用 EDR 与基线核查；应用层强制使用 HTTPS、TLS 1.2+、双因子认证，关键操作具备完整审计日志，并按要求与日志审计平台对接。</p>' +
+        '<h3>4.5 实施与里程碑</h3>' +
+        '<ul>' +
+          '<li>需求与方案细化：T+1 月内完成详细设计评审。</li>' +
+          '<li>开发与单元测试：T+4 月内完成主要功能模块。</li>' +
+          '<li>系统集成与试运行：T+8 月内完成上线试运行，并通过试运行验收。</li>' +
+          '<li>正式投产与终验：T+12 月内完成全部交付并组织终验。</li>' +
+        '</ul>';
 
       function digitsToCnYear(yStr) {
         var map = '〇一二三四五六七八九';
@@ -1259,6 +1451,146 @@
 
       document.getElementById('editor').addEventListener('input', updateWc);
       updateWc();
+
+      (function initAiBubble() {
+        var editorEl = document.getElementById('editor');
+        var paperWrap = document.getElementById('paperWrap');
+        var bubble = document.getElementById('aiBubble');
+        var bubbleHandle = document.getElementById('aiBubbleHandle');
+        var bubbleClose = document.getElementById('aiBubbleClose');
+        var bubbleText = document.getElementById('aiBubbleText');
+        var bubbleSend = document.getElementById('aiBubbleSend');
+        if (!editorEl || !paperWrap || !bubble) return;
+
+        var lastSelectedText = '';
+        var manuallyHidden = false;
+        var isDragging = false;
+        var dragOffsetX = 0;
+        var dragOffsetY = 0;
+
+        function showBubbleAtSelection() {
+          var sel = window.getSelection();
+          if (!sel || sel.rangeCount === 0) return false;
+          var text = String(sel.toString() || '').trim();
+          if (!text) return false;
+          var range = sel.getRangeAt(0);
+          if (!editorEl.contains(range.commonAncestorContainer)) return false;
+          var rect = range.getBoundingClientRect();
+          if (!rect || (rect.width === 0 && rect.height === 0)) return false;
+          var wrapRect = paperWrap.getBoundingClientRect();
+          var bubbleW = bubble.offsetWidth || 720;
+          var top = rect.top - wrapRect.top + paperWrap.scrollTop + rect.height + 8;
+          var left = rect.left - wrapRect.left + paperWrap.scrollLeft + (rect.width / 2) - (bubbleW / 2);
+          var maxLeft = paperWrap.clientWidth - bubbleW - 12;
+          if (left < 12) left = 12;
+          if (left > maxLeft) left = Math.max(12, maxLeft);
+          bubble.style.left = left + 'px';
+          bubble.style.top = top + 'px';
+          bubble.classList.add('show');
+          lastSelectedText = text;
+          return true;
+        }
+
+        function hideBubble() {
+          bubble.classList.remove('show');
+          lastSelectedText = '';
+          if (bubbleText) bubbleText.value = '';
+          updateSendBtn();
+        }
+
+        function updateSendBtn() {
+          if (!bubbleSend || !bubbleText) return;
+          var hasText = !!String(bubbleText.value || '').trim();
+          bubbleSend.classList.toggle('enabled', hasText);
+        }
+
+        function handleSelectionChange() {
+          if (manuallyHidden) return;
+          var sel = window.getSelection();
+          if (!sel || sel.isCollapsed) {
+            if (!bubble.contains(document.activeElement)) hideBubble();
+            return;
+          }
+          if (!editorEl.contains(sel.anchorNode)) return;
+          showBubbleAtSelection();
+        }
+
+        editorEl.addEventListener('mouseup', function () {
+          manuallyHidden = false;
+          setTimeout(handleSelectionChange, 0);
+        });
+        editorEl.addEventListener('keyup', function (e) {
+          if (e.shiftKey || e.key === 'Shift') {
+            manuallyHidden = false;
+            setTimeout(handleSelectionChange, 0);
+          }
+        });
+        document.addEventListener('selectionchange', function () {
+          if (document.activeElement === bubbleText) return;
+          if (!editorEl.contains(window.getSelection().anchorNode)) return;
+          handleSelectionChange();
+        });
+        document.addEventListener('mousedown', function (e) {
+          if (bubble.contains(e.target)) return;
+          if (editorEl.contains(e.target)) return;
+          hideBubble();
+        });
+
+        bubble.addEventListener('mousedown', function (e) {
+          e.stopPropagation();
+        });
+        bubbleClose.addEventListener('click', function () {
+          manuallyHidden = true;
+          hideBubble();
+        });
+
+        bubble.querySelectorAll('.ai-shortcut').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var cmd = btn.getAttribute('data-cmd');
+            var snippet = lastSelectedText ? lastSelectedText.slice(0, 18) : '';
+            showToast(cmd + (snippet ? '：' + snippet + (lastSelectedText.length > 18 ? '…' : '') : ''));
+          });
+        });
+
+        bubbleText.addEventListener('input', updateSendBtn);
+        bubbleText.addEventListener('focus', function () {
+          manuallyHidden = false;
+        });
+        bubbleSend.addEventListener('click', function () {
+          if (!bubbleSend.classList.contains('enabled')) return;
+          showToast('已发送：' + bubbleText.value.trim().slice(0, 24));
+          bubbleText.value = '';
+          updateSendBtn();
+        });
+
+        bubbleHandle.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          isDragging = true;
+          var rect = bubble.getBoundingClientRect();
+          dragOffsetX = e.clientX - rect.left;
+          dragOffsetY = e.clientY - rect.top;
+          document.body.style.userSelect = 'none';
+        });
+        document.addEventListener('mousemove', function (e) {
+          if (!isDragging) return;
+          var wrapRect = paperWrap.getBoundingClientRect();
+          var left = e.clientX - wrapRect.left - dragOffsetX + paperWrap.scrollLeft;
+          var top = e.clientY - wrapRect.top - dragOffsetY + paperWrap.scrollTop;
+          var maxLeft = paperWrap.scrollWidth - bubble.offsetWidth - 4;
+          var maxTop = paperWrap.scrollHeight - bubble.offsetHeight - 4;
+          if (left < 4) left = 4;
+          if (top < 4) top = 4;
+          if (left > maxLeft) left = maxLeft;
+          if (top > maxTop) top = maxTop;
+          bubble.style.left = left + 'px';
+          bubble.style.top = top + 'px';
+        });
+        document.addEventListener('mouseup', function () {
+          if (!isDragging) return;
+          isDragging = false;
+          document.body.style.userSelect = '';
+        });
+      })();
 
       var reviewScrollEl = document.getElementById('reviewScroll');
       var REVIEW_SCROLL_DEFAULT_HTML = reviewScrollEl.innerHTML;
