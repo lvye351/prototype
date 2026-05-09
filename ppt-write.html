@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>智能写作系统 · ppt写作</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
+      background: #f0f2f5;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 64px;
+      background: #001529;
+      display: flex; align-items: center;
+      padding: 0 50px;
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 20px; font-weight: 600; color: #fff;
+      line-height: 64px; letter-spacing: 0.02em;
+    }
+
+    .layout { display: flex; height: calc(100vh - 64px); }
+
+    /* —— 侧栏 —— */
+    .sidebar {
+      width: 200px; background: #fff; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+    }
+    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
+    .side-group-h {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 22px 0 18px; height: 40px;
+      font-size: 14px; font-weight: 400; color: #1890ff;
+      cursor: pointer; user-select: none;
+    }
+    .side-group-h .arr { font-size: 11px; color: #bbb; transition: transform .2s; }
+    .side-group-h.collapsed .arr { transform: rotate(-90deg); }
+    .side-group-h .lbl { display: inline-flex; align-items: center; gap: 8px; }
+    .side-group-h .lbl .ic { font-size: 13px; }
+    .side-sub { background: #fafafa; padding: 4px 0 8px; }
+    .side-sub.collapsed { display: none; }
+    .menu-item {
+      position: relative;
+      padding: 0 16px 0 44px; height: 40px; line-height: 40px;
+      font-size: 14px; color: rgba(0, 0, 0, 0.85);
+      cursor: pointer; transition: background .15s;
+    }
+    .menu-item:hover { background: #f0f0f0; }
+    .menu-item.active {
+      background: #f1f1f1; color: #1890ff; font-weight: 400;
+    }
+    .menu-item.active::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #1890ff, #1fbdff);
+    }
+
+    .sidebar-foot {
+      border-top: 0.75px solid #f0f0f0;
+      padding: 8px 12px; background: #fff;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .sf-av {
+      width: 24px; height: 24px; border-radius: 12px;
+      background: #ccc; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #fff;
+    }
+    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
+
+    /* —— 主区 —— */
+    .content {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column;
+      background: #f5f7fb; overflow: hidden;
+    }
+    .content-head { padding: 14px 24px 0; flex-shrink: 0; }
+    .content-title { font-size: 18px; font-weight: 600; color: #20262e; }
+    .content-body {
+      flex: 1; display: flex; gap: 14px;
+      padding: 12px 18px 18px; min-height: 0;
+    }
+
+    /* —— 历史会话 —— */
+    .history {
+      width: 220px; flex-shrink: 0;
+      background: #fff; border-radius: 10px; border: 1px solid #ebeef5;
+      display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+    }
+    .history-head { padding: 14px 14px 6px; }
+    .btn-new-chat {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      height: 38px; width: 100%;
+      border: none; border-radius: 8px;
+      background: linear-gradient(90deg, #5B9BFF 0%, #2C7BFE 100%);
+      color: #fff; font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 10px rgba(44, 123, 254, .25);
+    }
+    .btn-new-chat:hover { opacity: .92; }
+    .history-list { flex: 1; overflow-y: auto; padding: 6px 8px 12px; }
+    .history-item {
+      padding: 10px 10px 10px 12px; border-radius: 8px;
+      cursor: pointer; transition: background .15s;
+      border-left: 3px solid transparent; margin-bottom: 4px;
+    }
+    .history-item:hover { background: #f5f8ff; }
+    .history-item.active { background: #eaf2ff; border-left-color: #2c7bfe; }
+    .history-item .h-title { font-size: 13px; font-weight: 600; color: #1d39c4; }
+    .history-item .h-summary {
+      font-size: 12px; color: #5b6b81; line-height: 1.5; margin-top: 4px;
+      display: -webkit-box; -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2; overflow: hidden;
+    }
+
+    /* —— 中央编辑器 + 模板 —— */
+    .center {
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column;
+      gap: 14px; min-height: 0;
+      overflow-y: auto;
+    }
+
+    .composer {
+      background: #fff; border-radius: 10px; border: 1px solid #ebeef5;
+      padding: 16px 18px 12px; position: relative;
+    }
+    .file-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .file-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 28px 6px 10px;
+      background: #f5f8ff; border: 1px solid #e2e9f5; border-radius: 8px;
+      max-width: 280px; position: relative;
+      font-size: 12px; color: #1f2937;
+    }
+    .file-chip .fic {
+      width: 22px; height: 22px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .file-chip .fic.xls { background: #1a7a4b; }
+    .file-chip .fic.doc { background: #2f6cd5; }
+    .file-chip .fic.ppt { background: #d46b08; }
+    .file-chip .fic.pdf { background: #cf1322; }
+    .file-chip .fname {
+      max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: 500;
+    }
+    .file-chip .fclose {
+      position: absolute; right: 6px; top: 6px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: rgba(0, 0, 0, .55); color: #fff;
+      font-size: 10px; line-height: 14px; text-align: center;
+      cursor: pointer; user-select: none;
+    }
+    .file-chip .fclose:hover { background: #ff4d4f; }
+
+    .composer-text {
+      width: 100%; min-height: 80px; max-height: 240px;
+      border: none; outline: none; resize: none;
+      font-family: inherit; font-size: 13.5px; line-height: 1.65;
+      color: rgba(0, 0, 0, .85); background: transparent;
+    }
+    .composer-text::placeholder { color: #b8bfca; }
+
+    .composer-toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+      margin-top: 10px;
+    }
+    .ref-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 30px; padding: 0 14px;
+      border: 1px solid #d6e0ff; border-radius: 16px;
+      background: #fff; color: #1447e6; font-size: 13px; cursor: pointer;
+      font-family: inherit; transition: background .15s, border-color .15s;
+    }
+    .ref-btn:hover { background: #f0f5ff; border-color: #1447e6; }
+    .ref-btn .ic { font-size: 13px; }
+
+    .composer-send {
+      position: absolute; right: 18px; bottom: 38px;
+      width: 36px; height: 36px;
+      border: none; border-radius: 50%;
+      background: linear-gradient(135deg, #5B9BFF 0%, #2C7BFE 100%);
+      color: #fff; font-size: 16px; cursor: pointer;
+      box-shadow: 0 6px 16px rgba(44, 123, 254, .35);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: inherit;
+    }
+    .composer-send:hover { opacity: .92; }
+    .word-count {
+      position: absolute; right: 18px; bottom: 12px;
+      font-size: 12px; color: #b0b8c8;
+    }
+
+    /* —— 模板区 —— */
+    .tpl-card {
+      background: #fff; border-radius: 10px; border: 1px solid #ebeef5;
+      padding: 14px 16px 18px;
+    }
+    .tpl-tools-row {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .scene-row {
+      display: inline-flex; align-items: center; gap: 8px;
+      flex: 1; min-width: 240px;
+    }
+    .scene-row .lbl { font-size: 13px; color: rgba(0, 0, 0, .85); }
+    .scene-select {
+      height: 30px; padding: 0 24px 0 12px;
+      border: 1px solid #e2e9f5; border-radius: 6px;
+      font-size: 13px; min-width: 200px;
+      font-family: inherit; outline: none;
+      background: #fff; color: #5b6b81;
+      cursor: pointer;
+    }
+    .scene-select:focus { border-color: #1890ff; }
+    .tpl-search {
+      width: 220px; height: 30px;
+      border: 1px solid #e2e9f5; border-radius: 16px;
+      padding: 0 32px 0 14px;
+      font-size: 13px; outline: none; font-family: inherit;
+      background: #f7f9fc url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='20' y1='20' x2='16.65' y2='16.65'/></svg>") no-repeat right 10px center;
+      background-size: 14px 14px;
+    }
+    .tpl-search:focus { border-color: #1890ff; background-color: #fff; }
+
+    .ppt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px; margin-top: 14px;
+    }
+    .ppt-cell {
+      background: #fff; border: 2px solid transparent;
+      border-radius: 10px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(20, 71, 230, .06);
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .ppt-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(20, 71, 230, .12);
+    }
+    .ppt-cell.is-selected {
+      border-color: #2C7BFE;
+      box-shadow: 0 6px 18px rgba(44, 123, 254, .18), 0 0 0 3px rgba(44, 123, 254, .12);
+    }
+    .ppt-cell .ppt-thumb {
+      aspect-ratio: 16 / 10;
+      background: #f5f6f8;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .ppt-cell .ppt-thumb .empty {
+      color: #b9bfca; font-size: 13px;
+    }
+    .ppt-cell .ppt-thumb svg { width: 100%; height: 100%; display: block; }
+    .ppt-cell .ppt-name {
+      padding: 10px 12px;
+      font-size: 13px; color: #20262e;
+      text-align: center;
+      font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .ppt-cell.is-selected .ppt-name { color: #1447e6; }
+
+    /* —— Toast —— */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: #323232; color: #fff;
+      padding: 12px 20px; border-radius: 8px;
+      font-size: 14px; z-index: 9999; display: none;
+    }
+
+    /* —— 知识库选择弹框 —— */
+    .kb-mask {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, .46); z-index: 200;
+      display: none; align-items: center; justify-content: center;
+    }
+    .kb-mask.show { display: flex; }
+    .kb-modal {
+      width: min(720px, calc(100vw - 44px)); max-height: min(78vh, 600px);
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .24);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .kb-mh { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #eceff3; }
+    .kb-mh-text { flex: 1; min-width: 0; }
+    .kb-mh-title { font-size: 16px; font-weight: 600; color: #20262e; line-height: 1.2; }
+    .kb-mh-desc { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.6; }
+    .kb-mh-close {
+      cursor: pointer; width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #999; font-size: 22px; border-radius: 6px; flex-shrink: 0;
+    }
+    .kb-mh-close:hover { background: #f5f5f5; color: #333; }
+    .kb-toolbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-bottom: 1px solid #eee; background: #fafbff;
+    }
+    .kb-search-wrap { flex: 1; min-width: 160px; position: relative; }
+    .kb-search-wrap input {
+      width: 100%; padding: 7px 12px 7px 32px;
+      border: 1px solid #ddd; border-radius: 6px;
+      font-size: 13px; outline: none; font-family: inherit;
+    }
+    .kb-search-wrap input:focus { border-color: #1890ff; }
+    .kb-search-wrap .kb-search-icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: #aaa; font-size: 13px;
+    }
+    .kb-list { flex: 1; min-width: 0; overflow-y: auto; padding: 8px 14px; max-height: 44vh; }
+    .kb-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      border: 1px solid #eef2f6; margin-bottom: 8px;
+      background: #fff; cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .kb-row:hover { background: #f7faff; }
+    .kb-row.selected { background: #e8f0fe; border-color: #cfe0ff; }
+    .kb-row .ico {
+      width: 32px; height: 32px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .kb-row .ico.doc { background: #2f6cd5; }
+    .kb-row .ico.xls { background: #1a7a4b; }
+    .kb-row .ico.ppt { background: #d46b08; }
+    .kb-row .ico.pdf { background: #cf1322; }
+    .kb-row .name {
+      flex: 1; min-width: 0; font-size: 13px; color: #333;
+      font-weight: 500; word-break: break-all;
+    }
+    .kb-row .meta { font-size: 12px; color: #999; white-space: nowrap; flex-shrink: 0; }
+    .kb-row .status { font-size: 12px; color: #1a7a4b; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+    .kb-foot {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px 14px; border-top: 1px solid #f0f0f0;
+    }
+    .kb-foot-left { flex: 1; font-size: 13px; color: #666; }
+    .kb-btn {
+      height: 30px; min-width: 64px; padding: 0 14px;
+      border-radius: 6px; border: 1px solid #d9d9d9;
+      background: #fff; cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .kb-btn.primary { border-color: #1890ff; background: #1890ff; color: #fff; }
+    .kb-btn.primary:hover { opacity: .92; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">智能写作系统</span>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-scroll" id="sideScroll">
+      <div class="side-group-h" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📁</span>文档写作</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub">
+        <div class="menu-item" onclick="location.href='chat-write.html'">对话写作</div>
+        <div class="menu-item active">ppt写作</div>
+        <div class="menu-item" onclick="goMyDocs()">我的文稿</div>
+        <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
+        <div class="menu-item" onclick="location.href='check.html'">技术规范书查重</div>
+      </div>
+
+      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📂</span>模板运营</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub collapsed">
+        <div class="menu-item" onclick="showToast('文体模板管理功能开发中')">文体模板管理</div>
+        <div class="menu-item" onclick="showToast('模板市场功能开发中')">模板市场</div>
+      </div>
+
+      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📂</span>知识库管理</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub collapsed">
+        <div class="menu-item" onclick="showToast('个人知识库功能开发中')">个人知识库</div>
+        <div class="menu-item" onclick="showToast('部门知识库功能开发中')">部门知识库</div>
+        <div class="menu-item" onclick="showToast('企业知识库功能开发中')">企业知识库</div>
+      </div>
+
+      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📂</span>系统管理</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub collapsed">
+        <div class="menu-item" onclick="showToast('用户管理功能开发中')">用户管理</div>
+        <div class="menu-item" onclick="showToast('日志审计功能开发中')">日志审计</div>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="sf-av">王</div>
+      <span class="sf-name">王海龙</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="content-head">
+      <div class="content-title">ppt写作</div>
+    </div>
+
+    <div class="content-body">
+      <div class="history">
+        <div class="history-head">
+          <button type="button" class="btn-new-chat" onclick="newChat()"><span>＋</span>开始新对话</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+      <div class="center">
+        <div class="composer">
+          <div class="file-chips" id="fileChips">
+            <div class="file-chip">
+              <span class="fic doc">DOC</span>
+              <span class="fname" title="中国电信河南公司2025年AI+服务管理能力升级技术规范书.docx">中国电信河南公司2025…</span>
+              <span class="fclose" onclick="this.parentElement.remove()">×</span>
+            </div>
+            <div class="file-chip">
+              <span class="fic xls">XLS</span>
+              <span class="fname" title="功能清单2025年AI+服务管理能力升级.xlsx">功能清单2025年AI+服…</span>
+              <span class="fclose" onclick="this.parentElement.remove()">×</span>
+            </div>
+          </div>
+
+          <textarea id="composerText" class="composer-text" maxlength="1000"
+            placeholder="请输入你的写作需求…"
+            oninput="updateWordCount()">请帮我制作一份PPT，主题为： 采购方案，使用场景为： 总结汇报、通用 。</textarea>
+
+          <div class="composer-toolbar">
+            <button type="button" class="ref-btn" onclick="openKbModal()"><span class="ic">@</span>参考资料</button>
+          </div>
+
+          <button type="button" class="composer-send" title="发送" onclick="sendChat()">↑</button>
+          <span class="word-count"><span id="wcUsed">0</span>/<span id="wcMax">1000</span></span>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-tools-row">
+            <div class="scene-row">
+              <span class="lbl">场景：</span>
+              <select id="sceneSelect" class="scene-select" onchange="renderTplGrid()">
+                <option value="">请选择场景</option>
+                <option value="总结汇报">总结汇报</option>
+                <option value="项目汇报">项目汇报</option>
+                <option value="立项汇报">立项汇报</option>
+                <option value="采购方案">采购方案</option>
+                <option value="新闻发布">新闻发布</option>
+                <option value="通用">通用</option>
+              </select>
+            </div>
+            <input type="text" id="tplSearch" class="tpl-search" placeholder="搜索模板" oninput="renderTplGrid()" />
+          </div>
+          <div class="ppt-grid" id="pptGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 知识库选择弹框 -->
+<div class="kb-mask" id="kbMask" aria-hidden="true">
+  <div class="kb-modal" role="dialog" aria-modal="true" aria-label="从知识库选择参考资料">
+    <div class="kb-mh">
+      <div class="kb-mh-text">
+        <div class="kb-mh-title">从知识库选择参考资料</div>
+        <div class="kb-mh-desc">支持 .doc / .docx / .xlsx / .pptx / .pdf 等多种类型，可多选。</div>
+      </div>
+      <span class="kb-mh-close" id="kbClose" title="关闭">×</span>
+    </div>
+    <div class="kb-toolbar">
+      <div class="kb-search-wrap">
+        <span class="kb-search-icon">🔎</span>
+        <input type="text" id="kbSearch" placeholder="搜索资料名称…" />
+      </div>
+    </div>
+    <div class="kb-list" id="kbList"></div>
+    <div class="kb-foot">
+      <span class="kb-foot-left" id="kbFootHint">已选中 0 项</span>
+      <button type="button" class="kb-btn" id="kbCancel">取消</button>
+      <button type="button" class="kb-btn primary" id="kbConfirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(function () { t.style.display = 'none'; }, 2400);
+}
+
+function toggleGroup(headEl) {
+  if (!headEl) return;
+  const sub = headEl.nextElementSibling;
+  if (!sub || !sub.classList.contains('side-sub')) return;
+  const collapsed = headEl.classList.toggle('collapsed');
+  sub.classList.toggle('collapsed', collapsed);
+}
+
+function goMyDocs() { window.location.href = 'index.html'; }
+
+const HISTORY = [
+  { id: 'h1', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：采购方案，使用场景为：总结汇报、通用。' },
+  { id: 'h2', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：项目立项，使用场景为：立项汇报、通用。' },
+  { id: 'h3', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：年度总结，使用场景为：总结汇报。' },
+  { id: 'h4', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：技术方案，使用场景为：项目汇报。' },
+  { id: 'h5', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：采购方案，使用场景为：通用。' },
+  { id: 'h6', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：新闻发布稿，使用场景为：新闻发布。' },
+  { id: 'h7', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：项目复盘，使用场景为：总结汇报。' },
+  { id: 'h8', title: '智能PPT', summary: '请帮我制作一份PPT，主题为：产品介绍，使用场景为：通用。' }
+];
+let currentChatId = 'h1';
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = HISTORY.map(function (h) {
+    const active = h.id === currentChatId ? ' active' : '';
+    return '<div class="history-item' + active + '" data-id="' + h.id + '" onclick="pickChat(\'' + h.id + '\')">' +
+      '<div class="h-title">' + escapeHtml(h.title) + '</div>' +
+      '<div class="h-summary" title="' + escapeHtml(h.summary) + '">' + escapeHtml(h.summary) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function pickChat(id) {
+  currentChatId = id; renderHistory(); showToast('已加载会话');
+}
+
+function newChat() {
+  const id = 'h' + (HISTORY.length + 1);
+  HISTORY.unshift({ id: id, title: '智能PPT', summary: '新建 PPT 会话…' });
+  currentChatId = id;
+  document.getElementById('composerText').value = '';
+  updateWordCount();
+  renderHistory();
+}
+
+function updateWordCount() {
+  const ta = document.getElementById('composerText');
+  const len = String(ta.value || '').length;
+  document.getElementById('wcUsed').textContent = len;
+}
+
+/* —— PPT 模板 —— */
+const PPT_TEMPLATES = [
+  {
+    id: 'p1',
+    name: '中国电信河南公司2026杯…',
+    scene: '采购方案',
+    thumb: 'svg-telecom-2026'
+  },
+  {
+    id: 'p2',
+    name: 'whl',
+    scene: '通用',
+    thumb: 'svg-sky'
+  },
+  {
+    id: 'p3',
+    name: '部门管理员新建的PPT模板2',
+    scene: '通用',
+    thumb: 'svg-empty'
+  },
+  {
+    id: 'p4',
+    name: '部门管理员新建的PPT模板',
+    scene: '通用',
+    thumb: 'svg-empty'
+  },
+  {
+    id: 'p5',
+    name: '企业管理员配置的PPT',
+    scene: '通用',
+    thumb: 'svg-empty'
+  },
+  {
+    id: 'p6',
+    name: '总结汇报通用模板',
+    scene: '总结汇报',
+    thumb: 'svg-summary'
+  },
+  {
+    id: 'p7',
+    name: '立项汇报模板',
+    scene: '立项汇报',
+    thumb: 'svg-project'
+  },
+  {
+    id: 'p8',
+    name: '新闻发布通稿模板',
+    scene: '新闻发布',
+    thumb: 'svg-news'
+  }
+];
+
+let currentScene = '';
+let selectedPptId = 'p1';
+
+function renderThumb(kind) {
+  if (kind === 'svg-telecom-2026') {
+    return '<svg viewBox="0 0 200 125" preserveAspectRatio="xMidYMid slice">' +
+      '<rect x="0" y="0" width="200" height="125" fill="#fff"/>' +
+      '<rect x="0" y="0" width="200" height="22" fill="#f5d6d6"/>' +
+      '<rect x="74" y="6" width="52" height="10" fill="#e74c3c"/>' +
+      '<text x="100" y="14" font-size="6" text-anchor="middle" fill="#fff" font-family="PingFang SC,Microsoft YaHei">中国电信2026</text>' +
+      '<rect x="60" y="40" width="80" height="6" fill="#e74c3c"/>' +
+      '<text x="100" y="44" font-size="4.5" text-anchor="middle" fill="#fff">采购方案技术规范书</text>' +
+      '<g transform="translate(20,55)">' +
+        '<rect x="0" y="0" width="80" height="40" fill="#fde6c0"/>' +
+        '<polygon points="0,40 30,18 60,28 80,18 80,40" fill="#f08c2b"/>' +
+        '<rect x="60" y="22" width="6" height="18" fill="#a14e0a"/>' +
+        '<rect x="50" y="14" width="4" height="6" fill="#cf6f1f"/>' +
+      '</g>' +
+      '<rect x="20" y="100" width="160" height="6" fill="#e74c3c"/>' +
+      '<text x="100" y="104" font-size="3.5" text-anchor="middle" fill="#fff">汇报人：王海龙</text>' +
+      '</svg>';
+  }
+  if (kind === 'svg-sky') {
+    return '<svg viewBox="0 0 200 125" preserveAspectRatio="xMidYMid slice">' +
+      '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#a4d2ff"/><stop offset="1" stop-color="#dceeff"/>' +
+      '</linearGradient></defs>' +
+      '<rect x="0" y="0" width="200" height="125" fill="url(#sky)"/>' +
+      '<ellipse cx="40" cy="50" rx="25" ry="10" fill="#fff" opacity=".85"/>' +
+      '<ellipse cx="60" cy="46" rx="20" ry="8" fill="#fff" opacity=".75"/>' +
+      '<ellipse cx="140" cy="65" rx="32" ry="12" fill="#fff" opacity=".85"/>' +
+      '<ellipse cx="170" cy="60" rx="20" ry="8" fill="#fff" opacity=".7"/>' +
+      '<rect x="0" y="100" width="200" height="25" fill="#cfe6c8"/>' +
+      '<text x="100" y="118" font-size="7" text-anchor="middle" fill="#3a4f33" font-family="PingFang SC,Microsoft YaHei">whl</text>' +
+      '</svg>';
+  }
+  if (kind === 'svg-summary') {
+    return '<svg viewBox="0 0 200 125" preserveAspectRatio="xMidYMid slice">' +
+      '<rect x="0" y="0" width="200" height="125" fill="#eef4ff"/>' +
+      '<rect x="20" y="20" width="160" height="14" fill="#2c7bfe"/>' +
+      '<text x="100" y="30" font-size="7" text-anchor="middle" fill="#fff" font-family="PingFang SC,Microsoft YaHei">2025 年度工作总结汇报</text>' +
+      '<rect x="20" y="48" width="60" height="55" fill="#fff" stroke="#cfd8eb"/>' +
+      '<rect x="90" y="48" width="42" height="55" fill="#fff" stroke="#cfd8eb"/>' +
+      '<rect x="138" y="48" width="42" height="55" fill="#fff" stroke="#cfd8eb"/>' +
+      '<rect x="26" y="56" width="48" height="3" fill="#2c7bfe"/>' +
+      '<rect x="26" y="62" width="40" height="2" fill="#cfd8eb"/>' +
+      '<rect x="26" y="66" width="44" height="2" fill="#cfd8eb"/>' +
+      '<rect x="96" y="56" width="30" height="3" fill="#2c7bfe"/>' +
+      '<rect x="96" y="62" width="26" height="2" fill="#cfd8eb"/>' +
+      '<rect x="144" y="56" width="30" height="3" fill="#2c7bfe"/>' +
+      '<rect x="144" y="62" width="26" height="2" fill="#cfd8eb"/>' +
+      '</svg>';
+  }
+  if (kind === 'svg-project') {
+    return '<svg viewBox="0 0 200 125" preserveAspectRatio="xMidYMid slice">' +
+      '<rect x="0" y="0" width="200" height="125" fill="#fff7e6"/>' +
+      '<rect x="0" y="0" width="200" height="34" fill="#fa8c16"/>' +
+      '<text x="100" y="22" font-size="8" text-anchor="middle" fill="#fff" font-family="PingFang SC,Microsoft YaHei">项目立项汇报</text>' +
+      '<circle cx="50" cy="80" r="22" fill="#fde0a8"/>' +
+      '<circle cx="100" cy="80" r="22" fill="#ffd591"/>' +
+      '<circle cx="150" cy="80" r="22" fill="#ffc069"/>' +
+      '<text x="50" y="84" font-size="6" text-anchor="middle" fill="#7a3b04">背景</text>' +
+      '<text x="100" y="84" font-size="6" text-anchor="middle" fill="#7a3b04">方案</text>' +
+      '<text x="150" y="84" font-size="6" text-anchor="middle" fill="#7a3b04">收益</text>' +
+      '</svg>';
+  }
+  if (kind === 'svg-news') {
+    return '<svg viewBox="0 0 200 125" preserveAspectRatio="xMidYMid slice">' +
+      '<rect x="0" y="0" width="200" height="125" fill="#fff"/>' +
+      '<rect x="0" y="0" width="200" height="22" fill="#1a3a6b"/>' +
+      '<text x="100" y="14" font-size="6" text-anchor="middle" fill="#fff" font-family="PingFang SC,Microsoft YaHei">新闻发布稿</text>' +
+      '<rect x="20" y="32" width="60" height="40" fill="#cfd8eb"/>' +
+      '<rect x="86" y="32" width="94" height="6" fill="#1a3a6b"/>' +
+      '<rect x="86" y="42" width="80" height="3" fill="#aab2c2"/>' +
+      '<rect x="86" y="48" width="84" height="3" fill="#aab2c2"/>' +
+      '<rect x="86" y="54" width="74" height="3" fill="#aab2c2"/>' +
+      '<rect x="86" y="60" width="60" height="3" fill="#aab2c2"/>' +
+      '<rect x="20" y="82" width="160" height="3" fill="#aab2c2"/>' +
+      '<rect x="20" y="88" width="160" height="3" fill="#aab2c2"/>' +
+      '<rect x="20" y="94" width="120" height="3" fill="#aab2c2"/>' +
+      '</svg>';
+  }
+  return '<div class="empty">请输入</div>';
+}
+
+function getFilteredPpts() {
+  const kw = String(document.getElementById('tplSearch').value || '').trim().toLowerCase();
+  return PPT_TEMPLATES.filter(function (t) {
+    if (currentScene && t.scene !== currentScene) return false;
+    if (!kw) return true;
+    return (t.name + ' ' + t.scene).toLowerCase().indexOf(kw) !== -1;
+  });
+}
+
+function renderTplGrid() {
+  currentScene = document.getElementById('sceneSelect').value || '';
+  const list = getFilteredPpts();
+  const grid = document.getElementById('pptGrid');
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9aa3b8;padding:24px;font-size:13px;">未匹配到模板</div>';
+    return;
+  }
+  grid.innerHTML = list.map(function (t) {
+    const sel = t.id === selectedPptId ? ' is-selected' : '';
+    return '<div class="ppt-cell' + sel + '" data-id="' + t.id + '" onclick="pickPpt(\'' + t.id + '\')">' +
+      '<div class="ppt-thumb">' + renderThumb(t.thumb) + '</div>' +
+      '<div class="ppt-name" title="' + escapeHtml(t.name) + '">' + escapeHtml(t.name) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function pickPpt(id) {
+  selectedPptId = (selectedPptId === id) ? '' : id;
+  renderTplGrid();
+  if (selectedPptId) {
+    const t = PPT_TEMPLATES.find(function (x) { return x.id === id; });
+    if (t) showToast('已选模板：' + t.name);
+  }
+}
+
+/* —— 知识库参考资料弹框 —— */
+const KB_FILES = [
+  { id: 'kb1', name: '中国电信2026年河南公司AI+服务管理能力升级技术规范书.docx', type: 'doc', size: '2.6MB', time: '2026-04-21 16:08', status: '已完成' },
+  { id: 'kb2', name: '功能清单2025年AI+服务管理能力升级.xlsx', type: 'xls', size: '1.4MB', time: '2026-04-20 09:18', status: '已完成' },
+  { id: 'kb3', name: '中国电信2026年河南公司AI+服务管理能力升级立项汇报.pptx', type: 'ppt', size: '8.4MB', time: '2026-04-22 11:30', status: '已完成' },
+  { id: 'kb4', name: '招标文件_技术部分.pdf', type: 'pdf', size: '3.2MB', time: '2026-03-28 19:11', status: '已完成' }
+];
+const KB_TYPE_LABEL = { doc: 'DOC', xls: 'XLS', ppt: 'PPT', pdf: 'PDF' };
+let kbPickedIds = [];
+
+const kbMask = document.getElementById('kbMask');
+const kbList = document.getElementById('kbList');
+const kbClose = document.getElementById('kbClose');
+const kbCancel = document.getElementById('kbCancel');
+const kbConfirm = document.getElementById('kbConfirm');
+const kbFootHint = document.getElementById('kbFootHint');
+const kbSearch = document.getElementById('kbSearch');
+
+function getKbFiltered() {
+  const q = String(kbSearch.value || '').trim().toLowerCase();
+  return KB_FILES.filter(function (f) {
+    if (!q) return true;
+    return f.name.toLowerCase().indexOf(q) !== -1;
+  });
+}
+
+function renderKbList() {
+  const list = getKbFiltered();
+  if (!list.length) {
+    kbList.innerHTML = '<div style="text-align:center;color:#9aa3b8;padding:24px;font-size:13px;">未匹配到资料</div>';
+    return;
+  }
+  kbList.innerHTML = list.map(function (f) {
+    const sel = kbPickedIds.indexOf(f.id) !== -1;
+    return '<div class="kb-row' + (sel ? ' selected' : '') + '" data-id="' + f.id + '">' +
+      '<span class="ico ' + f.type + '">' + (KB_TYPE_LABEL[f.type] || '') + '</span>' +
+      '<span class="name" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</span>' +
+      '<span class="meta">' + escapeHtml(f.size) + ' · ' + escapeHtml(f.time) + '</span>' +
+      '<span class="status">' + escapeHtml(f.status) + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function syncKbFootHint() {
+  kbFootHint.textContent = '已选中 ' + kbPickedIds.length + ' 项';
+}
+
+function openKbModal() {
+  kbPickedIds = []; kbSearch.value = '';
+  syncKbFootHint(); renderKbList();
+  kbMask.classList.add('show');
+  kbMask.setAttribute('aria-hidden', 'false');
+  setTimeout(function () { try { kbSearch.focus(); } catch (e) {} }, 0);
+}
+
+function closeKbModal() {
+  kbMask.classList.remove('show');
+  kbMask.setAttribute('aria-hidden', 'true');
+}
+
+kbList.addEventListener('click', function (e) {
+  const row = e.target.closest && e.target.closest('.kb-row');
+  if (!row) return;
+  const id = row.getAttribute('data-id');
+  if (!id) return;
+  const idx = kbPickedIds.indexOf(id);
+  if (idx === -1) kbPickedIds.push(id);
+  else kbPickedIds.splice(idx, 1);
+  syncKbFootHint(); renderKbList();
+});
+kbSearch.addEventListener('input', renderKbList);
+kbClose.addEventListener('click', closeKbModal);
+kbCancel.addEventListener('click', closeKbModal);
+kbMask.addEventListener('click', function (e) { if (e.target === kbMask) closeKbModal(); });
+
+kbConfirm.addEventListener('click', function () {
+  if (!kbPickedIds.length) { showToast('请至少选择一项资料'); return; }
+  const picked = KB_FILES.filter(function (f) { return kbPickedIds.indexOf(f.id) !== -1; });
+  const chips = document.getElementById('fileChips');
+  picked.forEach(function (f) {
+    if (chips.querySelector('[data-id="' + f.id + '"]')) return;
+    const div = document.createElement('div');
+    div.className = 'file-chip';
+    div.setAttribute('data-id', f.id);
+    div.innerHTML =
+      '<span class="fic ' + f.type + '">' + (KB_TYPE_LABEL[f.type] || '') + '</span>' +
+      '<span class="fname" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</span>' +
+      '<span class="fclose">×</span>';
+    div.querySelector('.fclose').addEventListener('click', function () { div.remove(); });
+    chips.appendChild(div);
+  });
+  showToast('已添加 ' + picked.length + ' 项参考资料');
+  closeKbModal();
+});
+
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function nowEditTimeStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function sendChat() {
+  const txt = String(document.getElementById('composerText').value || '').trim();
+  if (!txt && !selectedPptId) { showToast('请输入主题或选择 PPT 模板'); return; }
+  const tpl = PPT_TEMPLATES.find(function (x) { return x.id === selectedPptId; });
+  let title = (tpl && tpl.name) || '';
+  if (!title) {
+    const m = txt.match(/【([^】]{2,200})】/);
+    title = m ? m[1] : ('PPT写作_' + nowEditTimeStr().replace(/[^\d]/g, ''));
+  }
+  if (!/\.pptx?$/i.test(title)) title += '.pptx';
+  showToast('已发送，将基于模板「' + (tpl ? tpl.name : '默认') + '」生成 PPT');
+}
+
+renderHistory();
+renderTplGrid();
+updateWordCount();
+</script>
+
+</body>
+</html>

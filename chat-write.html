@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>智能写作系统 · 对话写作</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Inter", sans-serif;
+      background: #f0f2f5;
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: 64px;
+      background: #001529;
+      display: flex;
+      align-items: center;
+      padding: 0 50px;
+      flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 64px;
+      letter-spacing: 0.02em;
+    }
+
+    .layout { display: flex; height: calc(100vh - 64px); }
+
+    /* —— 侧栏 —— */
+    .sidebar {
+      width: 200px;
+      background: #fff;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+    }
+    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
+    .side-group-h {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px 0 18px;
+      height: 40px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1890ff;
+      cursor: pointer;
+      user-select: none;
+    }
+    .side-group-h .arr { font-size: 11px; color: #bbb; transition: transform .2s; }
+    .side-group-h.collapsed .arr { transform: rotate(-90deg); }
+    .side-group-h .lbl { display: inline-flex; align-items: center; gap: 8px; }
+    .side-group-h .lbl .ic { font-size: 13px; }
+    .side-sub { background: #fafafa; padding: 4px 0 8px; }
+    .side-sub.collapsed { display: none; }
+    .menu-item {
+      position: relative;
+      padding: 0 16px 0 44px;
+      height: 40px;
+      line-height: 40px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.85);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .menu-item:hover { background: #f0f0f0; }
+    .menu-item.active {
+      background: #f1f1f1;
+      color: #1890ff;
+      font-weight: 400;
+    }
+    .menu-item.active::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #1890ff, #1fbdff);
+    }
+
+    .sidebar-foot {
+      border-top: 0.75px solid #f0f0f0;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+    }
+    .sf-av {
+      width: 24px; height: 24px; border-radius: 12px;
+      background: #ccc; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #fff;
+    }
+    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
+
+    /* —— 主区 —— */
+    .content {
+      flex: 1; min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #f5f7fb;
+      overflow: hidden;
+    }
+    .content-head {
+      padding: 14px 24px 0;
+      flex-shrink: 0;
+    }
+    .content-title {
+      font-size: 18px; font-weight: 600; color: #20262e;
+    }
+    .content-body {
+      flex: 1;
+      display: flex;
+      gap: 14px;
+      padding: 12px 18px 18px;
+      min-height: 0;
+    }
+
+    /* —— 历史会话面板 —— */
+    .history {
+      width: 220px;
+      flex-shrink: 0;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #ebeef5;
+      display: flex; flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .history-head { padding: 14px 14px 6px; }
+    .btn-new-chat {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px;
+      height: 38px; width: 100%;
+      border: none; border-radius: 8px;
+      background: linear-gradient(90deg, #5B9BFF 0%, #2C7BFE 100%);
+      color: #fff; font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 10px rgba(44, 123, 254, .25);
+    }
+    .btn-new-chat:hover { opacity: .92; }
+    .history-list { flex: 1; overflow-y: auto; padding: 6px 8px 12px; }
+    .history-item {
+      padding: 10px 10px 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .15s;
+      border-left: 3px solid transparent;
+      margin-bottom: 4px;
+    }
+    .history-item:hover { background: #f5f8ff; }
+    .history-item.active {
+      background: #eaf2ff;
+      border-left-color: #2c7bfe;
+    }
+    .history-item .h-title {
+      font-size: 13px; font-weight: 600; color: #1d39c4;
+    }
+    .history-item .h-summary {
+      font-size: 12px; color: #5b6b81; line-height: 1.5; margin-top: 4px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    /* —— 中间编辑器+模板 —— */
+    .center {
+      flex: 1; min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .composer {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #ebeef5;
+      padding: 16px 18px 12px;
+      position: relative;
+    }
+    .file-chips {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .file-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 28px 6px 10px;
+      background: #f5f8ff;
+      border: 1px solid #e2e9f5;
+      border-radius: 8px;
+      max-width: 280px;
+      position: relative;
+      font-size: 12px; color: #1f2937;
+    }
+    .file-chip .fic {
+      width: 22px; height: 22px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .file-chip .fic.xls { background: #1a7a4b; }
+    .file-chip .fic.doc { background: #2f6cd5; }
+    .file-chip .fic.ppt { background: #d46b08; }
+    .file-chip .fic.pdf { background: #cf1322; }
+    .file-chip .fname {
+      max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: 500;
+    }
+    .file-chip .fsize { color: #6b7589; font-size: 11px; }
+    .file-chip .fclose {
+      position: absolute; right: 6px; top: 6px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, .55);
+      color: #fff; font-size: 10px; line-height: 14px; text-align: center;
+      cursor: pointer; user-select: none;
+    }
+    .file-chip .fclose:hover { background: #ff4d4f; }
+
+    .composer-text {
+      width: 100%;
+      min-height: 100px;
+      max-height: 240px;
+      border: none; outline: none; resize: none;
+      font-family: inherit; font-size: 13.5px; line-height: 1.65;
+      color: rgba(0, 0, 0, 0.85);
+      background: transparent;
+    }
+    .composer-text::placeholder { color: #b8bfca; }
+
+    .composer-toolbar {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .ref-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 30px; padding: 0 14px;
+      border: 1px solid #d6e0ff; border-radius: 16px;
+      background: #fff; color: #1447e6; font-size: 13px; cursor: pointer;
+      font-family: inherit; transition: background .15s, border-color .15s;
+    }
+    .ref-btn:hover { background: #f0f5ff; border-color: #1447e6; }
+    .ref-btn .ic { font-size: 13px; }
+    .ref-picked {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 28px; padding: 0 10px;
+      border: 1px solid #b7eb8f; border-radius: 14px;
+      background: #f6ffed; color: #1a7a4b;
+      font-size: 12px; max-width: 280px;
+    }
+    .ref-picked[hidden] { display: none; }
+    .ref-picked .rp-name {
+      max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-weight: 500;
+    }
+    .ref-picked .rp-x {
+      cursor: pointer; color: rgba(0, 0, 0, .35); font-size: 14px; line-height: 1;
+    }
+    .ref-picked .rp-x:hover { color: #ff4d4f; }
+
+    /* —— 知识库选择弹框 —— */
+    .kb-mask {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, .46);
+      z-index: 200;
+      display: none;
+      align-items: center; justify-content: center;
+    }
+    .kb-mask.show { display: flex; }
+    .kb-modal {
+      width: min(720px, calc(100vw - 44px));
+      max-height: min(78vh, 600px);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .24);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .kb-mh {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 18px; border-bottom: 1px solid #eceff3;
+    }
+    .kb-mh-text { flex: 1; min-width: 0; }
+    .kb-mh-title { font-size: 16px; font-weight: 600; color: #20262e; line-height: 1.2; }
+    .kb-mh-desc { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.6; }
+    .kb-mh-close {
+      cursor: pointer; width: 28px; height: 28px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #999; font-size: 22px; border-radius: 6px; flex-shrink: 0;
+    }
+    .kb-mh-close:hover { background: #f5f5f5; color: #333; }
+    .kb-toolbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px; border-bottom: 1px solid #eee;
+      background: #fafbff;
+    }
+    .kb-select {
+      padding: 6px 28px 6px 10px; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 13px; background: #fff; color: #333; min-width: 200px;
+      font-family: inherit;
+    }
+    .kb-search-wrap { flex: 1; min-width: 160px; position: relative; }
+    .kb-search-wrap input {
+      width: 100%; padding: 7px 12px 7px 32px;
+      border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none;
+      font-family: inherit;
+    }
+    .kb-search-wrap input:focus { border-color: #1890ff; }
+    .kb-search-wrap .kb-search-icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: #aaa; font-size: 13px;
+    }
+    .kb-body { display: flex; min-height: 260px; max-height: 44vh; }
+    .kb-dir {
+      width: 140px; flex-shrink: 0; border-right: 1px solid #eee;
+      padding: 12px 10px; background: #f9fafb;
+      font-size: 12px; color: #666;
+    }
+    .kb-dir-title { font-weight: 700; color: #333; margin-bottom: 8px; }
+    .kb-dir-empty { color: #ccc; font-size: 12px; }
+    .kb-list { flex: 1; min-width: 0; overflow-y: auto; padding: 8px 14px; }
+    .kb-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px;
+      border: 1px solid #eef2f6; margin-bottom: 8px;
+      background: #fff; cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .kb-row:hover { background: #f7faff; }
+    .kb-row.selected { background: #e8f0fe; border-color: #cfe0ff; }
+    .kb-row.disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+    .kb-row .ico {
+      width: 32px; height: 32px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+    }
+    .kb-row .ico.doc { background: #2f6cd5; }
+    .kb-row .ico.xls { background: #1a7a4b; }
+    .kb-row .ico.ppt { background: #d46b08; }
+    .kb-row .ico.pdf { background: #cf1322; }
+    .kb-row .name {
+      flex: 1; min-width: 0; font-size: 13px; color: #333;
+      font-weight: 500; word-break: break-all;
+    }
+    .kb-row .meta { font-size: 12px; color: #999; white-space: nowrap; flex-shrink: 0; }
+    .kb-row .status { font-size: 12px; color: #1a7a4b; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+    .kb-foot {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px 14px; border-top: 1px solid #f0f0f0;
+    }
+    .kb-foot-left { flex: 1; font-size: 13px; color: #666; }
+    .kb-btn {
+      height: 30px; min-width: 64px; padding: 0 14px;
+      border-radius: 6px; border: 1px solid #d9d9d9;
+      background: #fff; cursor: pointer; font-size: 13px; font-family: inherit;
+    }
+    .kb-btn.primary { border-color: #1890ff; background: #1890ff; color: #fff; }
+    .kb-btn.primary:hover { opacity: .92; }
+
+    .scope-row {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 14px;
+      width: 100%;
+      font-size: 12px;
+      color: rgba(0, 0, 0, .65);
+      margin-top: 6px;
+    }
+    .scope-row .scope-lbl {
+      color: #ff4d4f;
+    }
+    .scope-row label {
+      display: inline-flex; align-items: center; gap: 5px;
+      cursor: pointer;
+    }
+    .scope-row input[type=checkbox] {
+      width: 14px; height: 14px; accent-color: #1890ff; cursor: pointer; margin: 0;
+    }
+    .composer-send {
+      position: absolute; right: 18px; bottom: 38px;
+      width: 36px; height: 36px;
+      border: none; border-radius: 50%;
+      background: linear-gradient(135deg, #5B9BFF 0%, #2C7BFE 100%);
+      color: #fff; font-size: 16px; cursor: pointer;
+      box-shadow: 0 6px 16px rgba(44, 123, 254, .35);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: inherit;
+    }
+    .composer-send:hover { opacity: .92; }
+    .word-count {
+      position: absolute; right: 18px; bottom: 12px;
+      font-size: 12px; color: #b0b8c8;
+    }
+
+    .tpl-card {
+      background: #fff; border-radius: 10px; border: 1px solid #ebeef5;
+      padding: 14px 16px 18px;
+    }
+    .tpl-tabs-row {
+      display: flex; align-items: center; gap: 14px;
+      flex-wrap: wrap;
+    }
+    .tpl-tabs {
+      display: flex; flex: 1; gap: 4px; flex-wrap: wrap;
+    }
+    .tpl-tab {
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #5b6b81;
+      border: 1px solid transparent;
+      background: transparent;
+      font-family: inherit;
+    }
+    .tpl-tab:hover { background: #eef3ff; color: #1447e6; }
+    .tpl-tab.active {
+      background: #e6f0ff;
+      border-color: #b5d2ff;
+      color: #1447e6;
+      font-weight: 600;
+    }
+    .tpl-search {
+      width: 220px;
+      height: 30px;
+      border: 1px solid #e2e9f5;
+      border-radius: 16px;
+      padding: 0 32px 0 14px;
+      font-size: 13px; outline: none;
+      font-family: inherit;
+      background: #f7f9fc url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='20' y1='20' x2='16.65' y2='16.65'/></svg>") no-repeat right 10px center;
+      background-size: 14px 14px;
+    }
+    .tpl-search:focus { border-color: #1890ff; background-color: #fff; }
+
+    .tpl-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .tpl-cell {
+      height: 96px;
+      border-radius: 10px;
+      padding: 14px 14px 12px;
+      cursor: pointer;
+      position: relative;
+      display: flex; flex-direction: column; justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(20, 71, 230, .06);
+      border: 1.5px solid transparent;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .tpl-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(20, 71, 230, .12);
+    }
+    .tpl-cell.is-selected {
+      border-color: #2C7BFE;
+      box-shadow: 0 6px 18px rgba(44, 123, 254, .18), 0 0 0 3px rgba(44, 123, 254, .12);
+    }
+    .tpl-cell.is-selected .tc-corner {
+      width: 18px; height: 18px;
+      background: #2C7BFE;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 12px;
+      line-height: 18px;
+      text-align: center;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(44, 123, 254, .35);
+    }
+    .tpl-cell .tc-title {
+      font-size: 14px; font-weight: 600; color: #20262e;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tpl-cell .tc-title .tc-ico { font-size: 16px; }
+    .tpl-cell .tc-sub {
+      font-size: 12px; color: #6b7589;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+    .tpl-cell .tc-corner {
+      position: absolute; right: 10px; top: 10px;
+      font-size: 14px; color: rgba(0, 0, 0, .35);
+    }
+    .tpl-cell.bg-blue   { background: linear-gradient(135deg, #f1f5ff 0%, #e2ebff 100%); }
+    .tpl-cell.bg-yellow { background: linear-gradient(135deg, #fff7e6 0%, #ffe7b3 100%); }
+    .tpl-cell.bg-green  { background: linear-gradient(135deg, #e8fff1 0%, #c8f0d6 100%); }
+    .tpl-cell.bg-purple { background: linear-gradient(135deg, #f6efff 0%, #e0d0ff 100%); }
+    .tpl-cell.bg-pink   { background: linear-gradient(135deg, #fff0f3 0%, #ffd5dd 100%); }
+    .tpl-cell.bg-cyan   { background: linear-gradient(135deg, #e8f8ff 0%, #b8e7ff 100%); }
+
+    .toast {
+      position: fixed; bottom: 30px; right: 30px; background: #323232; color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-title">智能写作系统</span>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-scroll" id="sideScroll">
+      <div class="side-group-h" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📁</span>文档写作</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub">
+        <div class="menu-item active">对话写作</div>
+        <div class="menu-item" onclick="location.href='ppt-write.html'">ppt写作</div>
+        <div class="menu-item" onclick="goMyDocs()">我的文稿</div>
+        <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
+        <div class="menu-item" onclick="location.href='check.html'">技术规范书查重</div>
+      </div>
+
+      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📂</span>模板运营</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub collapsed">
+        <div class="menu-item" onclick="showToast('文体模板管理功能开发中')">文体模板管理</div>
+        <div class="menu-item" onclick="showToast('模板市场功能开发中')">模板市场</div>
+      </div>
+
+      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📂</span>知识库管理</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub collapsed">
+        <div class="menu-item" onclick="showToast('个人知识库功能开发中')">个人知识库</div>
+        <div class="menu-item" onclick="showToast('部门知识库功能开发中')">部门知识库</div>
+        <div class="menu-item" onclick="showToast('企业知识库功能开发中')">企业知识库</div>
+      </div>
+
+      <div class="side-group-h collapsed" onclick="toggleGroup(this)">
+        <span class="lbl"><span class="ic">📂</span>系统管理</span>
+        <span class="arr">∨</span>
+      </div>
+      <div class="side-sub collapsed">
+        <div class="menu-item" onclick="showToast('用户管理功能开发中')">用户管理</div>
+        <div class="menu-item" onclick="showToast('日志审计功能开发中')">日志审计</div>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="sf-av">王</div>
+      <span class="sf-name">王海龙</span>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="content-head">
+      <div class="content-title">对话写作</div>
+    </div>
+
+    <div class="content-body">
+      <!-- 历史会话 -->
+      <div class="history">
+        <div class="history-head">
+          <button type="button" class="btn-new-chat" onclick="newChat()"><span>＋</span>开始新对话</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+      <!-- 中间：编辑器 + 模板区 -->
+      <div class="center">
+        <div class="composer">
+          <div class="file-chips" id="fileChips">
+            <div class="file-chip">
+              <span class="fic xls">XLS</span>
+              <span class="fname" title="功能清单2025年AI+服务管理能力升级.xlsx">功能清单2025年AI+服…</span>
+              <span class="fsize">1.4MB</span>
+              <span class="fclose" onclick="this.parentElement.remove()">×</span>
+            </div>
+            <div class="file-chip">
+              <span class="fic ppt">PPT</span>
+              <span class="fname" title="中国电信2026年河南公司AI+服务管理能力升级立项汇报.pptx">中国电信2026年河南公司AI+服务…立项汇报.pptx</span>
+              <span class="fsize">8.4MB</span>
+              <span class="fclose" onclick="this.parentElement.remove()">×</span>
+            </div>
+          </div>
+
+          <textarea id="composerText" class="composer-text" maxlength="1000" placeholder="请输入你的写作需求…"
+            oninput="updateWordCount()">帮我写一篇关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章，用【正式】的写作风格，字数在【30000】以内。</textarea>
+
+          <div class="composer-toolbar">
+            <button type="button" class="ref-btn" onclick="openKbModal('all')"><span class="ic">@</span>参考资料</button>
+            <button type="button" class="ref-btn" onclick="openKbModal('word')"><span class="ic">📄</span>word模板</button>
+            <span class="ref-picked" id="wordTplPicked" hidden>
+              <span class="rp-ic">📄</span>
+              <span class="rp-name" id="wordTplPickedName"></span>
+              <span class="rp-x" id="wordTplPickedClear" title="移除已选模板">×</span>
+            </span>
+
+            <div class="scope-row">
+              <span class="scope-lbl">*</span>
+              <span>素材引用范围：</span>
+              <label><input type="checkbox" checked />优先参考素材</label>
+              <label><input type="checkbox" />个人知识库</label>
+              <label><input type="checkbox" />部门知识库</label>
+              <label><input type="checkbox" />企业知识库</label>
+            </div>
+          </div>
+
+          <button type="button" class="composer-send" title="发送" onclick="sendChat()">↑</button>
+          <span class="word-count"><span id="wcUsed">66</span>/<span id="wcMax">1000</span></span>
+        </div>
+
+        <div class="tpl-card">
+          <div class="tpl-tabs-row">
+            <div class="tpl-tabs" id="tplTabs">
+              <button type="button" class="tpl-tab active" data-cat="">全部</button>
+              <button type="button" class="tpl-tab" data-cat="BI数据类型">BI数据类型</button>
+              <button type="button" class="tpl-tab" data-cat="请示">请示</button>
+              <button type="button" class="tpl-tab" data-cat="新闻稿">新闻稿</button>
+              <button type="button" class="tpl-tab" data-cat="讲话稿">讲话稿</button>
+              <button type="button" class="tpl-tab" data-cat="通知">通知</button>
+              <button type="button" class="tpl-tab" data-cat="工作">工作</button>
+            </div>
+            <input type="text" id="tplSearch" class="tpl-search" placeholder="请输入搜索关键字" oninput="renderTplGrid()" />
+          </div>
+          <div class="tpl-grid" id="tplGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 知识库选择弹框 -->
+<div class="kb-mask" id="kbMask" aria-hidden="true">
+  <div class="kb-modal" role="dialog" aria-modal="true" aria-label="从知识库选择">
+    <div class="kb-mh">
+      <div class="kb-mh-text">
+        <div class="kb-mh-title" id="kbTitle">从知识库选择</div>
+        <div class="kb-mh-desc" id="kbDesc">从知识库中选择文件用于本次对话写作。</div>
+      </div>
+      <span class="kb-mh-close" id="kbClose" title="关闭">×</span>
+    </div>
+    <div class="kb-toolbar">
+      <select class="kb-select" id="kbSelect" aria-label="知识库">
+        <option>张三的个人知识库</option>
+        <option>企业共享知识库</option>
+        <option>部门知识库</option>
+      </select>
+      <div class="kb-search-wrap">
+        <span class="kb-search-icon">🔎</span>
+        <input type="text" id="kbSearch" placeholder="搜索资料名称…" />
+      </div>
+    </div>
+    <div class="kb-body">
+      <div class="kb-dir">
+        <div class="kb-dir-title">素材目录</div>
+        <div class="kb-dir-empty">—</div>
+      </div>
+      <div class="kb-list" id="kbList"></div>
+    </div>
+    <div class="kb-foot">
+      <span class="kb-foot-left" id="kbFootHint">已选中 0 项</span>
+      <button type="button" class="kb-btn" id="kbCancel">取消</button>
+      <button type="button" class="kb-btn primary" id="kbConfirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(function () { t.style.display = 'none'; }, 2400);
+}
+
+function toggleGroup(headEl) {
+  if (!headEl) return;
+  const sub = headEl.nextElementSibling;
+  if (!sub || !sub.classList.contains('side-sub')) return;
+  const collapsed = headEl.classList.toggle('collapsed');
+  sub.classList.toggle('collapsed', collapsed);
+}
+
+const HISTORY = [
+  { id: 'h1', title: '智能Word', summary: '帮我写一篇关于入库物资详情盘点工作的撰写要求和工作总结' },
+  { id: 'h2', title: '智能Word', summary: '关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章…' },
+  { id: 'h3', title: '智能Word', summary: '关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章…' },
+  { id: 'h4', title: '智能Word', summary: '关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章…' },
+  { id: 'h5', title: '智能Word', summary: '关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章…' },
+  { id: 'h6', title: '智能Word', summary: '关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章…' },
+  { id: 'h7', title: '智能Word', summary: '关于【中国电信2026年河南公司AI+服务管理能力升级技术规范书】的文章…' }
+];
+
+let currentChatId = 'h2';
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  list.innerHTML = HISTORY.map(function (h) {
+    const active = h.id === currentChatId ? ' active' : '';
+    return '<div class="history-item' + active + '" data-id="' + h.id + '" onclick="pickChat(\'' + h.id + '\')">' +
+      '<div class="h-title">' + escapeHtml(h.title) + '</div>' +
+      '<div class="h-summary" title="' + escapeHtml(h.summary) + '">' + escapeHtml(h.summary) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function pickChat(id) {
+  currentChatId = id;
+  renderHistory();
+  showToast('已加载会话');
+}
+
+function newChat() {
+  const id = 'h' + (HISTORY.length + 1);
+  HISTORY.unshift({ id: id, title: '智能Word', summary: '新建会话…' });
+  currentChatId = id;
+  document.getElementById('composerText').value = '';
+  updateWordCount();
+  renderHistory();
+}
+
+function updateWordCount() {
+  const ta = document.getElementById('composerText');
+  const len = String(ta.value || '').length;
+  document.getElementById('wcUsed').textContent = len;
+}
+
+function goMyDocs() {
+  window.location.href = 'index.html';
+}
+
+function pad2(n) {
+  return (n < 10 ? '0' : '') + n;
+}
+
+function nowEditTimeStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function buildEditPayloadFromChat() {
+  const txt = String(document.getElementById('composerText').value || '').trim();
+  var docName = '';
+  if (wordTemplate && wordTemplate.name) {
+    docName = wordTemplate.name;
+  } else {
+    var m = txt.match(/【([^】]{2,200})】/);
+    if (m) {
+      docName = m[1].trim();
+      if (!/\.(docx?|doc)$/i.test(docName)) docName += '.docx';
+    } else {
+      docName = '对话写作文稿_' + nowEditTimeStr().replace(/[^\d]/g, '') + '.docx';
+    }
+  }
+  docName = docName.replace(/[/\\]/g, '_');
+
+  var tpl = TEMPLATES.find(function (t) { return t.id === selectedTplId; });
+  var templateName = tpl ? (tpl.name + ' · ' + tpl.sub) : '对话写作';
+
+  var level1 = '技术规范书';
+  var level2 = '未分类';
+  if (/技术规范书/.test(docName)) {
+    level1 = '技术规范书';
+    level2 = /AI\+|AI＋/.test(docName) ? 'AI+服务' : '通用';
+  } else if (/通知/.test(docName)) {
+    level1 = '会议通知';
+    level2 = '通用';
+  } else if (/报告/.test(docName)) {
+    level1 = '工作报告';
+    level2 = '通用';
+  }
+
+  var t = nowEditTimeStr();
+  return {
+    id: 'chat-' + Date.now(),
+    kind: 'word',
+    name: docName,
+    level1: level1,
+    level2: level2,
+    templateName: templateName,
+    status: '草稿',
+    wordCount: '—',
+    creator: '王海龙',
+    editTime: t,
+    createTime: t,
+    size: '--',
+    count: 0,
+    hasHistory: false,
+    chatPrompt: txt,
+    fromChatWrite: true
+  };
+}
+
+function sendChat() {
+  const txt = String(document.getElementById('composerText').value || '').trim();
+  if (!txt && !(wordTemplate && wordTemplate.name)) {
+    showToast('请输入写作要求或选择 Word 模板');
+    return;
+  }
+  const payload = buildEditPayloadFromChat();
+  try {
+    sessionStorage.setItem('editDocPayload', JSON.stringify(payload));
+  } catch (e) {
+    showToast('无法保存会话，请重试');
+    return;
+  }
+  window.location.href = 'doc-edit.html';
+}
+
+const TEMPLATES = [
+  { id: 't1', name: '技术规范书',          sub: '河南技术规范书',                  cat: '工作',       icon: '📄', bg: 'bg-blue' },
+  { id: 't2', name: '浩鲸科技工作报告模板', sub: '浩鲸科技工作报告模板',            cat: '工作',       icon: '📄', bg: 'bg-yellow' },
+  { id: 't3', name: '报告通用模板',         sub: 'bi通用报告模板',                  cat: 'BI数据类型', icon: '📊', bg: 'bg-yellow' },
+  { id: 't4', name: '月度运营通报',         sub: 'bi数据报告·月度运营通报',         cat: 'BI数据类型', icon: '📈', bg: 'bg-purple' },
+  { id: 't5', name: '请示模板',             sub: '通用请示模板',                    cat: '请示',       icon: '📨', bg: 'bg-pink' },
+  { id: 't6', name: '新闻稿模板',           sub: '企业新闻通稿模板',                cat: '新闻稿',     icon: '📰', bg: 'bg-cyan' },
+  { id: 't7', name: '讲话稿模板',           sub: '领导讲话稿通用模板',              cat: '讲话稿',     icon: '🎤', bg: 'bg-green' },
+  { id: 't8', name: '通知模板',             sub: '公司内部通知模板',                cat: '通知',       icon: '🔔', bg: 'bg-blue' }
+];
+
+let currentCat = '';
+let selectedTplId = '';
+
+function renderTplGrid() {
+  const kw = String(document.getElementById('tplSearch').value || '').trim().toLowerCase();
+  const grid = document.getElementById('tplGrid');
+  const list = TEMPLATES.filter(function (t) {
+    if (currentCat && t.cat !== currentCat) return false;
+    if (!kw) return true;
+    return (t.name + ' ' + t.sub + ' ' + t.cat).toLowerCase().indexOf(kw) !== -1;
+  });
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9aa3b8;padding:24px;font-size:13px;">未匹配到模板</div>';
+    return;
+  }
+  grid.innerHTML = list.map(function (t) {
+    const sel = t.id === selectedTplId ? ' is-selected' : '';
+    const corner = t.id === selectedTplId ? '✓' : '›';
+    return '<div class="tpl-cell ' + t.bg + sel + '" onclick="useTemplate(\'' + t.id + '\')">' +
+      '<div class="tc-title"><span class="tc-ico">' + t.icon + '</span>' + escapeHtml(t.name) + '</div>' +
+      '<div class="tc-sub">' + escapeHtml(t.sub) + '</div>' +
+      '<span class="tc-corner">' + corner + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function useTemplate(id) {
+  const t = TEMPLATES.find(function (x) { return x.id === id; });
+  if (!t) return;
+  selectedTplId = (selectedTplId === id) ? '' : id;
+  renderTplGrid();
+  if (selectedTplId) {
+    showToast('已选模板：' + t.name);
+  } else {
+    showToast('已取消选择：' + t.name);
+  }
+}
+
+document.getElementById('tplTabs').addEventListener('click', function (e) {
+  const btn = e.target.closest && e.target.closest('.tpl-tab');
+  if (!btn) return;
+  document.querySelectorAll('.tpl-tab').forEach(function (b) { b.classList.toggle('active', b === btn); });
+  currentCat = btn.getAttribute('data-cat') || '';
+  renderTplGrid();
+});
+
+renderHistory();
+renderTplGrid();
+updateWordCount();
+
+// ===== 知识库（参考资料 / word 模板）选择 =====
+const KB_FILES = [
+  { id: 'kb1', name: '中国电信2026年河南公司AI+服务管理能力升级技术规范书.docx', type: 'doc', size: '2.6MB', time: '2026-04-21 16:08', status: '已完成' },
+  { id: 'kb2', name: 'XX公司云资源池扩容技术规范书_2026.docx', type: 'doc', size: '1.8MB', time: '2026-03-11 10:05', status: '已完成' },
+  { id: 'kb3', name: '河南公司2025年端到端透明化监控建设项目技术规范书.docx', type: 'doc', size: '2.1MB', time: '2026-03-10 10:22', status: '已完成' },
+  { id: 'kb4', name: '功能清单2025年AI+服务管理能力升级.xlsx', type: 'xls', size: '1.4MB', time: '2026-04-20 09:18', status: '已完成' },
+  { id: 'kb5', name: '业务接口对照表_2026Q1.xlsx', type: 'xls', size: '0.9MB', time: '2026-04-12 14:45', status: '已完成' },
+  { id: 'kb6', name: '中国电信2026年河南公司AI+服务管理能力升级立项汇报.pptx', type: 'ppt', size: '8.4MB', time: '2026-04-22 11:30', status: '已完成' },
+  { id: 'kb7', name: '项目建议书_v3.pptx', type: 'ppt', size: '5.6MB', time: '2026-04-08 17:02', status: '已完成' },
+  { id: 'kb8', name: '招标文件_技术部分.pdf', type: 'pdf', size: '3.2MB', time: '2026-03-28 19:11', status: '已完成' },
+  { id: 'kb9', name: '用户操作手册_v1.0.pdf', type: 'pdf', size: '4.1MB', time: '2026-02-22 10:58', status: '已完成' }
+];
+
+const KB_TYPE_LABEL = { doc: 'DOC', xls: 'XLS', ppt: 'PPT', pdf: 'PDF' };
+
+let kbMode = 'all'; // 'all' or 'word'
+let kbPickedIds = [];
+let wordTemplate = null;
+
+const kbMask = document.getElementById('kbMask');
+const kbList = document.getElementById('kbList');
+const kbTitle = document.getElementById('kbTitle');
+const kbDesc = document.getElementById('kbDesc');
+const kbClose = document.getElementById('kbClose');
+const kbCancel = document.getElementById('kbCancel');
+const kbConfirm = document.getElementById('kbConfirm');
+const kbFootHint = document.getElementById('kbFootHint');
+const kbSearch = document.getElementById('kbSearch');
+
+const wordTplPicked = document.getElementById('wordTplPicked');
+const wordTplPickedName = document.getElementById('wordTplPickedName');
+const wordTplPickedClear = document.getElementById('wordTplPickedClear');
+
+function getKbFiltered() {
+  const q = String(kbSearch.value || '').trim().toLowerCase();
+  return KB_FILES.filter(function (f) {
+    if (kbMode === 'word' && f.type !== 'doc') return false;
+    if (!q) return true;
+    return f.name.toLowerCase().indexOf(q) !== -1;
+  });
+}
+
+function renderKbList() {
+  const list = getKbFiltered();
+  if (!list.length) {
+    kbList.innerHTML = '<div style="text-align:center;color:#9aa3b8;padding:24px;font-size:13px;">未匹配到资料</div>';
+    return;
+  }
+  kbList.innerHTML = list.map(function (f) {
+    const sel = kbPickedIds.indexOf(f.id) !== -1;
+    return '<div class="kb-row' + (sel ? ' selected' : '') + '" data-id="' + f.id + '">' +
+      '<span class="ico ' + f.type + '">' + (KB_TYPE_LABEL[f.type] || '') + '</span>' +
+      '<span class="name" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</span>' +
+      '<span class="meta">' + escapeHtml(f.size) + ' · ' + escapeHtml(f.time) + '</span>' +
+      '<span class="status">' + escapeHtml(f.status) + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function syncKbFootHint() {
+  if (kbMode === 'word') {
+    if (kbPickedIds.length) {
+      const f = KB_FILES.find(function (x) { return x.id === kbPickedIds[0]; });
+      kbFootHint.textContent = '已选中：' + (f ? f.name : '');
+    } else {
+      kbFootHint.textContent = '请选择一个 Word 模板（单选）';
+    }
+  } else {
+    kbFootHint.textContent = '已选中 ' + kbPickedIds.length + ' 项';
+  }
+}
+
+function openKbModal(mode) {
+  kbMode = mode || 'all';
+  kbPickedIds = [];
+  kbSearch.value = '';
+  if (kbMode === 'word') {
+    kbTitle.textContent = '从知识库选择 Word 模板';
+    kbDesc.textContent = '仅显示已完成解析的 .doc / .docx 文件，单选。';
+    if (wordTemplate) kbPickedIds = [wordTemplate.id];
+  } else {
+    kbTitle.textContent = '从知识库选择参考资料';
+    kbDesc.textContent = '支持 .doc / .docx / .xlsx / .pptx / .pdf 等多种类型，可多选。';
+  }
+  syncKbFootHint();
+  renderKbList();
+  kbMask.classList.add('show');
+  kbMask.setAttribute('aria-hidden', 'false');
+  setTimeout(function () { try { kbSearch.focus(); } catch (e) {} }, 0);
+}
+
+function closeKbModal() {
+  kbMask.classList.remove('show');
+  kbMask.setAttribute('aria-hidden', 'true');
+}
+
+kbList.addEventListener('click', function (e) {
+  const row = e.target.closest && e.target.closest('.kb-row');
+  if (!row) return;
+  const id = row.getAttribute('data-id');
+  if (!id) return;
+  if (kbMode === 'word') {
+    kbPickedIds = (kbPickedIds[0] === id) ? [] : [id];
+  } else {
+    const idx = kbPickedIds.indexOf(id);
+    if (idx === -1) kbPickedIds.push(id);
+    else kbPickedIds.splice(idx, 1);
+  }
+  syncKbFootHint();
+  renderKbList();
+});
+
+kbSearch.addEventListener('input', renderKbList);
+kbClose.addEventListener('click', closeKbModal);
+kbCancel.addEventListener('click', closeKbModal);
+kbMask.addEventListener('click', function (e) { if (e.target === kbMask) closeKbModal(); });
+
+kbConfirm.addEventListener('click', function () {
+  if (!kbPickedIds.length) {
+    showToast(kbMode === 'word' ? '请选择一个 Word 模板' : '请至少选择一项资料');
+    return;
+  }
+  if (kbMode === 'word') {
+    const f = KB_FILES.find(function (x) { return x.id === kbPickedIds[0]; });
+    if (f) {
+      wordTemplate = f;
+      wordTplPickedName.textContent = f.name;
+      wordTplPickedName.title = f.name;
+      wordTplPicked.hidden = false;
+      showToast('已选 Word 模板：' + f.name);
+    }
+  } else {
+    const picked = KB_FILES.filter(function (f) { return kbPickedIds.indexOf(f.id) !== -1; });
+    const chips = document.getElementById('fileChips');
+    picked.forEach(function (f) {
+      if (chips.querySelector('[data-id="' + f.id + '"]')) return;
+      const div = document.createElement('div');
+      div.className = 'file-chip';
+      div.setAttribute('data-id', f.id);
+      div.innerHTML =
+        '<span class="fic ' + f.type + '">' + (KB_TYPE_LABEL[f.type] || '') + '</span>' +
+        '<span class="fname" title="' + escapeHtml(f.name) + '">' + escapeHtml(f.name) + '</span>' +
+        '<span class="fsize">' + escapeHtml(f.size) + '</span>' +
+        '<span class="fclose">×</span>';
+      div.querySelector('.fclose').addEventListener('click', function () { div.remove(); });
+      chips.appendChild(div);
+    });
+    showToast('已添加 ' + picked.length + ' 项参考资料');
+  }
+  closeKbModal();
+});
+
+if (wordTplPickedClear) {
+  wordTplPickedClear.addEventListener('click', function (e) {
+    e.stopPropagation();
+    wordTemplate = null;
+    wordTplPicked.hidden = true;
+  });
+}
+</script>
+
+</body>
+</html>

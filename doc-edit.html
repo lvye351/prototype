@@ -798,9 +798,8 @@
       border-bottom: 1px solid #e8e8e8;
     }
     .tpl-table thead th.col-radio { width: 44px; text-align: center; }
-    .tpl-table thead th:nth-child(2) { width: 36%; }
-    .tpl-table thead th:nth-child(3) { width: 28%; }
-    .tpl-table thead th:nth-child(4) { width: 28%; }
+    .tpl-table thead th.col-name { width: auto; }
+    .tpl-table thead th.col-actions { width: 72px; text-align: center; }
     .tpl-row {
       cursor: pointer;
       border-bottom: 1px solid #f0f0f0;
@@ -856,6 +855,22 @@
       border-color: #1890ff;
       background: #1890ff;
       color: #fff;
+    }
+    .tpl-upload-btn { flex-shrink: 0; white-space: nowrap; }
+    .tpl-row-del {
+      border: none;
+      background: none;
+      color: #ff4d4f;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 2px 6px;
+    }
+    .tpl-row-del:hover { text-decoration: underline; }
+    .tpl-table td.col-actions-cell {
+      text-align: center;
+      width: 72px;
+      vertical-align: middle;
     }
 
     /* —— 知识库（参考资料）选择弹框 —— */
@@ -1345,7 +1360,7 @@
         </div>
         <div class="review-toolbar">
           <div class="review-template-bar is-hidden" id="reviewTemplateBar" aria-hidden="true">
-            <span class="review-template-label">Word文体模板</span>
+            <span class="review-template-label">word模板</span>
             <button type="button" class="review-template-trigger" id="reviewTemplateTrigger">
               <span class="txt" id="reviewTemplateText"></span>
               <span class="arr">▼</span>
@@ -1595,26 +1610,21 @@
   </div>
 
   <div class="tpl-mask" id="tplMask">
-    <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择Word文体模板">
-      <div class="tpl-modal-head">选择Word文体模板</div>
+    <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择word模板">
+      <div class="tpl-modal-head">选择word模板</div>
       <div class="tpl-modal-body">
         <div class="tpl-toolbar">
           <input id="tplSearch" class="tpl-search" placeholder="请输入模板名称" autocomplete="off" />
-          <select id="tplCategoryFilter" class="tpl-filter" title="按类型筛选">
-            <option value="">全部</option>
-            <option value="系统内置文体">系统内置文体</option>
-            <option value="部门文体">部门文体</option>
-            <option value="企业文体">企业文体</option>
-          </select>
+          <input type="file" id="tplUploadInput" accept=".doc,.docx" style="display:none" />
+          <button type="button" class="tpl-btn tpl-upload-btn" id="tplUploadBtn">+ 上传</button>
         </div>
         <div class="tpl-table-wrap">
           <table class="tpl-table">
             <thead>
               <tr>
                 <th class="col-radio"></th>
-                <th>模板名称</th>
-                <th>类型</th>
-                <th>模板类型</th>
+                <th class="col-name">模板名称</th>
+                <th class="col-actions">操作</th>
               </tr>
             </thead>
             <tbody id="tplList"></tbody>
@@ -1731,10 +1741,6 @@
 
       document.getElementById('metaRest').innerHTML =
         '<div class="meta-block"><span class="meta-label">标题</span><span class="meta-val" title="' + escapeHtml(doc.name) + '">' + escapeHtml(doc.name) + '</span></div>' +
-        '<span class="meta-sep"></span>' +
-        '<div class="meta-block"><span class="meta-label">一级类型</span><span class="meta-val">' + escapeHtml(doc.level1) + '</span></div>' +
-        '<span class="meta-sep"></span>' +
-        '<div class="meta-block"><span class="meta-label">二级类型</span><span class="meta-val">' + escapeHtml(doc.level2) + '</span></div>' +
         '<span class="meta-sep"></span>' +
         '<div class="meta-block"><span class="meta-label">模板名称</span><span class="meta-val">' + escapeHtml(doc.templateName) + '</span></div>';
 
@@ -1941,7 +1947,7 @@
           if (!aiMetaBar) return;
           var html = '';
           if (chapterTplPicked && chapterTplName) {
-            html += '<span class="ai-meta-tag is-template" title="Word文体模板：' + escapeHtml(chapterTplName) + '">' +
+            html += '<span class="ai-meta-tag is-template" title="word模板：' + escapeHtml(chapterTplName) + '">' +
               '<span class="k">📄 文体模板</span>' +
               '<span class="v">' + escapeHtml(chapterTplName) + '</span>' +
               '<span class="x" data-clear="tpl" title="重选模板">×</span>' +
@@ -2597,10 +2603,11 @@
       var reviewTemplateText = document.getElementById('reviewTemplateText');
       var tplMask = document.getElementById('tplMask');
       var tplSearch = document.getElementById('tplSearch');
-      var tplCategoryFilter = document.getElementById('tplCategoryFilter');
       var tplList = document.getElementById('tplList');
       var tplCancel = document.getElementById('tplCancel');
       var tplConfirm = document.getElementById('tplConfirm');
+      var tplUploadBtn = document.getElementById('tplUploadBtn');
+      var tplUploadInput = document.getElementById('tplUploadInput');
       var selectedTemplate = null;
       var pendingTemplate = null;
 
@@ -2616,19 +2623,16 @@
 
       function getFilteredTemplates() {
         var keyword = String(tplSearch ? tplSearch.value : '').trim().toLowerCase();
-        var cat = tplCategoryFilter ? tplCategoryFilter.value : '';
         return reviewTemplatePool.filter(function (t) {
-          if (cat && t.docType !== cat) return false;
           if (!keyword) return true;
-          var blob = (t.name + ' ' + t.docType + ' ' + t.tplType).toLowerCase();
-          return blob.indexOf(keyword) !== -1;
+          return String(t.name || '').toLowerCase().indexOf(keyword) !== -1;
         });
       }
 
       function renderTemplateList() {
         var matched = getFilteredTemplates();
         if (!matched.length) {
-          tplList.innerHTML = '<tr><td colspan="4" class="tpl-empty">未匹配到模板</td></tr>';
+          tplList.innerHTML = '<tr><td colspan="3" class="tpl-empty">未匹配到模板</td></tr>';
           return;
         }
         tplList.innerHTML = matched.map(function (t) {
@@ -2636,17 +2640,34 @@
           return '<tr class="tpl-row' + (active ? ' active' : '') + '" data-id="' + escapeHtml(t.id) + '">' +
             '<td class="col-radio-cell"><input type="radio" name="tplPick" class="tpl-radio"' + (active ? ' checked' : '') + ' tabindex="-1" /></td>' +
             '<td>' + escapeHtml(t.name) + '</td>' +
-            '<td>' + escapeHtml(t.docType) + '</td>' +
-            '<td>' + escapeHtml(t.tplType) + '</td>' +
+            '<td class="col-actions-cell"><button type="button" class="tpl-row-del" data-id="' + escapeHtml(t.id) + '">删除</button></td>' +
             '</tr>';
         }).join('');
       }
 
       tplList.addEventListener('click', function (e) {
+        var delBtn = e.target.closest && e.target.closest('.tpl-row-del');
+        if (delBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          var delId = delBtn.getAttribute('data-id');
+          var idx = reviewTemplatePool.findIndex(function (t) { return String(t.id) === String(delId); });
+          if (idx === -1) return;
+          var removed = reviewTemplatePool[idx];
+          reviewTemplatePool.splice(idx, 1);
+          if (pendingTemplate && String(pendingTemplate.id) === String(delId)) pendingTemplate = null;
+          if (selectedTemplate && String(selectedTemplate.id) === String(delId)) {
+            selectedTemplate = null;
+            renderTemplateHeader(null);
+          }
+          renderTemplateList();
+          showToast('已删除：' + removed.name);
+          return;
+        }
         var row = e.target.closest('.tpl-row');
         if (!row) return;
         var id = row.getAttribute('data-id');
-        var found = reviewTemplatePool.find(function (t) { return t.id === id; });
+        var found = reviewTemplatePool.find(function (t) { return String(t.id) === String(id); });
         if (!found) return;
         pendingTemplate = found;
         renderTemplateList();
@@ -2655,14 +2676,35 @@
       reviewTemplateTrigger.addEventListener('click', function () {
         pendingTemplate = selectedTemplate;
         tplSearch.value = '';
-        tplCategoryFilter.value = '';
         renderTemplateList();
         tplMask.classList.add('show');
         setTimeout(function () { tplSearch.focus(); }, 0);
       });
 
       tplSearch.addEventListener('input', renderTemplateList);
-      tplCategoryFilter.addEventListener('change', renderTemplateList);
+
+      if (tplUploadBtn && tplUploadInput) {
+        tplUploadBtn.addEventListener('click', function () {
+          tplUploadInput.click();
+        });
+        tplUploadInput.addEventListener('change', function (ev) {
+          var f = ev.target.files && ev.target.files[0];
+          if (!f) return;
+          var lower = String(f.name || '').toLowerCase();
+          if (!lower.endsWith('.doc') && !lower.endsWith('.docx')) {
+            showToast('请上传 .doc 或 .docx');
+            tplUploadInput.value = '';
+            return;
+          }
+          var id = 'up-' + Date.now();
+          var entry = { id: id, name: f.name, docType: '上传', tplType: 'Word', userFile: true };
+          reviewTemplatePool.push(entry);
+          pendingTemplate = entry;
+          renderTemplateList();
+          tplUploadInput.value = '';
+          showToast('已上传：' + f.name);
+        });
+      }
 
       tplCancel.addEventListener('click', function () {
         tplMask.classList.remove('show');
