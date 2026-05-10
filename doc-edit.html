@@ -128,9 +128,12 @@
     .outline-meta-row--first .outline-meta-row-content {
       flex: 1;
       min-width: 0;
-      display: flex;
+      display: none;
       flex-direction: column;
       gap: 2px;
+    }
+    .outline-meta-row--first.has-tpl .outline-meta-row-content {
+      display: flex;
     }
     .outline-back {
       display: inline-flex;
@@ -2188,7 +2191,8 @@
           var h = editorEl.querySelector('#' + safeId);
           if (!h || h.nodeName !== 'H2') return null;
           var r = document.createRange();
-          r.setStartBefore(h);
+          // 仅替换章节正文（保留 h2 标题不被覆盖）
+          r.setStartAfter(h);
           var n = h.nextSibling;
           while (n) {
             if (n.nodeType === 1 && n.nodeName === 'H2') {
@@ -2306,8 +2310,6 @@
           var useFnList = !!(withRef && refName && /功能清单/.test(refName));
           if (useFnList) {
             return '' +
-              '<h2>10 功能需求清单</h2>' +
-              '<p>本节依据《' + escapeHtml(refName) + '》整理，列出本项目应实现的核心功能模块及其关键能力要点。最终交付以《功能清单.xlsx》全量条目为准。</p>' +
               '<h3>10.1 采集与接入</h3>' +
               '<ul>' +
                 '<li>支持 SNMP、Telemetry、Syslog、SNMP Trap、NetFlow/IPFIX 等多协议采集。</li>' +
@@ -2342,9 +2344,7 @@
                 '<li>提供平台自身的健康度监控、容量预测与备份恢复能力。</li>' +
               '</ul>';
           }
-          var instrLine = instr ? '<p>本节按写作要求"' + escapeHtml(instr) + '"组织：</p>' : '';
           return '' +
-            instrLine +
             '<p>本节围绕项目目标与关键能力进行系统性阐述，整体遵循"先进性、安全性、可扩展性、经济性"原则，对齐公司既有规范与等级保护要求。</p>' +
             '<p>一、总体目标：在统一指标体系下实现网络与业务视图的可观测、可告警、可追溯。二、关键能力：采集归一、指标计算、关联分析、工单联动。三、实施路径：分阶段上线、灰度切换、试运行与终验收口。</p>' +
             '<p>四、保障措施：建立常态化的运行评估与版本演进机制，并在试运行期内根据实际指标反馈持续优化配置与策略。</p>';
@@ -2997,14 +2997,17 @@
         }
         var outlineMetaTplEl = document.getElementById('outlineMetaTpl');
         if (outlineMetaTplEl) {
+          var firstRow = outlineMetaTplEl.closest('.outline-meta-row--first');
           if (t && t.name) {
             outlineMetaTplEl.textContent = t.name;
             outlineMetaTplEl.title = t.name;
             outlineMetaTplEl.classList.remove('is-empty');
+            if (firstRow) firstRow.classList.add('has-tpl');
           } else {
             outlineMetaTplEl.textContent = '';
             outlineMetaTplEl.removeAttribute('title');
             outlineMetaTplEl.classList.remove('is-empty');
+            if (firstRow) firstRow.classList.remove('has-tpl');
           }
         }
       }
