@@ -161,6 +161,7 @@
       white-space: nowrap;
     }
     .outline-meta-val.is-empty { color: #bfbfbf; }
+    .outline-meta-val:empty { min-height: 1.4em; }
     .outline-body {
       flex: 1;
       overflow: auto;
@@ -1474,7 +1475,7 @@
               <a class="outline-back" href="index.html" title="返回我的文稿">←</a>
               <div class="outline-meta-row-content">
                 <span class="outline-meta-label">word文体模板</span>
-                <span class="outline-meta-val is-empty" id="outlineMetaTpl" title="未选择">未选择</span>
+                <span class="outline-meta-val" id="outlineMetaTpl"></span>
               </div>
             </div>
             <div class="outline-meta-row">
@@ -2354,14 +2355,26 @@
           r.deleteContents();
           var tpl = document.createElement('template');
           tpl.innerHTML = htmlStr.trim();
+          var firstNode = tpl.content.firstChild;
+          var lastNode = tpl.content.lastChild;
           var frag = document.createDocumentFragment();
           while (tpl.content.firstChild) frag.appendChild(tpl.content.firstChild);
           r.insertNode(frag);
           try {
-            r.collapse(false);
             var sel2 = window.getSelection();
             sel2.removeAllRanges();
-            sel2.addRange(r);
+            if (firstNode && lastNode && firstNode.parentNode && lastNode.parentNode) {
+              var newRange = document.createRange();
+              newRange.setStartBefore(firstNode);
+              newRange.setEndAfter(lastNode);
+              sel2.addRange(newRange);
+              if (firstNode.scrollIntoView) {
+                try { firstNode.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e3) { /* noop */ }
+              }
+            } else {
+              r.collapse(false);
+              sel2.addRange(r);
+            }
           } catch (e2) { /* noop */ }
         }
 
@@ -2989,9 +3002,9 @@
             outlineMetaTplEl.title = t.name;
             outlineMetaTplEl.classList.remove('is-empty');
           } else {
-            outlineMetaTplEl.textContent = '未选择';
-            outlineMetaTplEl.title = '未选择';
-            outlineMetaTplEl.classList.add('is-empty');
+            outlineMetaTplEl.textContent = '';
+            outlineMetaTplEl.removeAttribute('title');
+            outlineMetaTplEl.classList.remove('is-empty');
           }
         }
       }
