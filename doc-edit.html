@@ -2652,6 +2652,14 @@
             chapterTplPicked = true;
             chapterTplName = tplGenPending.name;
             chapterGenMode = true;
+            var outlineMetaTplEl2 = document.getElementById('outlineMetaTpl');
+            if (outlineMetaTplEl2) {
+              var firstRow2 = outlineMetaTplEl2.closest('.outline-meta-row--first');
+              outlineMetaTplEl2.textContent = chapterTplName;
+              outlineMetaTplEl2.title = chapterTplName;
+              outlineMetaTplEl2.classList.remove('is-empty');
+              if (firstRow2) firstRow2.classList.add('has-tpl');
+            }
             if (bubbleInputWrap) bubbleInputWrap.classList.add('is-chapter-gen');
             if (bubbleText) {
               bubbleText.placeholder = '请输入章节生成的要求（结构、侧重点、字数等）；可点击「参考资料」从知识库选择素材；点击发送后将覆盖当前所选章节。';
