@@ -46,6 +46,35 @@
       flex-direction: column;
     }
     .outline-head { height: 42px; border-bottom: 0.75px solid #e9e9e9; flex-shrink: 0; }
+    .outline-meta {
+      flex-shrink: 0;
+      padding: 12px 16px 10px;
+      border-bottom: 0.75px solid #e9e9e9;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .outline-meta-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .outline-meta-label {
+      font-size: 12px;
+      color: #8c8c8c;
+      line-height: 1.3;
+    }
+    .outline-meta-val {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.85);
+      line-height: 1.45;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .outline-meta-val.is-empty { color: #bfbfbf; }
     .outline-body {
       flex: 1;
       overflow: auto;
@@ -1332,7 +1361,20 @@
     <div class="edit-main">
       <div class="edit-frame">
         <aside class="outline-aside">
-          <div class="outline-head"></div>
+          <div class="outline-meta">
+            <div class="outline-meta-row">
+              <span class="outline-meta-label">word文体模板</span>
+              <span class="outline-meta-val is-empty" id="outlineMetaTpl" title="未选择">未选择</span>
+            </div>
+            <div class="outline-meta-row">
+              <span class="outline-meta-label">文件名</span>
+              <span class="outline-meta-val" id="outlineMetaFile"></span>
+            </div>
+            <div class="outline-meta-row">
+              <span class="outline-meta-label">标题</span>
+              <span class="outline-meta-val" id="outlineMetaTitle"></span>
+            </div>
+          </div>
           <div class="outline-body" id="outlineBody">
             <div class="outline-item has-children" data-target="chap-1"><span class="outline-item-txt">▸ 1 概述</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
             <div class="outline-item has-children" data-target="chap-2"><span class="outline-item-txt">▸ 2 工程概述</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
@@ -1818,10 +1860,21 @@
           .replace(/"/g, '&quot;');
       }
 
-      document.getElementById('metaRest').innerHTML =
-        '<div class="meta-block"><span class="meta-label">标题</span><span class="meta-val" title="' + escapeHtml(doc.name) + '">' + escapeHtml(doc.name) + '</span></div>' +
-        '<span class="meta-sep"></span>' +
-        '<div class="meta-block"><span class="meta-label">模板名称</span><span class="meta-val">' + escapeHtml(doc.templateName) + '</span></div>';
+      var metaRestEl = document.getElementById('metaRest');
+      if (metaRestEl) {
+        metaRestEl.innerHTML = '';
+        metaRestEl.style.display = 'none';
+      }
+      var outlineMetaTitleEl = document.getElementById('outlineMetaTitle');
+      var outlineMetaFileEl = document.getElementById('outlineMetaFile');
+      if (outlineMetaTitleEl) {
+        outlineMetaTitleEl.textContent = doc.name || '';
+        outlineMetaTitleEl.title = doc.name || '';
+      }
+      if (outlineMetaFileEl) {
+        outlineMetaFileEl.textContent = doc.name || '';
+        outlineMetaFileEl.title = doc.name || '';
+      }
 
       var shortTitle = (doc.name || '技术规范书').replace(/\.(docx|doc)$/i, '');
       var coverTitle = buildFormalCoverTitle(shortTitle);
@@ -2816,6 +2869,18 @@
         } else {
           reviewTemplateText.textContent = t.name;
           reviewTemplateTrigger.classList.remove('is-empty');
+        }
+        var outlineMetaTplEl = document.getElementById('outlineMetaTpl');
+        if (outlineMetaTplEl) {
+          if (t && t.name) {
+            outlineMetaTplEl.textContent = t.name;
+            outlineMetaTplEl.title = t.name;
+            outlineMetaTplEl.classList.remove('is-empty');
+          } else {
+            outlineMetaTplEl.textContent = '未选择';
+            outlineMetaTplEl.title = '未选择';
+            outlineMetaTplEl.classList.add('is-empty');
+          }
         }
       }
 
