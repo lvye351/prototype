@@ -76,23 +76,24 @@
     }
     .outline-more {
       flex-shrink: 0;
-      width: 28px;
-      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 22px;
       padding: 0;
       margin: 0 -2px 0 0;
       border: none;
       border-radius: 4px;
       background: transparent;
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 16px;
-      line-height: 1;
-      letter-spacing: 0;
+      color: #8200db;
       cursor: pointer;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
       transition: opacity 0.12s, background 0.12s, color 0.12s;
     }
+    .outline-more svg { width: 14px; height: 14px; display: block; }
     .outline-item:hover .outline-more,
     .outline-item:focus-within .outline-more {
       opacity: 1;
@@ -100,8 +101,8 @@
       pointer-events: auto;
     }
     .outline-more:hover {
-      background: rgba(24, 144, 255, 0.1);
-      color: #1890ff;
+      background: rgba(130, 0, 219, 0.1);
+      color: #6b00b6;
     }
 
     .edit-center {
@@ -391,18 +392,18 @@
     }
     .ai-bubble-chapter-head {
       display: none;
-      padding: 0 4px 10px;
-      margin-bottom: 2px;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 0 0 8px;
     }
     .ai-bubble.has-chapter-banner .ai-bubble-chapter-head {
       display: block;
     }
     .ai-chapter-head-row {
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
+      align-items: center;
+      gap: 10px;
+    }
+    .ai-chapter-head-row .ai-bubble-handle {
+      flex-shrink: 0;
     }
     .ai-chapter-head-title {
       font-size: 14px;
@@ -411,15 +412,20 @@
       line-height: 1.45;
       flex: 1;
       min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .ai-chapter-head-warn {
       flex-shrink: 0;
-      max-width: 52%;
       font-size: 12px;
       line-height: 1.45;
       color: #d46b08;
       text-align: right;
     }
+    .ai-chapter-head-row .ai-close { flex-shrink: 0; }
+    /* 章节生成模式：隐藏工具条（润色/改写等快捷按钮所在行） */
+    .ai-bubble.has-chapter-banner .ai-bubble-toolbar { display: none; }
     .ai-bubble-input {
       margin-top: 10px;
       border: 1px solid #4096ff;
@@ -1328,16 +1334,16 @@
         <aside class="outline-aside">
           <div class="outline-head"></div>
           <div class="outline-body" id="outlineBody">
-            <div class="outline-item has-children" data-target="chap-1"><span class="outline-item-txt">▸ 1 概述</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item has-children" data-target="chap-2"><span class="outline-item-txt">▸ 2 工程概述</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item has-children" data-target="chap-3"><span class="outline-item-txt">▸ 3 总体技术要求</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item has-children" data-target="chap-4"><span class="outline-item-txt">▸ 4 建设方案</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item has-children" data-target="chap-5"><span class="outline-item-txt">▸ 5 网络信息安全要求</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item has-children" data-target="chap-6"><span class="outline-item-txt">▸ 6 安装、调试、开通及试运行</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item" data-target="chap-7"><span class="outline-item-txt">7 响应供应商成交后需提供的技术文档</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item is-active" data-target="chap-8"><span class="outline-item-txt">8 保修</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item" data-target="chap-9"><span class="outline-item-txt">9 ★软件测评相关要求</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
-            <div class="outline-item" data-target="chap-10"><span class="outline-item-txt">10 功能需求清单</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成">⋯</button></div>
+            <div class="outline-item has-children" data-target="chap-1"><span class="outline-item-txt">▸ 1 概述</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item has-children" data-target="chap-2"><span class="outline-item-txt">▸ 2 工程概述</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item has-children" data-target="chap-3"><span class="outline-item-txt">▸ 3 总体技术要求</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item has-children" data-target="chap-4"><span class="outline-item-txt">▸ 4 建设方案</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item has-children" data-target="chap-5"><span class="outline-item-txt">▸ 5 网络信息安全要求</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item has-children" data-target="chap-6"><span class="outline-item-txt">▸ 6 安装、调试、开通及试运行</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item" data-target="chap-7"><span class="outline-item-txt">7 响应供应商成交后需提供的技术文档</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item is-active" data-target="chap-8"><span class="outline-item-txt">8 保修</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item" data-target="chap-9"><span class="outline-item-txt">9 ★软件测评相关要求</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
+            <div class="outline-item" data-target="chap-10"><span class="outline-item-txt">10 功能需求清单</span><button type="button" class="outline-more" title="章节生成" aria-label="章节生成"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.21 1.21 0 0 0 1.72 0L21.64 5.36a1.21 1.21 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></button></div>
           </div>
         </aside>
 
@@ -1380,8 +1386,10 @@
             <div class="ai-bubble" id="aiBubble" contenteditable="false">
               <div class="ai-bubble-chapter-head" id="aiBubbleChapterHead" aria-hidden="true">
                 <div class="ai-chapter-head-row">
+                  <span class="ai-bubble-handle" title="拖拽移动" id="aiBubbleHandle2">⠿</span>
                   <span class="ai-chapter-head-title" id="aiChapterHeadTitle"></span>
                   <span class="ai-chapter-head-warn">章节生成会在正文部分直接覆盖现有内容，请谨慎操作！</span>
+                  <button type="button" class="ai-close" id="aiBubbleClose2"><span>✕</span>关闭</button>
                 </div>
               </div>
               <div class="ai-bubble-toolbar">
@@ -1952,7 +1960,9 @@
         var paperWrap = document.getElementById('paperWrap');
         var bubble = document.getElementById('aiBubble');
         var bubbleHandle = document.getElementById('aiBubbleHandle');
+        var bubbleHandle2 = document.getElementById('aiBubbleHandle2');
         var bubbleClose = document.getElementById('aiBubbleClose');
+        var bubbleClose2 = document.getElementById('aiBubbleClose2');
         var bubbleText = document.getElementById('aiBubbleText');
         var bubbleSend = document.getElementById('aiBubbleSend');
         var bubbleInputWrap = document.getElementById('aiBubbleInputWrap');
@@ -2303,10 +2313,12 @@
         bubble.addEventListener('mousedown', function (e) {
           e.stopPropagation();
         });
-        bubbleClose.addEventListener('click', function () {
+        function handleCloseClick() {
           manuallyHidden = true;
           hideBubble();
-        });
+        }
+        if (bubbleClose) bubbleClose.addEventListener('click', handleCloseClick);
+        if (bubbleClose2) bubbleClose2.addEventListener('click', handleCloseClick);
 
         bubble.querySelectorAll('.ai-shortcut[data-cmd]').forEach(function (btn) {
           btn.addEventListener('click', function () {
@@ -2602,14 +2614,16 @@
           updateSendBtn();
         });
 
-        bubbleHandle.addEventListener('mousedown', function (e) {
+        function handleDragStart(e) {
           e.preventDefault();
           isDragging = true;
           var rect = bubble.getBoundingClientRect();
           dragOffsetX = e.clientX - rect.left;
           dragOffsetY = e.clientY - rect.top;
           document.body.style.userSelect = 'none';
-        });
+        }
+        if (bubbleHandle) bubbleHandle.addEventListener('mousedown', handleDragStart);
+        if (bubbleHandle2) bubbleHandle2.addEventListener('mousedown', handleDragStart);
         document.addEventListener('mousemove', function (e) {
           if (!isDragging) return;
           var wrapRect = paperWrap.getBoundingClientRect();
