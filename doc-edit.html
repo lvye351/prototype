@@ -14,9 +14,68 @@
       color: rgba(0, 0, 0, 0.85);
       font-size: 14px;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
-    .edit-shell { display: flex; height: 100vh; min-height: 0; }
+    /* 顶栏（与 index.html 等其它页面统一） */
+    .topbar {
+      height: 64px;
+      background: #001529;
+      display: flex;
+      align-items: center;
+      padding: 0 50px;
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 20px; font-weight: 600; color: #fff; line-height: 64px; letter-spacing: 0.02em; }
+
+    /* 全局布局：sidebar + edit-shell（与其它页面 .layout 一致） */
+    .layout { display: flex; flex: 1; min-height: 0; }
+
+    /* 侧栏（与 index.html / chat-write.html / ppt-write.html 对齐） */
+    .sidebar {
+      width: 200px;
+      background: #fff;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+    }
+    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
+    .side-group-h {
+      display: flex; align-items: center;
+      padding: 0 24px 0 34px; height: 40px;
+      font-size: 14px; font-weight: 400; color: #1890ff;
+      border-right: 0.75px solid rgba(0, 0, 0, 0.06);
+    }
+    .side-sub { background: #fafafa; padding: 4px 0 8px; }
+    .sidebar .menu-item {
+      position: relative;
+      padding: 0 16px 0 48px; height: 40px; line-height: 40px;
+      font-size: 14px; color: rgba(0, 0, 0, 0.85);
+      cursor: pointer; transition: background .15s;
+    }
+    .sidebar .menu-item:hover { background: #f0f0f0; }
+    .sidebar .menu-item.active { background: #f1f1f1; color: #1890ff; font-weight: 400; }
+    .sidebar .menu-item.active::after {
+      content: ''; position: absolute; right: 0; top: 0; bottom: 0;
+      width: 3px; background: linear-gradient(180deg, #1890ff, #1fbdff);
+    }
+    .sidebar-foot {
+      border-top: 0.75px solid #f0f0f0;
+      padding: 8px 12px;
+      display: flex; align-items: center; gap: 8px;
+      background: #fff;
+    }
+    .sf-av {
+      width: 24px; height: 24px; border-radius: 12px;
+      background: #ccc;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #fff;
+    }
+    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
+
+    .edit-shell { display: flex; flex: 1; min-height: 0; min-width: 0; }
 
     .edit-main {
       flex: 1;
@@ -61,6 +120,33 @@
       gap: 2px;
       min-width: 0;
     }
+    .outline-meta-row--first {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .outline-meta-row--first .outline-meta-row-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .outline-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      color: #1890ff;
+      text-decoration: none;
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .outline-back:hover { background: rgba(24, 144, 255, 0.1); color: #096dd9; }
     .outline-meta-label {
       font-size: 12px;
       color: #8c8c8c;
@@ -1357,14 +1443,39 @@
   </style>
 </head>
 <body>
+  <div class="topbar">
+    <span class="topbar-title">智能写作系统</span>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-scroll">
+        <div class="side-group-h">文档写作</div>
+        <div class="side-sub">
+          <div class="menu-item" onclick="location.href='chat-write.html'">对话写作</div>
+          <div class="menu-item" onclick="location.href='ppt-write.html'">ppt写作</div>
+          <div class="menu-item active" onclick="location.href='index.html'">我的文稿</div>
+          <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
+          <div class="menu-item" onclick="location.href='check.html'">技术规范书查重</div>
+        </div>
+      </div>
+      <div class="sidebar-foot">
+        <div class="sf-av">王</div>
+        <span class="sf-name">王海龙</span>
+      </div>
+    </div>
+
   <div class="edit-shell">
     <div class="edit-main">
       <div class="edit-frame">
         <aside class="outline-aside">
           <div class="outline-meta">
-            <div class="outline-meta-row">
-              <span class="outline-meta-label">word文体模板</span>
-              <span class="outline-meta-val is-empty" id="outlineMetaTpl" title="未选择">未选择</span>
+            <div class="outline-meta-row outline-meta-row--first">
+              <a class="outline-back" href="index.html" title="返回我的文稿">←</a>
+              <div class="outline-meta-row-content">
+                <span class="outline-meta-label">word文体模板</span>
+                <span class="outline-meta-val is-empty" id="outlineMetaTpl" title="未选择">未选择</span>
+              </div>
             </div>
             <div class="outline-meta-row">
               <span class="outline-meta-label">文件名</span>
@@ -1391,7 +1502,6 @@
 
         <div class="edit-center">
           <div class="ribbon-bar">
-            <a class="ico-back" href="index.html" title="返回">←</a>
             <button type="button" class="btn-doc" onclick="showToast('保存（原型）')">💾 保存</button>
             <button type="button" class="btn-doc" onclick="showToast('导出（原型）')">📁 导出</button>
             <span class="vsep"></span>
@@ -1729,6 +1839,7 @@
       </div>
     </div>
   </div>
+  </div>
 
   <div class="tpl-mask" id="tplMask">
     <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择word模板">
@@ -1865,19 +1976,20 @@
         metaRestEl.innerHTML = '';
         metaRestEl.style.display = 'none';
       }
+
+      var shortTitle = (doc.name || '技术规范书').replace(/\.(docx|doc)$/i, '');
+      var coverTitle = buildFormalCoverTitle(shortTitle);
+
       var outlineMetaTitleEl = document.getElementById('outlineMetaTitle');
       var outlineMetaFileEl = document.getElementById('outlineMetaFile');
       if (outlineMetaTitleEl) {
-        outlineMetaTitleEl.textContent = doc.name || '';
-        outlineMetaTitleEl.title = doc.name || '';
+        outlineMetaTitleEl.textContent = coverTitle || doc.name || '';
+        outlineMetaTitleEl.title = coverTitle || doc.name || '';
       }
       if (outlineMetaFileEl) {
         outlineMetaFileEl.textContent = doc.name || '';
         outlineMetaFileEl.title = doc.name || '';
       }
-
-      var shortTitle = (doc.name || '技术规范书').replace(/\.(docx|doc)$/i, '');
-      var coverTitle = buildFormalCoverTitle(shortTitle);
       var coverOrg = guessCoverOrg(shortTitle, doc);
       var coverDateZh = editTimeToCnYearMonth(doc.editTime || doc.createTime);
 
