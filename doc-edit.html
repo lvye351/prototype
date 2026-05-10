@@ -781,55 +781,76 @@
       background: #fafafa;
     }
     .review-template-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 0 8px;
+      display: block;
+      padding: 0 0 10px;
       background: #fff;
       border-bottom: 1px solid #f0f0f0;
       margin-bottom: 2px;
       flex-shrink: 0;
     }
-    .review-template-bar.is-hidden {
-      display: none;
-    }
-    .review-template-label {
-      color: rgba(0, 0, 0, 0.65);
-      font-size: 13px;
-      flex-shrink: 0;
-    }
-    .review-template-trigger {
-      flex: 1;
-      min-width: 110px;
-      height: 30px;
-      border: 1px solid #d9d9d9;
-      border-radius: 6px;
-      padding: 0 10px;
-      font-size: 13px;
-      color: rgba(0, 0, 0, 0.85);
+    .review-template-bar.is-hidden { display: none; }
+    .review-template-pick {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px dashed #d9d9d9;
+      border-radius: 8px;
+      background: #fafafa;
       font-family: inherit;
-      text-align: left;
-      background: #fff;
       cursor: pointer;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+    }
+    .review-template-pick:hover {
+      border-color: #1890ff;
+      background: #f0f8ff;
+    }
+    .review-template-pick.is-picked {
+      border-style: solid;
+      border-color: #91caff;
+      background: #f0f8ff;
+    }
+    .review-template-pick .rtp-ico {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #e6f1ff;
       display: inline-flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      font-size: 15px;
+      color: #1890ff;
     }
-    .review-template-trigger:hover {
-      border-color: #40a9ff;
+    .review-template-pick .rtp-text {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      text-align: left;
     }
-    .review-template-trigger .txt {
+    .review-template-pick .rtp-key {
+      font-size: 12px;
+      color: #8c8c8c;
+      line-height: 1.3;
+    }
+    .review-template-pick .rtp-val {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.85);
+      line-height: 1.45;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-right: 8px;
     }
-    .review-template-trigger .arr {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
-    }
-    .review-template-trigger.is-empty .txt {
-      color: #bfbfbf;
+    .review-template-pick.is-empty .rtp-val { color: #bfbfbf; }
+    .review-template-pick .rtp-action {
+      flex-shrink: 0;
+      font-size: 13px;
+      color: #1890ff;
+      padding-left: 6px;
     }
     .review-empty {
       padding: 28px 16px;
@@ -1477,7 +1498,6 @@
             <div class="outline-meta-row outline-meta-row--first">
               <a class="outline-back" href="index.html" title="返回我的文稿">←</a>
               <div class="outline-meta-row-content">
-                <span class="outline-meta-label">word文体模板</span>
                 <span class="outline-meta-val" id="outlineMetaTpl"></span>
               </div>
             </div>
@@ -1506,7 +1526,7 @@
 
         <div class="edit-center">
           <div class="ribbon-bar">
-            <button type="button" class="btn-doc" onclick="showToast('保存（原型）')">💾 保存</button>
+            <button type="button" class="btn-doc" onclick="saveDoc()">💾 保存</button>
             <button type="button" class="btn-doc" onclick="showToast('导出（原型）')">📁 导出</button>
             <span class="vsep"></span>
             <select class="sel" title="字体">
@@ -1595,10 +1615,13 @@
         </div>
         <div class="review-toolbar">
           <div class="review-template-bar is-hidden" id="reviewTemplateBar" aria-hidden="true">
-            <span class="review-template-label">word模板</span>
-            <button type="button" class="review-template-trigger" id="reviewTemplateTrigger">
-              <span class="txt" id="reviewTemplateText"></span>
-              <span class="arr">▼</span>
+            <button type="button" class="review-template-pick is-empty" id="reviewTemplateTrigger">
+              <span class="rtp-ico">📄</span>
+              <span class="rtp-text">
+                <span class="rtp-key">word模板</span>
+                <span class="rtp-val" id="reviewTemplateText">未选择</span>
+              </span>
+              <span class="rtp-action" id="reviewTemplateAction">点击选择</span>
             </button>
           </div>
           <div class="review-toolbar-row review-toolbar-row--primary">
@@ -1980,6 +2003,29 @@
         metaRestEl.innerHTML = '';
         metaRestEl.style.display = 'none';
       }
+
+      // 暴露 saveDoc 用于 ribbon-bar 保存按钮
+      window.saveDoc = function () {
+        try {
+          var tplEl = document.getElementById('outlineMetaTpl');
+          var tplName = (tplEl && tplEl.textContent) ? tplEl.textContent.trim() : '';
+          var docId = doc && doc.id;
+          if (docId != null) {
+            var raw = localStorage.getItem('docOverrides');
+            var map = {};
+            try { map = raw ? (JSON.parse(raw) || {}) : {}; } catch (e) { map = {}; }
+            map[String(docId)] = map[String(docId)] || {};
+            if (tplName) map[String(docId)].templateName = tplName;
+            map[String(docId)].editTime = new Date().toISOString().replace('T', ' ').slice(0, 16);
+            localStorage.setItem('docOverrides', JSON.stringify(map));
+          }
+          if (tplName) doc.templateName = tplName;
+          sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
+          if (typeof showToast === 'function') showToast('已保存' + (tplName ? '（模板：' + tplName + '）' : ''));
+        } catch (err) {
+          if (typeof showToast === 'function') showToast('保存失败');
+        }
+      };
 
       var shortTitle = (doc.name || '技术规范书').replace(/\.(docx|doc)$/i, '');
       var coverTitle = buildFormalCoverTitle(shortTitle);
@@ -2834,7 +2880,7 @@
       var reviewScrollEl = document.getElementById('reviewScroll');
       var REVIEW_SCROLL_DEFAULT_HTML = reviewScrollEl.innerHTML;
       var TEMPLATE_TAB_EMPTY_HTML =
-        '<div class="review-empty">请选择 Word 文体模板后，点击「发起审校」查看章节语句修改。</div>';
+        '<div class="review-empty">请选择 Word 模板后，点击「发起审校」查看章节语句修改。</div>';
 
       var REVIEW_MAJOR_TAB_LABELS = ['全部检测', '规范检测', '安全检测', '风格检测', '逻辑检测', '模板检测'];
 
@@ -2929,7 +2975,7 @@
         var tab = getActiveReviewTabIndex();
         if (tab === '5') {
           if (!selectedTemplate) {
-            showToast('请先选择 Word 文体模板');
+            showToast('请先选择 Word 模板');
             return;
           }
           reviewScrollEl.innerHTML = buildTemplateAuditHtml();
@@ -2996,12 +3042,17 @@
       var pendingTemplate = null;
 
       function renderTemplateHeader(t) {
+        var actionEl = document.getElementById('reviewTemplateAction');
         if (!t) {
-          reviewTemplateText.textContent = '请选择模板';
+          reviewTemplateText.textContent = '未选择';
           reviewTemplateTrigger.classList.add('is-empty');
+          reviewTemplateTrigger.classList.remove('is-picked');
+          if (actionEl) actionEl.textContent = '点击选择';
         } else {
           reviewTemplateText.textContent = t.name;
           reviewTemplateTrigger.classList.remove('is-empty');
+          reviewTemplateTrigger.classList.add('is-picked');
+          if (actionEl) actionEl.textContent = '更换';
         }
         var outlineMetaTplEl = document.getElementById('outlineMetaTpl');
         if (outlineMetaTplEl) {

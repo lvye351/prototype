@@ -539,6 +539,20 @@ let currentAssetTab = 'word';
 let filteredDocs = [];
 let selectedFile = null;
 
+(function applyDocOverrides() {
+  try {
+    const raw = localStorage.getItem('docOverrides');
+    if (!raw) return;
+    const map = JSON.parse(raw) || {};
+    docs.forEach(d => {
+      const ov = map[String(d.id)];
+      if (!ov) return;
+      if (ov.templateName) d.templateName = ov.templateName;
+      if (ov.editTime) d.editTime = ov.editTime;
+    });
+  } catch (e) { /* noop */ }
+})();
+
 function syncUploadUi() {
   const isWord = currentAssetTab === 'word';
   document.getElementById('uploadModalTitle').textContent = isWord ? '导入 Word 文稿' : '导入 PPT 文稿';
