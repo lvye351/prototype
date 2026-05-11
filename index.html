@@ -421,8 +421,8 @@
         <label for="filterStatus">状态</label>
         <select id="filterStatus">
           <option value="">全部</option>
-          <option value="已发布">已发布</option>
-          <option value="草稿">草稿</option>
+          <option value="启用">启用</option>
+          <option value="停用">停用</option>
         </select>
       </div>
       <button type="button" class="btn btn-primary" onclick="filterTable()">查询</button>
@@ -526,13 +526,13 @@
 
 <script>
 const docs = [
-  { id: 1, kind: 'word', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', level1: '技术规范书', level2: '核心网', templateName: '电信技术规范模板', status: '已发布', wordCount: '12,580', creator: '王海龙', editTime: '2026-03-10 09:32', createTime: '2026-03-09 18:20', size: '2.4MB', count: 3, hasHistory: true },
-  { id: 2, kind: 'word', name: 'XX公司云资源池扩容技术规范书_2026.docx', level1: '技术规范书', level2: '云计算', templateName: '通用采购模板', status: '已发布', wordCount: '9,210', creator: '王海龙', editTime: '2026-03-11 14:15', createTime: '2026-03-11 10:05', size: '1.8MB', count: 2, hasHistory: true },
-  { id: 3, kind: 'word', name: '关于召开2026年传输网络规划评审会的通知.docx', level1: '会议通知', level2: '评审会议', templateName: '会议通知通用模板', status: '草稿', wordCount: '1,820', creator: '王海龙', editTime: '2026-03-12 10:08', createTime: '2026-03-12 08:10', size: '0.6MB', count: 1, hasHistory: true },
-  { id: 4, kind: 'word', name: '2026年Q1无线网络建设工作总结报告.docx', level1: '工作报告', level2: '季度总结', templateName: '季度工作报告模板', status: '草稿', wordCount: '6,400', creator: '王海龙', editTime: '2026-03-12 16:44', createTime: '2026-03-12 15:20', size: '1.2MB', count: 0, hasHistory: false },
-  { id: 5, kind: 'word', name: '核心网NFV平台技术规范书_2026Q1.docx', level1: '技术规范书', level2: '虚拟化', templateName: 'NFV 模板', status: '已发布', wordCount: '11,200', creator: '王海龙', editTime: '2026-03-13 09:00', createTime: '2026-03-12 19:40', size: '2.7MB', count: 2, hasHistory: true },
-  { id: 6, kind: 'ppt', name: '公开询比采购方案汇报.pptx', level1: '采购方案', level2: '汇报', templateName: '采购汇报标准页', status: '已发布', wordCount: '—', creator: '王海龙', editTime: '2026-03-13 11:20', createTime: '2026-03-13 09:15', size: '4.1MB', count: 0, hasHistory: false },
-  { id: 7, kind: 'ppt', name: '智慧营维系统立项汇报-单项目.pptx', level1: '立项汇报', level2: '信息化', templateName: '立项汇报模板', status: '草稿', wordCount: '—', creator: '王海龙', editTime: '2026-03-14 08:55', createTime: '2026-03-13 16:10', size: '5.2MB', count: 0, hasHistory: false },
+  { id: 1, kind: 'word', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', level1: '技术规范书', level2: '核心网', templateName: '电信技术规范模板', status: '启用', wordCount: '12,580', creator: '王海龙', editTime: '2026-03-10 09:32', createTime: '2026-03-09 18:20', size: '2.4MB', count: 3, hasHistory: true },
+  { id: 2, kind: 'word', name: 'XX公司云资源池扩容技术规范书_2026.docx', level1: '技术规范书', level2: '云计算', templateName: '通用采购模板', status: '启用', wordCount: '9,210', creator: '王海龙', editTime: '2026-03-11 14:15', createTime: '2026-03-11 10:05', size: '1.8MB', count: 2, hasHistory: true },
+  { id: 3, kind: 'word', name: '关于召开2026年传输网络规划评审会的通知.docx', level1: '会议通知', level2: '评审会议', templateName: '会议通知通用模板', status: '启用', wordCount: '1,820', creator: '王海龙', editTime: '2026-03-12 10:08', createTime: '2026-03-12 08:10', size: '0.6MB', count: 1, hasHistory: true },
+  { id: 4, kind: 'word', name: '2026年Q1无线网络建设工作总结报告.docx', level1: '工作报告', level2: '季度总结', templateName: '季度工作报告模板', status: '启用', wordCount: '6,400', creator: '王海龙', editTime: '2026-03-12 16:44', createTime: '2026-03-12 15:20', size: '1.2MB', count: 0, hasHistory: false },
+  { id: 5, kind: 'word', name: '核心网NFV平台技术规范书_2026Q1.docx', level1: '技术规范书', level2: '虚拟化', templateName: 'NFV 模板', status: '启用', wordCount: '11,200', creator: '王海龙', editTime: '2026-03-13 09:00', createTime: '2026-03-12 19:40', size: '2.7MB', count: 2, hasHistory: true },
+  { id: 6, kind: 'ppt', name: '公开询比采购方案汇报.pptx', level1: '采购方案', level2: '汇报', templateName: '采购汇报标准页', status: '启用', wordCount: '—', creator: '王海龙', editTime: '2026-03-13 11:20', createTime: '2026-03-13 09:15', size: '4.1MB', count: 0, hasHistory: false },
+  { id: 7, kind: 'ppt', name: '智慧营维系统立项汇报-单项目.pptx', level1: '立项汇报', level2: '信息化', templateName: '立项汇报模板', status: '启用', wordCount: '—', creator: '王海龙', editTime: '2026-03-14 08:55', createTime: '2026-03-13 16:10', size: '5.2MB', count: 0, hasHistory: false },
 ];
 
 let currentAssetTab = 'word';
@@ -592,7 +592,7 @@ function resetSearch() {
 }
 
 function statusBadge(status) {
-  if (status === '已发布') return '<span class="badge badge-green">' + status + '</span>';
+  if (status === '启用' || status === '已发布') return '<span class="badge badge-green">' + status + '</span>';
   return '<span class="badge badge-gray">' + status + '</span>';
 }
 
@@ -741,7 +741,7 @@ function confirmProposalTpl() {
     level1: '项目建议书',
     level2: doc.level2,
     templateName: tpl.name,
-    status: '草稿',
+    status: '启用',
     fromTechSpecId: doc.id,
     fromTechSpecName: doc.name,
     convertMode: 'tech-spec-to-proposal',
@@ -853,7 +853,7 @@ function confirmUpload() {
     level1: kind === 'word' ? '技术规范书' : '演示文稿',
     level2: '未分类',
     templateName: '自定义上传',
-    status: '草稿',
+    status: '启用',
     wordCount: kind === 'word' ? '—' : '—',
     creator: '王海龙',
     editTime: now,
