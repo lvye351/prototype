@@ -165,6 +165,21 @@
     }
     .outline-meta-val.is-empty { color: #bfbfbf; }
     .outline-meta-val:empty { min-height: 1.4em; }
+    .outline-meta-val[contenteditable="true"] {
+      cursor: text;
+      border-radius: 4px;
+      padding: 1px 4px;
+      margin-left: -4px;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+    .outline-meta-val[contenteditable="true"]:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .outline-meta-val[contenteditable="true"]:focus {
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(82, 121, 215, 0.35);
+    }
     .outline-body {
       flex: 1;
       overflow: auto;
@@ -1498,7 +1513,7 @@
             </div>
             <div class="outline-meta-row">
               <span class="outline-meta-label">文件名</span>
-              <span class="outline-meta-val" id="outlineMetaFile"></span>
+              <span class="outline-meta-val" id="outlineMetaFile" contenteditable="true" spellcheck="false" data-placeholder="点击编辑文件名"></span>
             </div>
             <div class="outline-meta-row">
               <span class="outline-meta-label">标题</span>
@@ -2004,6 +2019,8 @@
         try {
           var tplEl = document.getElementById('outlineMetaTpl');
           var tplName = (tplEl && tplEl.textContent) ? tplEl.textContent.trim() : '';
+          var fileEl = document.getElementById('outlineMetaFile');
+          var fileName = (fileEl && fileEl.textContent) ? fileEl.textContent.trim() : '';
           var docId = doc && doc.id;
           if (docId != null) {
             var raw = localStorage.getItem('docOverrides');
@@ -2011,12 +2028,21 @@
             try { map = raw ? (JSON.parse(raw) || {}) : {}; } catch (e) { map = {}; }
             map[String(docId)] = map[String(docId)] || {};
             if (tplName) map[String(docId)].templateName = tplName;
+            if (fileName) map[String(docId)].fileName = fileName;
             map[String(docId)].editTime = new Date().toISOString().replace('T', ' ').slice(0, 16);
             localStorage.setItem('docOverrides', JSON.stringify(map));
           }
           if (tplName) doc.templateName = tplName;
+          if (fileName) doc.fileName = fileName;
           sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
-          if (typeof showToast === 'function') showToast('已保存' + (tplName ? '（模板：' + tplName + '）' : ''));
+          if (typeof showToast === 'function') {
+            var msg = '已保存';
+            var extra = [];
+            if (tplName) extra.push('模板：' + tplName);
+            if (fileName && fileName !== doc.name) extra.push('文件名：' + fileName);
+            if (extra.length) msg += '（' + extra.join('，') + '）';
+            showToast(msg);
+          }
         } catch (err) {
           if (typeof showToast === 'function') showToast('保存失败');
         }
@@ -2032,8 +2058,27 @@
         outlineMetaTitleEl.title = coverTitle || doc.name || '';
       }
       if (outlineMetaFileEl) {
-        outlineMetaFileEl.textContent = doc.name || '';
-        outlineMetaFileEl.title = doc.name || '';
+        var initialFileName = doc.fileName || doc.name || '';
+        outlineMetaFileEl.textContent = initialFileName;
+        outlineMetaFileEl.title = initialFileName;
+        outlineMetaFileEl.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            outlineMetaFileEl.blur();
+          }
+        });
+        outlineMetaFileEl.addEventListener('blur', function () {
+          var v = (outlineMetaFileEl.textContent || '').replace(/[\r\n\t]+/g, ' ').trim();
+          if (!v) v = doc.name || '';
+          outlineMetaFileEl.textContent = v;
+          outlineMetaFileEl.title = v;
+        });
+        outlineMetaFileEl.addEventListener('paste', function (e) {
+          e.preventDefault();
+          var text = (e.clipboardData || window.clipboardData).getData('text') || '';
+          text = text.replace(/[\r\n\t]+/g, ' ').trim();
+          document.execCommand('insertText', false, text);
+        });
       }
       var coverOrg = guessCoverOrg(shortTitle, doc);
       var coverDateZh = editTimeToCnYearMonth(doc.editTime || doc.createTime);
