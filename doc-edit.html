@@ -897,11 +897,6 @@
     .tm-node.open .tm-caret { transform: rotate(90deg); }
     .tm-num { flex-shrink: 0; color: rgba(0, 0, 0, 0.65); }
     .tm-title { flex: 1; min-width: 0; }
-    .tm-fixed {
-      flex-shrink: 0;
-      font-size: 12px;
-      color: rgba(0, 0, 0, 0.45);
-    }
     .tm-body {
       display: none;
       padding: 0 12px 12px 36px;
@@ -2928,7 +2923,6 @@
         ];
         var parts = ['<div class="tm-root">'];
         chapters.forEach(function (ch) {
-          var fixedSuffix = ch.fixed ? '（固定章节与内容）' : '';
           var hl = ch.hl ? ' tm-node--hl' : '';
           var hasMods = ch.mods && ch.mods.length > 0;
           parts.push('<div class="tm-node' + (hasMods ? ' open' : '') + hl + '">');
@@ -2936,7 +2930,6 @@
           parts.push('<span class="tm-caret">▸</span>');
           parts.push('<span class="tm-num">' + ch.n + '</span>');
           parts.push('<span class="tm-title">' + escapeHtml(ch.title) + '</span>');
-          parts.push('<span class="tm-fixed">' + escapeHtml(fixedSuffix) + '</span>');
           parts.push('</button><div class="tm-body">');
           if (hasMods) {
             ch.mods.forEach(function (p) {
