@@ -958,6 +958,14 @@
       border-bottom: 1px solid #eceff3;
       color: #20262e;
     }
+    .tpl-modal-subnote {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.55;
+      color: #5c6570;
+      white-space: pre-line;
+    }
     .tpl-modal-body { padding: 12px 16px 0; }
     .tpl-toolbar {
       display: flex;
@@ -1021,7 +1029,6 @@
     }
     .tpl-table thead th.col-radio { width: 44px; text-align: center; }
     .tpl-table thead th.col-name { width: auto; }
-    .tpl-table thead th.col-actions { width: 72px; text-align: center; }
     .tpl-row {
       cursor: pointer;
       border-bottom: 1px solid #f0f0f0;
@@ -1079,21 +1086,6 @@
       color: #fff;
     }
     .tpl-upload-btn { flex-shrink: 0; white-space: nowrap; }
-    .tpl-row-del {
-      border: none;
-      background: none;
-      color: #ff4d4f;
-      font-size: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      padding: 2px 6px;
-    }
-    .tpl-row-del:hover { text-decoration: underline; }
-    .tpl-table td.col-actions-cell {
-      text-align: center;
-      width: 72px;
-      vertical-align: middle;
-    }
 
     /* —— 知识库（参考资料）选择弹框 —— */
     .kb-mask {
@@ -1880,7 +1872,11 @@
 
   <div class="tpl-mask" id="tplMask">
     <div class="tpl-modal" role="dialog" aria-modal="true" aria-label="选择word模板">
-      <div class="tpl-modal-head">选择word模板</div>
+      <div class="tpl-modal-head">
+        <div class="tpl-modal-subnote">选择word模板
+说明：word文档章节后请标注“固定章节标题与文字内容”。
+约束只能选择一个。</div>
+      </div>
       <div class="tpl-modal-body">
         <div class="tpl-toolbar">
           <input id="tplSearch" class="tpl-search" placeholder="请输入模板名称" autocomplete="off" />
@@ -1893,7 +1889,6 @@
               <tr>
                 <th class="col-radio"></th>
                 <th class="col-name">模板名称</th>
-                <th class="col-actions">操作</th>
               </tr>
             </thead>
             <tbody id="tplList"></tbody>
@@ -1948,15 +1943,15 @@
       <div class="kb-mh">
         <div class="kb-mh-text">
           <div class="kb-mh-title">从知识库选择参考资料</div>
-          <div class="kb-mh-desc">选择知识库已完成解析的资料用于本次章节生成；当前支持 .doc / .docx / .xlsx，单文件最大 50MB。</div>
+          <div class="kb-mh-desc">word文档章节后请标注“固定章节标题与文字内容”。</div>
         </div>
         <span class="kb-mh-close" id="kbClose" title="关闭">×</span>
       </div>
       <div class="kb-toolbar">
-        <select class="kb-select" aria-label="知识库">
-          <option>张三的个人知识库</option>
-          <option>企业共享知识库</option>
-          <option>部门知识库</option>
+        <select class="kb-select" id="kbScopeSelect" aria-label="知识库">
+          <option value="personal">个人知识库</option>
+          <option value="dept">部门知识库</option>
+          <option value="enterprise">企业知识库</option>
         </select>
         <div class="kb-search-wrap">
           <span class="icon">🔎</span>
@@ -1969,6 +1964,36 @@
           <div class="kb-dir-empty">—</div>
         </div>
         <div class="kb-list" id="kbList">
+          <div class="kb-row" data-id="kb-tpl-hn2026" data-name="中国电信2026年河南公司软件领域技术规范书模板.docx">
+            <span class="icon">DOC</span>
+            <span class="name">中国电信2026年河南公司软件领域技术规范书模板.docx</span>
+            <span class="meta">2.1MB · 2026-03-08 14:22</span>
+            <span class="status">已完成</span>
+          </div>
+          <div class="kb-row" data-id="kb-tpl-hndx" data-name="河南电信软件技术规范书.docx">
+            <span class="icon">DOC</span>
+            <span class="name">河南电信软件技术规范书.docx</span>
+            <span class="meta">1.6MB · 2026-03-09 09:15</span>
+            <span class="status">已完成</span>
+          </div>
+          <div class="kb-row" data-id="kb-tpl-5g" data-name="XX公司5G核心网建设技术规范书_v2.3.docx">
+            <span class="icon">DOC</span>
+            <span class="name">XX公司5G核心网建设技术规范书_v2.3.docx</span>
+            <span class="meta">2.4MB · 2026-03-10 09:32</span>
+            <span class="status">已完成</span>
+          </div>
+          <div class="kb-row" data-id="kb-tpl-nfv" data-name="核心网NFV平台技术规范书_2026Q1.docx">
+            <span class="icon">DOC</span>
+            <span class="name">核心网NFV平台技术规范书_2026Q1.docx</span>
+            <span class="meta">2.7MB · 2026-03-12 19:40</span>
+            <span class="status">已完成</span>
+          </div>
+          <div class="kb-row" data-id="kb-tpl-cloud" data-name="XX公司云资源池扩容技术规范书_2026.docx">
+            <span class="icon">DOC</span>
+            <span class="name">XX公司云资源池扩容技术规范书_2026.docx</span>
+            <span class="meta">1.8MB · 2026-03-11 10:05</span>
+            <span class="status">已完成</span>
+          </div>
           <div class="kb-row" data-id="kb-fnlist" data-name="功能清单.xlsx">
             <span class="icon">XLS</span>
             <span class="name">功能清单.xlsx</span>
@@ -2594,7 +2619,7 @@
 
         if (aiBubbleRefBtn) {
           aiBubbleRefBtn.addEventListener('click', function () {
-            openKbModal();
+            openKbModal('chapter');
           });
         }
 
@@ -2779,14 +2804,27 @@
         var kbSearch = document.getElementById('kbSearch');
         var kbPickedId = '';
         var kbPickedName = '';
+        var kbPickContext = 'chapter';
 
         function syncKbFootHint() {
           if (!kbFootHint) return;
           kbFootHint.textContent = kbPickedId ? '已选中 1 项：' + kbPickedName : '已选中 0 项';
         }
 
-        function openKbModal() {
+        function openKbModal(context) {
           if (!kbMask) return;
+          kbPickContext = context === 'review' ? 'review' : 'chapter';
+          var titleEl = kbMask.querySelector('.kb-mh-title');
+          var descEl = kbMask.querySelector('.kb-mh-desc');
+          var defaultKbDesc = 'word文档章节后请标注“固定章节标题与文字内容”。';
+          if (kbPickContext === 'review') {
+            if (titleEl) titleEl.textContent = '从知识库选择 Word 模板';
+            kbMask.setAttribute('aria-label', '从知识库选择 Word 模板');
+          } else {
+            if (titleEl) titleEl.textContent = '从知识库选择参考资料';
+            kbMask.setAttribute('aria-label', '从知识库选择参考资料');
+          }
+          if (descEl) descEl.textContent = defaultKbDesc;
           kbPickedId = '';
           kbPickedName = '';
           if (kbList) {
@@ -2834,7 +2872,19 @@
         if (kbConfirm) {
           kbConfirm.addEventListener('click', function () {
             if (!kbPickedId) {
-              showToast('请先选择一项参考资料');
+              showToast(kbPickContext === 'review' ? '请先选择一项模板' : '请先选择一项参考资料');
+              return;
+            }
+            if (kbPickContext === 'review') {
+              selectedTemplate = {
+                id: 'kb-' + kbPickedId,
+                name: kbPickedName,
+                docType: '知识库',
+                tplType: 'Word'
+              };
+              renderTemplateHeader(selectedTemplate);
+              closeKbModal();
+              showToast('已从知识库选择模板：' + kbPickedName);
               return;
             }
             chapterRefPicked = true;
@@ -2848,6 +2898,8 @@
             }
           });
         }
+
+        window._docEditOpenKbModal = openKbModal;
 
         bubbleText.addEventListener('input', updateSendBtn);
         bubbleText.addEventListener('focus', function () {
@@ -3058,7 +3110,7 @@
 
       var reviewTemplatePool = [
         { id: '1', name: '项目建议书', docType: '企业文体', tplType: '报告' },
-        { id: '2', name: '技术规范书', docType: '系统内置文体', tplType: '报告' },
+        { id: '2', name: '中国电信2026年河南公司软件领域技术规范书模板', docType: '系统内置文体', tplType: '报告' },
         { id: '3', name: '企业工作计划', docType: '企业文体', tplType: '工作' },
         { id: '4', name: '课题研究类通知', docType: '系统内置文体', tplType: '通知' },
         { id: '5', name: '内部培训', docType: '部门文体', tplType: '讲话' },
@@ -3120,7 +3172,7 @@
       function renderTemplateList() {
         var matched = getFilteredTemplates();
         if (!matched.length) {
-          tplList.innerHTML = '<tr><td colspan="3" class="tpl-empty">未匹配到模板</td></tr>';
+          tplList.innerHTML = '<tr><td colspan="2" class="tpl-empty">未匹配到模板</td></tr>';
           return;
         }
         tplList.innerHTML = matched.map(function (t) {
@@ -3128,30 +3180,11 @@
           return '<tr class="tpl-row' + (active ? ' active' : '') + '" data-id="' + escapeHtml(t.id) + '">' +
             '<td class="col-radio-cell"><input type="radio" name="tplPick" class="tpl-radio"' + (active ? ' checked' : '') + ' tabindex="-1" /></td>' +
             '<td>' + escapeHtml(t.name) + '</td>' +
-            '<td class="col-actions-cell"><button type="button" class="tpl-row-del" data-id="' + escapeHtml(t.id) + '">删除</button></td>' +
             '</tr>';
         }).join('');
       }
 
       tplList.addEventListener('click', function (e) {
-        var delBtn = e.target.closest && e.target.closest('.tpl-row-del');
-        if (delBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          var delId = delBtn.getAttribute('data-id');
-          var idx = reviewTemplatePool.findIndex(function (t) { return String(t.id) === String(delId); });
-          if (idx === -1) return;
-          var removed = reviewTemplatePool[idx];
-          reviewTemplatePool.splice(idx, 1);
-          if (pendingTemplate && String(pendingTemplate.id) === String(delId)) pendingTemplate = null;
-          if (selectedTemplate && String(selectedTemplate.id) === String(delId)) {
-            selectedTemplate = null;
-            renderTemplateHeader(null);
-          }
-          renderTemplateList();
-          showToast('已删除：' + removed.name);
-          return;
-        }
         var row = e.target.closest('.tpl-row');
         if (!row) return;
         var id = row.getAttribute('data-id');
@@ -3162,11 +3195,11 @@
       });
 
       reviewTemplateTrigger.addEventListener('click', function () {
-        pendingTemplate = selectedTemplate;
-        tplSearch.value = '';
-        renderTemplateList();
-        tplMask.classList.add('show');
-        setTimeout(function () { tplSearch.focus(); }, 0);
+        if (typeof window._docEditOpenKbModal === 'function') {
+          window._docEditOpenKbModal('review');
+        } else {
+          showToast('知识库暂不可用');
+        }
       });
 
       tplSearch.addEventListener('input', renderTemplateList);
