@@ -401,6 +401,8 @@
       display: flex;
       gap: 16px;
     }
+    .result-inline-summary .summary-dup-num { color: #c62828; font-weight: 700; }
+    .result-inline-summary .summary-sim-num { color: #e65100; font-weight: 700; }
     .result-inline-cols { display: flex; flex: 1; min-height: 0; }
     .result-inline-col {
       flex: 1;
@@ -1049,7 +1051,7 @@
                 <th style="width: 7%; text-align: left;">文件大小</th>
                 <th style="width: 11%; text-align: left;">最近上传时间</th>
                 <th style="width: 6%; text-align: left;">上传人</th>
-                <th style="width: 64px; text-align: center;">查重</th>
+                <th style="width: 72px; text-align: center;" title="重复段数/相似段数（与结果弹窗一致）">重复/相似</th>
                 <th style="width: 14%; text-align: left;">对比文档</th>
                 <th style="width: 11%; text-align: left; position: relative;">
                   查重时间
@@ -1175,13 +1177,13 @@
               <div class="result-top-meta" id="resultTopMeta">—</div>
               <div class="result-top-cards">
                 <div class="result-top-card"><div class="k">重复率</div><div class="v red" id="resultTopMaxRate">0%</div><div class="d">综合相似度</div></div>
-                <div class="result-top-card"><div class="k">重复 / 相似段落</div><div class="v" id="resultTopMatchCount">0</div><div class="d">需人工复核的片段数</div></div>
+                <div class="result-top-card"><div class="k">重复 / 相似段落</div><div class="v" id="resultTopMatchCount" title="">0/0</div><div class="d">格式：重复段/相似段（红/橙）</div></div>
                 <div class="result-top-card"><div class="k">目标侧段落</div><div class="v" id="resultTopBlockCount">0</div><div class="d">参与比对的段落数</div></div>
               </div>
             </div>
             <div class="result-inline-summary">
-              <span>红：重复</span>
-              <span>橙：相似</span>
+              <span>红：重复 <strong id="resultSummaryRep" class="summary-dup-num">0</strong></span>
+              <span>橙：相似 <strong id="resultSummarySim" class="summary-sim-num">0</strong></span>
             </div>
             <div class="result-inline-cols" id="resultInlineCols"></div>
           </div>
@@ -1682,13 +1684,16 @@ function renderHistory() {
     const titleAttr = escapeHtmlAttr(docLine + (st.detail ? '\n' + st.detail : ''));
     const compareLine = h.compareName ? h.compareName : '—';
     const compareTitle = escapeHtmlAttr(compareLine);
+    const hasSeg = h.status === 'completed' && typeof h.repSeg === 'number' && typeof h.simSeg === 'number';
+    const segText = hasSeg ? `${h.repSeg}/${h.simSeg}` : '—';
+    const segTitle = hasSeg ? `重复${h.repSeg}，相似${h.simSeg}` : '';
     return `
       <tr>
         <td title="${titleAttr}"><span class="cell-doc-ellipsis">📄 ${docLine}</span></td>
         <td>${h.size || '-'}</td>
         <td>${h.uploadTime || '-'}</td>
         <td>${h.user || '-'}</td>
-        <td style="text-align:center;white-space:nowrap;">-</td>
+        <td style="text-align:center;white-space:nowrap;" title="${escapeHtmlAttr(segTitle)}">${segText}</td>
         <td title="${compareTitle}"><span class="cell-doc-ellipsis">📄 ${compareLine}</span></td>
         <td>${h.time}</td>
         <td><span class="badge ${statusClass}">${statusText}</span></td>
@@ -2015,22 +2020,48 @@ function countFlaggedTargetBlocks(leftBlocks) {
   }).length;
 }
 
-/** 第二格=标红/相似段数，第三格=目标侧总段数；第一格=第二÷第三×100%，且第二≤第三 */
+/** 目标侧重复（match）与相似（highlight）段数，与对照区标注一致 */
+function countLeftDupSim(leftBlocks) {
+  var rep = 0;
+  var sim = 0;
+  if (!Array.isArray(leftBlocks)) return { repCount: 0, simCount: 0 };
+  leftBlocks.forEach(function (b) {
+    if (!b || !b.level) return;
+    if (b.level === 'match') rep++;
+    else if (b.level === 'highlight') sim++;
+  });
+  return { repCount: rep, simCount: sim };
+}
+
+/** 第二格=重复/相似段数（红/橙），第三格=目标侧总段数；第一格=第二÷第三×100%，且第二≤第三 */
 function deriveDuplicateViewStats(rowLike) {
   const rid = Math.abs(Number(rowLike && rowLike.id)) || 0;
   const tpl = getInlineTemplate(rowLike || { id: 0 });
   const targetBlocks = tpl.leftBlocks.length;
-  var matchCount = countFlaggedTargetBlocks(tpl.leftBlocks);
-  if (matchCount > targetBlocks) matchCount = targetBlocks;
+  var ds = countLeftDupSim(tpl.leftBlocks);
+  var repCount = ds.repCount;
+  var simCount = ds.simCount;
+  var matchCount = repCount + simCount;
+  while (matchCount > targetBlocks && matchCount > 0) {
+    if (simCount > 0) simCount--;
+    else repCount--;
+    matchCount = repCount + simCount;
+  }
   const ratePct = targetBlocks > 0 ? Number(((matchCount / targetBlocks) * 100).toFixed(2)) : 0;
-  return { tpl, rid, matchCount, targetBlocks, ratePct };
+  return { tpl, rid, matchCount, repCount, simCount, targetBlocks, ratePct };
+}
+
+function applyCompletedHistoryStats(h) {
+  if (!h || h.status !== 'completed') return;
+  const s = deriveDuplicateViewStats(h);
+  h.rate = s.ratePct;
+  h.repSeg = s.repCount;
+  h.simSeg = s.simCount;
 }
 
 (function syncHistoryListRatesFromTemplateStats() {
   historyData.forEach(function (h) {
-    if (h.status === 'completed') {
-      h.rate = deriveDuplicateViewStats(h).ratePct;
-    }
+    applyCompletedHistoryStats(h);
   });
 })();
 
@@ -2046,7 +2077,7 @@ function renderInlineCompareTabs(compareDocs) {
   host.innerHTML = compareDocs.map((d, i) => `
     <div class="inline-compare-tab ${i === activeInlineCompareIndex ? 'active' : ''}" onclick="setInlineCompareDoc(${i})">
       <div class="inline-compare-name" title="${escapeHtmlAttr(d.name)}">${d.name}</div>
-      <div class="inline-compare-meta">重复/相似 ${d.matchCount} 段</div>
+      <div class="inline-compare-meta">重复${d.repCount}/相似${d.simCount}</div>
       <div class="inline-compare-rate ${getRateClass(d.rate)}">${d.rate}%</div>
     </div>
   `).join('');
@@ -2071,12 +2102,11 @@ function renderInlineCompareMain(compareDocs, targetName, rowTime) {
   `).join('');
   const targetShow = targetName.length > 36 ? targetName.slice(0, 36) + '…' : targetName;
   const compareShow = curr.name.length > 36 ? curr.name.slice(0, 36) + '…' : curr.name;
-  const flaggedLeft = countFlaggedTargetBlocks(curr.leftBlocks);
   const flaggedRight = countFlaggedTargetBlocks(curr.rightBlocks);
   colsEl.innerHTML = `
     <div class="result-inline-col">
       <div class="result-inline-col-title">目标 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(targetName)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(targetShow)}</button></div>
-      <div class="result-inline-note">共 ${curr.leftBlocks.length} 段 · 其中 ${flaggedLeft} 段标为重复/相似（与上方统计一致）</div>
+      <div class="result-inline-note">共 ${curr.leftBlocks.length} 段 · 重复 ${curr.repCount}、相似 ${curr.simCount}（合计 ${curr.matchCount}，与上方统计一致）</div>
       ${leftHtml}
     </div>
     <div class="result-inline-col">
@@ -2099,12 +2129,14 @@ function renderResultDetail(id) {
   if (!row) return;
   activeResultId = id;
   renderResultTabs();
-  const { tpl, matchCount, targetBlocks, ratePct } = deriveDuplicateViewStats(row);
+  const { tpl, matchCount, repCount, simCount, targetBlocks, ratePct } = deriveDuplicateViewStats(row);
   const rid = Math.abs(Number(row.id)) || 0;
   const compareDocs = [{
     name: row.compareName || tpl.name,
     rate: ratePct,
     matchCount,
+    repCount,
+    simCount,
     leftBlocks: tpl.leftBlocks,
     rightBlocks: tpl.rightBlocks,
   }];
@@ -2113,11 +2145,18 @@ function renderResultDetail(id) {
   const maxRateEl = document.getElementById('resultTopMaxRate');
   const matchCountEl = document.getElementById('resultTopMatchCount');
   const blockCountEl = document.getElementById('resultTopBlockCount');
+  const sumRepEl = document.getElementById('resultSummaryRep');
+  const sumSimEl = document.getElementById('resultSummarySim');
   const compareLabel = row.compareName || '—';
   if (metaEl) metaEl.textContent = `发起 ${row.time} · 耗时 ${12 + (rid % 30)}秒 · ${row.target} — ${compareLabel}`;
   if (maxRateEl) maxRateEl.textContent = `${compareDocs[0].rate}%`;
-  if (matchCountEl) matchCountEl.textContent = String(totalMatch);
+  if (matchCountEl) {
+    matchCountEl.textContent = `${repCount}/${simCount}`;
+    matchCountEl.setAttribute('title', `重复${repCount}，相似${simCount}（合计${totalMatch}段）`);
+  }
   if (blockCountEl) blockCountEl.textContent = String(targetBlocks);
+  if (sumRepEl) sumRepEl.textContent = String(repCount);
+  if (sumSimEl) sumSimEl.textContent = String(simCount);
   const colsEl = document.getElementById('resultInlineCols');
   if (colsEl) {
     colsEl.innerHTML = `
@@ -2142,6 +2181,8 @@ function renderResultDetail(id) {
     rate: compareDocs[0].rate,
     durationSec: 12 + (rid % 30),
     matchCount: totalMatch,
+    repCount,
+    simCount,
     leftBlocks: compareDocs[0].leftBlocks.map(b => ({ ...b })),
     rightBlocks: compareDocs[0].rightBlocks.map(b => ({ ...b })),
   };
@@ -2230,7 +2271,7 @@ function startBatchSimulation(batchId, n) {
       historyData.forEach(h => {
         if (h.batchId !== batchId || h.batchIndex !== completeIdx) return;
         h.status = 'completed';
-        h.rate = deriveDuplicateViewStats(h).ratePct;
+        applyCompletedHistoryStats(h);
       });
       completeIdx++;
       filterHistory(true);
@@ -2810,14 +2851,18 @@ if (historyFilterTargetName) {
           const dt = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000);
           const alt = libraryDocs.find(d => d.name !== historyFilterTargetName);
           const nid = Date.now() + i + 1;
-          historyData.unshift({
-            id: nid,
-            target: historyFilterTargetName,
-            compareName: alt ? alt.name : `演示对比文档_${i + 1}.docx`,
-            time: formatHistoryDateTime(dt),
-            rate: deriveDuplicateViewStats({ id: nid }).ratePct,
-            status: 'completed',
-          });
+          (function () {
+            const row = {
+              id: nid,
+              target: historyFilterTargetName,
+              compareName: alt ? alt.name : `演示对比文档_${i + 1}.docx`,
+              time: formatHistoryDateTime(dt),
+              rate: null,
+              status: 'completed',
+            };
+            applyCompletedHistoryStats(row);
+            historyData.unshift(row);
+          })();
         }
         filteredHistory = [...historyData];
         filterHistory();
