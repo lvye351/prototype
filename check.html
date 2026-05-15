@@ -2007,6 +2007,25 @@ function getInlineTemplate(row) {
   return inlineCompareTemplates[idx];
 }
 
+/** 与结果弹窗一致：重复段落数 ≤ 目标侧段落数，重复率 = 第二项 / 第三项 ×100% */
+function deriveDuplicateViewStats(rowLike) {
+  const rid = Math.abs(Number(rowLike && rowLike.id)) || 0;
+  const tpl = getInlineTemplate(rowLike || { id: 0 });
+  const targetBlocks = tpl.leftBlocks.length;
+  const rawMatch = 4 + (rid % 5);
+  const matchCount = Math.min(Math.max(0, rawMatch), targetBlocks);
+  const ratePct = targetBlocks > 0 ? Number(((matchCount / targetBlocks) * 100).toFixed(2)) : 0;
+  return { tpl, rid, matchCount, targetBlocks, ratePct };
+}
+
+(function syncHistoryListRatesFromTemplateStats() {
+  historyData.forEach(function (h) {
+    if (h.status === 'completed') {
+      h.rate = deriveDuplicateViewStats(h).ratePct;
+    }
+  });
+})();
+
 function renderInlineCompareTabs(compareDocs) {
   const host = document.getElementById('resultInlineCompareTabs');
   if (!host) return;
@@ -2070,15 +2089,11 @@ function renderResultDetail(id) {
   if (!row) return;
   activeResultId = id;
   renderResultTabs();
-  const tpl = getInlineTemplate(row);
+  const { tpl, matchCount, targetBlocks, ratePct } = deriveDuplicateViewStats(row);
   const rid = Math.abs(Number(row.id)) || 0;
-  const matchCount = 4 + (rid % 5);
-  const targetBlocks = tpl.leftBlocks.length;
-  const derivedRatePct = targetBlocks > 0 ? (matchCount / targetBlocks) * 100 : 0;
-  const rateFromRatio = Number(derivedRatePct.toFixed(2));
   const compareDocs = [{
     name: row.compareName || tpl.name,
-    rate: rateFromRatio,
+    rate: ratePct,
     matchCount,
     leftBlocks: tpl.leftBlocks,
     rightBlocks: tpl.rightBlocks,
@@ -2194,7 +2209,6 @@ function startBatchSimulation(batchId, n) {
   if (!n || n < 1) return;
 
   const intervalMs = 5000;
-  const mockRates = [15, 22, 31, 28, 41, 19];
 
   function runPhase2Complete() {
     let completeIdx = 0;
@@ -2206,7 +2220,7 @@ function startBatchSimulation(batchId, n) {
       historyData.forEach(h => {
         if (h.batchId !== batchId || h.batchIndex !== completeIdx) return;
         h.status = 'completed';
-        h.rate = mockRates[completeIdx % mockRates.length];
+        h.rate = deriveDuplicateViewStats(h).ratePct;
       });
       completeIdx++;
       filterHistory(true);
@@ -2785,12 +2799,13 @@ if (historyFilterTargetName) {
         for (let i = 0; i < need; i++) {
           const dt = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000);
           const alt = libraryDocs.find(d => d.name !== historyFilterTargetName);
+          const nid = Date.now() + i + 1;
           historyData.unshift({
-            id: Date.now() + i + 1,
+            id: nid,
             target: historyFilterTargetName,
             compareName: alt ? alt.name : `演示对比文档_${i + 1}.docx`,
             time: formatHistoryDateTime(dt),
-            rate: [12, 18, 27, 34, 41, 52][(i + expected) % 6],
+            rate: deriveDuplicateViewStats({ id: nid }).ratePct,
             status: 'completed',
           });
         }
