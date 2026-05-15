@@ -22,18 +22,11 @@
     .topbar .avatar { width: 28px; height: 28px; border-radius: 50%; background: rgb(18, 109, 255); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
 
     .layout { display: flex; min-height: calc(100vh - 52px); }
-    /* 统一侧栏样式（与 index.html / chat-write / ppt-write 对齐） */
-    .sidebar { width: 200px; background: #fff; flex-shrink: 0; display: flex; flex-direction: column; box-shadow: 2px 0 8px rgba(0,0,0,.06); }
-    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
-    .side-group-h { display: flex; align-items: center; padding: 0 24px 0 34px; height: 40px; font-size: 14px; font-weight: 400; color: #1890ff; border-right: 0.75px solid rgba(0,0,0,.06); }
-    .side-sub { background: #fafafa; padding: 4px 0 8px; }
-    .sidebar .menu-item { position: relative; padding: 0 16px 0 48px; height: 40px; line-height: 40px; font-size: 14px; color: rgba(0,0,0,.85); cursor: pointer; transition: background .15s; display: block; gap: 0; }
-    .sidebar .menu-item:hover { background: #f0f0f0; color: rgba(0,0,0,.85); }
-    .sidebar .menu-item.active { background: #f1f1f1; color: #1890ff; font-weight: 400; border-left: none; }
-    .sidebar .menu-item.active::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #1890ff, #1fbdff); }
-    .sidebar-foot { border-top: 0.75px solid #f0f0f0; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #fff; }
-    .sf-av { width: 24px; height: 24px; border-radius: 12px; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
-    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
+    .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8ecf0; padding: 16px 0; flex-shrink: 0; }
+    .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; color: #555; display: flex; align-items: center; gap: 8px; transition: all .2s; }
+    .sidebar .menu-item:hover { background: #f0f5ff; color: #126DFF; }
+    .sidebar .menu-item.active { background: #e8f0fe; color: #126DFF; font-weight: 600; border-left: 3px solid #126DFF; }
+    .sidebar .section-title { font-size: 11px; color: #aaa; padding: 16px 24px 6px; text-transform: uppercase; }
 
     .content { flex: 1; padding: 28px 32px; }
     .page-header { margin-bottom: 24px; }
@@ -42,66 +35,6 @@
     .breadcrumb a:hover { text-decoration: underline; }
     .page-title { font-size: 20px; font-weight: 700; color: #126DFF; }
     .page-subtitle { font-size: 13px; color: #888; margin-top: 4px; }
-
-    /* 历史列表：筛选条单行紧凑 + 发起时间药丸 */
-    .history-filter-bar {
-      display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;
-      gap: 6px 10px; margin-bottom: 10px; margin-top: 0;
-    }
-    .history-filter-row {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
-    }
-    .history-filter-label { font-size: 12px; color: #666; white-space: nowrap; }
-    .history-filter-input {
-      padding: 4px 8px; border: 1px solid #e0e4e8; border-radius: 6px; font-size: 12px;
-      background: #fff; min-height: 30px; box-sizing: border-box;
-    }
-    .history-time-cb {
-      display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #666;
-      cursor: pointer; user-select: none; white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .history-time-cb input { margin: 0; }
-    .history-time-pill-wrap {
-      flex: 1 1 360px;
-      width: min(560px, 100%);
-      max-width: 100%;
-      min-width: 0;
-    }
-    .history-time-pill {
-      display: flex; align-items: stretch;
-      min-height: 30px;
-      border: 1px solid #e0e4e8; border-radius: 999px;
-      background: #fff; overflow: hidden;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
-    }
-    .history-time-pill:focus-within {
-      border-color: #126DFF;
-      box-shadow: 0 0 0 2px rgba(18, 109, 255, .14);
-    }
-    /* 须保留约 19 字符宽以完整显示 yyyy-MM-ddTHH:mm:ss（各浏览器略有差异） */
-    .history-dt-input {
-      flex: 1 1 0;
-      min-width: 188px;
-      max-width: 100%;
-      border: none; padding: 4px 6px;
-      font-size: 12px; font-variant-numeric: tabular-nums;
-      color: #1f2937; background: transparent;
-    }
-    .history-dt-input::-webkit-calendar-picker-indicator {
-      opacity: 0.45; cursor: pointer;
-    }
-    .history-dt-input:focus { outline: none; background: rgba(18, 109, 255, .04); }
-    .history-time-sep {
-      flex: 0 0 auto; display: flex; align-items: center;
-      color: #9ca3af; font-size: 14px; font-weight: 500; padding: 0 4px; user-select: none;
-    }
-    .history-time-cal {
-      flex: 0 0 36px; display: flex; align-items: center; justify-content: center;
-      border-left: 1px solid #eef1f4; color: #9ca3af; background: #fafbfc;
-      pointer-events: none;
-    }
-    .history-time-cal svg { display: block; }
 
     /* 顶部返回 + 折叠面板 */
     .content-topbar {
@@ -175,18 +108,6 @@
       font-weight: 700;
       color: #126DFF;
     }
-    .start-modal-head .start-modal-close {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      font-size: 22px;
-      color: #aaa;
-      line-height: 1;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-family: inherit;
-    }
-    .start-modal-head .start-modal-close:hover { color: #333; background: #f3f4f6; }
 
     /* 主卡片布局 */
     .check-layout { display: flex; flex-direction: column; gap: 20px; }
@@ -294,22 +215,6 @@
     .badge-green { background: #e6f7ee; color: #1a7a4b; }
     .badge-blue { background: #e8f0fe; color: #126DFF; }
     .badge-gray { background: #f3f4f6; color: #6b7280; }
-    button.badge.badge-doc-download {
-      cursor: pointer;
-      border: none;
-      font: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      max-width: 100%;
-      vertical-align: baseline;
-      text-align: left;
-      line-height: 1.35;
-    }
-    button.badge.badge-doc-download:hover {
-      filter: brightness(0.97);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
 
     .link-btn { color: #126DFF; cursor: pointer; font-size: 13px; padding: 3px 8px; border-radius: 4px; border: none; background: none; font-family: inherit; }
     .link-btn:hover { background: #e8f0fe; }
@@ -379,7 +284,7 @@
     .result-top-meta { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
     .result-top-cards {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
     }
     .result-top-card {
@@ -392,14 +297,42 @@
     .result-top-card .v { font-size: 30px; font-weight: 800; color: #126DFF; line-height: 1; margin-bottom: 4px; }
     .result-top-card .v.red { color: #c62828; }
     .result-top-card .d { font-size: 11px; color: #9ca3af; }
+    .result-inline-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .result-inline-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #126DFF;
+      max-width: 70%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .result-inline-rate { font-size: 20px; font-weight: 700; }
+    .result-inline-rate.red { color: #c62828; }
+    .result-inline-rate.orange { color: #e65100; }
+    .result-inline-rate.green { color: #1a7a4b; }
     .result-inline-summary {
-      padding: 8px 16px;
+      padding: 10px 16px;
       border-bottom: 1px solid #eee;
       background: #f9fafb;
       font-size: 12px;
       color: #666;
       display: flex;
-      gap: 16px;
+      gap: 18px;
+    }
+    .result-inline-subtle {
+      padding: 8px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+      color: #888;
+      background: #fcfdff;
     }
     .result-inline-cols { display: flex; flex: 1; min-height: 0; }
     .result-inline-col {
@@ -869,20 +802,13 @@
 
 <div class="layout">
   <div class="sidebar">
-    <div class="sidebar-scroll">
-      <div class="side-group-h">文档写作</div>
-      <div class="side-sub">
-        <div class="menu-item" onclick="location.href='chat-write.html'">对话写作</div>
-        <div class="menu-item" onclick="location.href='ppt-write.html'">ppt写作</div>
-        <div class="menu-item" onclick="location.href='index.html'">我的文稿</div>
-        <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
-        <div class="menu-item active">技术规范书查重</div>
-      </div>
-    </div>
-    <div class="sidebar-foot">
-      <div class="sf-av">王</div>
-      <span class="sf-name">王海龙</span>
-    </div>
+    <div class="section-title">知识管理</div>
+    <div class="menu-item" onclick="showToast('👤 个人知识库功能开发中')">.个人知识库</div>
+    <div class="menu-item" onclick="showToast('🔎 知识查询功能开发中')">.知识查询</div>
+    <div class="menu-item" onclick="showToast('🏢 企业知识库功能开发中')">.企业知识库</div>
+    <div class="menu-item" onclick="showToast('🏬 部门知识库功能开发中')">.部门知识库</div>
+    <div class="section-title">文档管理</div>
+    <div class="menu-item active">.技术规范书查重</div>
   </div>
 
   <div class="content">
@@ -910,7 +836,7 @@
         <div class="fold-body">
           <div class="start-modal-head">
             <span>🚀 发起查重</span>
-            <button type="button" class="start-modal-close" onclick="closeStartCheckModal()" aria-label="关闭">×</button>
+            <button class="btn btn-outline btn-sm" onclick="closeStartCheckModal()">关闭</button>
           </div>
           <div class="check-left">
 
@@ -918,16 +844,17 @@
         <div class="card">
           <div class="card-title">
             <div class="step-badge">1</div>
-            选择目标查重稽核文档
+            选择目标稽核文档
           </div>
           <div class="target-doc-area" id="targetDocArea">
             <div id="targetEmpty">
               <div style="font-size:36px;color:#aac4ee;">📄</div>
-              <div class="upload-placeholder" style="margin-top:8px;">请选择待查重文档</div>
+              <div class="upload-placeholder" style="margin-top:8px;">请选择或上传待查重文档</div>
               <div class="upload-row">
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('targetFileInput').click()">⬆️ 本地上传</button>
                 <button class="btn btn-outline btn-sm" onclick="openRefMaterialModal('target')">从知识库选择</button>
-                <button class="btn btn-outline btn-sm" onclick="openLibraryModal('target')">从我的文稿选择</button>
               </div>
+              <input type="file" id="targetFileInput" accept=".doc,.docx" style="display:none" onchange="handleTargetUpload(event)"/>
             </div>
             <div id="targetDocInfo" style="display:none;" class="target-doc-info">
               <div class="target-doc-icon">📄</div>
@@ -940,6 +867,7 @@
               </div>
             </div>
           </div>
+          <div class="tip-text">支持 .doc / .docx 格式，最大 50MB</div>
         </div>
 
         <!-- Step 2：对比文档 -->
@@ -956,9 +884,10 @@
             <div class="compare-empty" id="compareEmpty">暂未选择对比文档</div>
           </div>
           <div class="compare-add-row">
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('compareFileInput').click()" id="addLocalBtn">⬆️ 本地上传</button>
             <button class="btn btn-outline btn-sm" onclick="openRefMaterialModal('compare')" id="addRefKbBtn">从知识库选择</button>
-            <button class="btn btn-outline btn-sm" onclick="openLibraryModal('compare')" id="addMyDocBtn">从我的文稿选择</button>
           </div>
+          <input type="file" id="compareFileInput" accept=".doc,.docx" style="display:none" onchange="handleCompareUpload(event)"/>
           <!-- <div class="tip-text">最多可选 3 个对比文档，超过限制时请先删除已选文档</div>-->
            <!-- 提示 -->
     <div class="tip-text">
@@ -990,77 +919,70 @@
         </div>
         <div class="fold-body">
           <div class="check-right">
-            <div class="history-card" style="box-shadow:none;padding:0;padding-top:2px;">
-          <!-- 筛选：单行紧凑（可换行） -->
-          <div class="history-filter-bar">
-            <div class="history-filter-row" style="flex:1;min-width:0;">
-              <span class="history-filter-label">目标</span>
-              <input type="text" id="searchTargetName" placeholder="名称" class="history-filter-input" style="width: 132px;">
-              <span class="history-filter-label">状态</span>
-              <select id="searchStatus" class="history-filter-input" style="min-width: 88px;">
+            <div class="history-card" style="box-shadow:none;padding:0;">
+          <!-- 搜索和排序区域 -->
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 13px; color: #666;">目标名称:</span>
+              <input type="text" id="searchTargetName" placeholder="输入文档名称" style="padding: 5px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; width: 160px;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 13px; color: #666;">查重时间:</span>
+              <input type="date" id="searchTimeStart" style="padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+              <span style="color: #999;">至</span>
+              <input type="date" id="searchTimeEnd" style="padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 13px; color: #666;">状态:</span>
+              <select id="searchStatus" style="padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; min-width: 100px;">
                 <option value="">全部</option>
-                <option value="pending">待处理</option>
                 <option value="completed">已完成</option>
                 <option value="processing">处理中</option>
                 <option value="failed">失败</option>
               </select>
-              <span class="history-filter-label">重复率</span>
-              <input type="number" id="searchRateMin" placeholder="小" class="history-filter-input" style="width: 48px;">
-              <span style="color: #9ca3af;">~</span>
-              <input type="number" id="searchRateMax" placeholder="大" class="history-filter-input" style="width: 48px;">
-              <span style="color: #9ca3af; font-size: 12px;">%</span>
-              <button class="btn btn-primary btn-sm" onclick="filterHistory()">搜索</button>
-              <button class="btn btn-outline btn-sm" onclick="resetFilter()">重置</button>
-              <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: #666; cursor: pointer; user-select: none;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 13px; color: #666;">重复率:</span>
+              <input type="number" id="searchRateMin" placeholder="最小值" style="padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; width: 60px;">
+              <span style="color: #999;">% - </span>
+              <input type="number" id="searchRateMax" placeholder="最大值" style="padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; width: 60px;">
+              <span style="color: #999;">%</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="filterHistory()">🔎 搜索</button>
+            <button class="btn btn-outline btn-sm" onclick="resetFilter()">🔄 重置</button>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #666; cursor: pointer; user-select: none;">
                 <input type="checkbox" id="historyAutoRefreshEnabled" checked />
-                刷新
+                自动刷新
               </label>
-              <input type="number" id="historyAutoRefreshSec" value="5" min="1" max="600" step="1" title="秒"
-                class="history-filter-input" style="width: 42px; padding: 2px 6px;" />
-              <span style="font-size: 12px; color: #888;">秒</span>
-              <label class="history-time-cb" title="勾选后按起止时间过滤任务发起时刻">
-                <input type="checkbox" id="historyFilterSubmitTime" />
-                发起时间
-              </label>
-              <div class="history-time-pill-wrap">
-                <div class="history-time-pill" title="起止支持到秒">
-                  <input type="datetime-local" id="searchTimeStart" class="history-dt-input" step="1" autocomplete="off" />
-                  <span class="history-time-sep">~</span>
-                  <input type="datetime-local" id="searchTimeEnd" class="history-dt-input" step="1" autocomplete="off" />
-                  <span class="history-time-cal" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                  </span>
-                </div>
-              </div>
+              <span style="font-size: 13px; color: #666;">每</span>
+              <input type="number" id="historyAutoRefreshSec" value="5" min="1" max="600" step="1" title="刷新间隔（秒）"
+                style="width: 52px; padding: 4px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;" />
+              <span style="font-size: 13px; color: #888;">秒 · 按当前筛选条件</span>
             </div>
           </div>
           
           <table style="table-layout: fixed; width: 100%;">
             <thead>
               <tr>
-                <th style="width: 14%; text-align: left; position: relative;">
+                <th style="width: 22%; text-align: left; position: relative;">
                   目标文档
                   <button class="link-btn" title="搜索筛选" onclick="toggleSearch()" style="margin-left: 6px; vertical-align: middle;">🔍</button>
                 </th>
-                <th style="width: 7%; text-align: left;">文件大小</th>
-                <th style="width: 11%; text-align: left;">最近上传时间</th>
-                <th style="width: 6%; text-align: left;">上传人</th>
                 <th style="width: 64px; text-align: center;">查重</th>
-                <th style="width: 14%; text-align: left;">对比文档</th>
-                <th style="width: 11%; text-align: left; position: relative;">
+                <th style="width: 12%; text-align: left; position: relative;">
                   查重时间
                   <div style="display: inline-flex; flex-direction: column; gap: 2px; margin-left: 6px; vertical-align: middle;">
                     <button class="link-btn" style="font-size: 10px; padding: 1px 4px;" title="按时间倒序" onclick="sortHistory('desc')">↓</button>
                     <button class="link-btn" style="font-size: 10px; padding: 1px 4px;" title="按时间顺序" onclick="sortHistory('asc')">↑</button>
                   </div>
                 </th>
+                <th style="width: 8%; text-align: left;">文件大小</th>
+                <th style="width: 12%; text-align: left;">最近上传时间</th>
+                <th style="width: 7%; text-align: left;">上传人</th>
                 <th style="width: 7%; text-align: left;">状态</th>
-                <th style="width: 8%; text-align: left;">重复率</th>
-                <th style="width: 14%; text-align: left;">操作</th>
+                <th style="width: 9%; text-align: left;">最高重复率</th>
+                <th style="width: 9%; text-align: left;">操作</th>
               </tr>
             </thead>
             <tbody id="historyTbody"></tbody>
@@ -1093,8 +1015,8 @@
   <div class="modal ref-material-modal">
     <div class="modal-header ref-mh">
       <div class="ref-mh-text">
-        <div class="modal-header-title">引用技术规范书</div>
-        <div class="ref-modal-desc">上传或从知识库选择技术规范书；支持 .doc / .docx 格式，单文件最大 50MB。</div>
+        <div class="modal-header-title">引用素材</div>
+        <div class="ref-modal-desc">上传你的素材文件，写作时进行引用，以生成准确可靠的内容。支持 PDF、DOCX、TXT、EXCEL 格式非扫描文件。</div>
       </div>
       <span class="modal-close" onclick="closeRefMaterialModal()">×</span>
     </div>
@@ -1104,8 +1026,7 @@
         <option>企业共享知识库</option>
         <option>部门知识库</option>
       </select>
-      <button type="button" class="btn btn-primary btn-sm" onclick="triggerRefModalLocalUpload()">+ 上传技术规范书</button>
-      <input type="file" id="refModalFileInput" accept=".doc,.docx" style="display:none" onchange="handleRefModalLocalUpload(event)"/>
+      <button type="button" class="btn btn-primary btn-sm" onclick="showToast('📎 添加素材功能开发中')">+ 添加素材</button>
       <div class="ref-modal-search-wrap">
         <span class="icon">🔎</span>
         <input type="text" id="refMaterialSearch" placeholder="搜索我的文件" oninput="filterRefMaterials()"/>
@@ -1169,20 +1090,27 @@
                 <div class="result-top-title">← 查重稽核结果</div>
                 <div class="result-top-btns">
                   <button class="btn btn-outline btn-sm" onclick="openStartCheckModal()">🔄 重新查重</button>
-                  <button type="button" class="btn btn-primary btn-sm" onclick="downloadCheckReportExcel()">📥 导出报告</button>
+                  <button class="btn btn-primary btn-sm" onclick="showToast('📥 导出报告功能开发中')">📥 导出报告</button>
                 </div>
               </div>
-              <div class="result-top-meta" id="resultTopMeta">—</div>
+              <div class="result-top-meta" id="resultTopMeta">查重时间：- | 查重耗时：- | 目标文档：-</div>
               <div class="result-top-cards">
-                <div class="result-top-card"><div class="k">重复率</div><div class="v red" id="resultTopMaxRate">0%</div><div class="d">综合相似度</div></div>
-                <div class="result-top-card"><div class="k">重复 / 相似段落</div><div class="v" id="resultTopMatchCount">0</div><div class="d">需人工复核的片段数</div></div>
-                <div class="result-top-card"><div class="k">目标侧段落</div><div class="v" id="resultTopBlockCount">0</div><div class="d">参与比对的段落数</div></div>
+                <div class="result-top-card"><div class="k">综合重复率（最高）</div><div class="v red" id="resultTopMaxRate">0%</div><div class="d">各文档重复最大值</div></div>
+                <div class="result-top-card"><div class="k">对比文档数</div><div class="v" id="resultTopDocCount">0</div><div class="d">本次参与对比的文档数量</div></div>
+                <div class="result-top-card"><div class="k">重复段落总数</div><div class="v" id="resultTopMatchCount">0</div><div class="d">所有对比中发现的重复段落</div></div>
+                <div class="result-top-card"><div class="k">目标文档段落数</div><div class="v" id="resultTopBlockCount">0</div><div class="d">目标文档描述段落总数</div></div>
               </div>
             </div>
-            <div class="result-inline-summary">
-              <span>红：重复</span>
-              <span>橙：相似</span>
+            <div class="result-inline-header">
+              <div class="result-inline-title" id="resultInlineTitle">-</div>
+              <div class="result-inline-rate" id="resultInlineRate">-</div>
             </div>
+            <div class="result-inline-summary">
+              <span>红色：重复段落</span>
+              <span>橙色：高度相似</span>
+              <span id="resultInlineMeta">重复 0 段</span>
+            </div>
+            <div class="result-inline-subtle" id="resultInlineSubtle">-</div>
             <div class="result-inline-cols" id="resultInlineCols"></div>
           </div>
         </div>
@@ -1243,13 +1171,12 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
 <script>
 // ===== 数据 =====
 const libraryDocs = [
-  { id: 1, name: "XX公司5G核心网建设技术规范书_v2.3.docx", size: "2.4MB", time: "2026-03-10 09:32", user: "王海龙" },
-  { id: 2, name: "XX公司云资源池扩容技术规范书_2026.docx", size: "1.8MB", time: "2026-03-11 14:15", user: "李明" },
-  { id: 3, name: "XX公司传输网络设备采购技术规范书.docx", size: "3.1MB", time: "2026-03-12 10:08", user: "张伟" },
+  { id: 1, name: "河南电信5G核心网建设技术规范书_v2.3.docx", size: "2.4MB", time: "2026-03-10 09:32", user: "王海龙" },
+  { id: 2, name: "河南电信云资源池扩容技术规范书_2026.docx", size: "1.8MB", time: "2026-03-11 14:15", user: "李明" },
+  { id: 3, name: "河南电信传输网络设备采购技术规范书.docx", size: "3.1MB", time: "2026-03-12 10:08", user: "张伟" },
   { id: 4, name: "基站设备技术规范书_城区_v1.0.docx", size: "1.2MB", time: "2026-03-12 16:44", user: "王海龙" },
   { id: 5, name: "核心网NFV平台技术规范书_2026Q1.docx", size: "2.7MB", time: "2026-03-13 09:00", user: "赵强" },
   { id: 6, name: "宽带接入网改造技术规范书_郑州.docx", size: "1.5MB", time: "2026-03-13 11:20", user: "孙丽" },
@@ -1258,11 +1185,11 @@ const libraryDocs = [
 ];
 
 const historyData = [
-  { id: 1, target: "XX公司5G核心网建设技术规范书_v2.3.docx", compareName: "XX公司云资源池扩容技术规范书_2026.docx", time: "2026-03-14 10:32:00", rate: 34, status: "completed" },
-  { id: 2, target: "XX公司云资源池扩容技术规范书_2026.docx", compareName: "OTN设备采购技术规范书_v2.1.docx", time: "2026-03-13 15:20:00", rate: 18, status: "completed" },
-  { id: 3, target: "OTN设备采购技术规范书_v2.1.docx", compareName: "核心网NFV平台技术规范书_2026Q1.docx", time: "2026-03-12 09:10:00", rate: 52, status: "completed" },
-  { id: 4, target: "宽带接入网改造技术规范书_郑州.docx", compareName: "基站设备技术规范书_城区_v1.0.docx", time: "2026-03-11 14:00:00", rate: 9, status: "completed" },
-  { id: 5, target: "核心网NFV平台技术规范书_2026Q1.docx", compareName: "数据中心网络技术规范书_新建.docx", time: "2026-03-10 16:45:00", rate: 27, status: "completed" },
+  { id: 1, target: "河南电信5G核心网建设技术规范书_v2.3.docx", count: 3, time: "2026-03-14 10:32", rate: 34, status: "completed" },
+  { id: 2, target: "河南电信云资源池扩容技术规范书_2026.docx", count: 2, time: "2026-03-13 15:20", rate: 18, status: "completed" },
+  { id: 3, target: "OTN设备采购技术规范书_v2.1.docx", count: 3, time: "2026-03-12 09:10", rate: 52, status: "completed" },
+  { id: 4, target: "宽带接入网改造技术规范书_郑州.docx", count: 1, time: "2026-03-11 14:00", rate: 9, status: "completed" },
+  { id: 5, target: "核心网NFV平台技术规范书_2026Q1.docx", count: 2, time: "2026-03-10 16:45", rate: 27, status: "completed" },
 ];
 const docMetaMap = new Map(libraryDocs.map(d => [d.name, d]));
 historyData.forEach(h => {
@@ -1301,10 +1228,18 @@ function clearTarget() {
   document.getElementById('targetDocInfo').style.display = 'none';
   document.getElementById('targetDocArea').classList.remove('has-doc');
 }
+function handleTargetUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.name.match(/\.(doc|docx)$/i)) { showToast('⚠️ 请上传 .doc 或 .docx 格式'); return; }
+  setTargetDoc({ id: Date.now(), name: file.name, size: (file.size/1024/1024).toFixed(1)+'MB', time: new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'), user: '王海龙' });
+  showToast('✅ 目标文档已选择');
+}
+
 // ===== 对比文档 =====
 function addCompareDoc(doc) {
   if (compareDocs.length >= MAX_COMPARE) { showToast('⚠️ 对比文档已达上限（3个），请先删除再添加'); return false; }
-  if (compareDocs.find(d => d.id == doc.id)) { showToast('⚠️ 该文档已在列表中'); return false; }
+  if (compareDocs.find(d => d.id === doc.id)) { showToast('⚠️ 该文档已在列表中'); return false; }
   if (targetDoc && targetDoc.id === doc.id) { showToast('⚠️ 对比文档不能与目标文档相同'); return false; }
   compareDocs.push(doc);
   renderCompareDocs();
@@ -1319,14 +1254,17 @@ function renderCompareDocs() {
   const empty = document.getElementById('compareEmpty');
   const cnt = document.getElementById('compareCount');
   const warn = document.getElementById('limitWarn');
+  const addLocal = document.getElementById('addLocalBtn');
   const addRefKb = document.getElementById('addRefKbBtn');
   const addLib = document.getElementById('addLibBtn');
 
   cnt.textContent = compareDocs.length;
   const atLimit = compareDocs.length >= MAX_COMPARE;
   warn.style.display = atLimit ? 'inline' : 'none';
+  addLocal.disabled = atLimit;
   if (addRefKb) addRefKb.disabled = atLimit;
   if (addLib) addLib.disabled = atLimit;
+  addLocal.style.opacity = atLimit ? '.5' : '1';
   if (addRefKb) addRefKb.style.opacity = atLimit ? '.5' : '1';
   if (addLib) addLib.style.opacity = atLimit ? '.5' : '1';
 
@@ -1345,6 +1283,14 @@ function renderCompareDocs() {
     </div>
   `).join('');
 }
+function handleCompareUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.name.match(/\.(doc|docx)$/i)) { showToast('⚠️ 请上传 .doc 或 .docx 格式'); return; }
+  const doc = { id: Date.now(), name: file.name, size: (file.size/1024/1024).toFixed(1)+'MB', time: new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'), user: '王海龙' };
+  if (addCompareDoc(doc)) showToast('✅ 对比文档已添加');
+}
+
 // ===== 文档库弹窗 =====
 let libraryMode = 'target'; // 'target' | 'compare'
 let librarySelected = [];
@@ -1366,7 +1312,7 @@ function closeLibraryModal() { document.getElementById('libraryModal').classList
 // ===== 引用素材（从知识库选择）弹窗 =====
 const kmMaterials = [
   { id: 'km1', name: '公司2023年端到端透明化监控建设项目技术规范书.docx', size: '2.1MB', time: '2026-03-10 10:22', user: '知识库', status: '已完成' },
-  { id: 'km2', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', size: '2.4MB', time: '2026-03-10 09:32', user: '知识库', status: '已完成' },
+  { id: 'km2', name: '河南电信5G核心网建设技术规范书_v2.3.docx', size: '2.4MB', time: '2026-03-10 09:32', user: '知识库', status: '已完成' },
 ];
 let refMaterialMode = 'target'; // 'target' | 'compare'
 let refMaterialSelectedId = null;
@@ -1382,56 +1328,17 @@ function getRefMaterialSource() {
 function openRefMaterialModal(mode) {
   closeLibraryModal();
   const m = mode || 'target';
-  if (m === 'compare' && !targetDoc) {
-    showToast('请先选择目标查重文档');
-    return;
-  }
   if (m === 'compare' && compareDocs.length >= MAX_COMPARE) { showToast('⚠️ 对比文档已达上限（3个）'); return; }
   refMaterialMode = m;
   refMaterialSelectedId = null;
   refMaterialCompareSelectedIds = [];
   const search = document.getElementById('refMaterialSearch');
   if (search) search.value = '';
-  const fin = document.getElementById('refModalFileInput');
-  if (fin) fin.value = '';
   filterRefMaterials();
   document.getElementById('refMaterialModal').classList.add('show');
 }
 function closeRefMaterialModal() {
   document.getElementById('refMaterialModal').classList.remove('show');
-}
-
-/** 弹窗内「上传技术规范书」：等同原本地上传，按当前模式写入目标或对比文档 */
-function triggerRefModalLocalUpload() {
-  if (refMaterialMode === 'compare' && compareDocs.length >= MAX_COMPARE) {
-    showToast('⚠️ 对比文档已达上限（3个）');
-    return;
-  }
-  document.getElementById('refModalFileInput').click();
-}
-function handleRefModalLocalUpload(e) {
-  const input = e.target;
-  const file = input.files && input.files[0];
-  input.value = '';
-  if (!file) return;
-  if (!file.name.match(/\.(doc|docx)$/i)) { showToast('⚠️ 请上传 .doc 或 .docx 格式'); return; }
-  const doc = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-    name: file.name,
-    size: (file.size / 1024 / 1024).toFixed(1) + 'MB',
-    time: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
-    user: '王海龙'
-  };
-  if (refMaterialMode === 'target') {
-    setTargetDoc(doc);
-    showToast('✅ 目标文档已选择');
-    closeRefMaterialModal();
-    return;
-  }
-  if (addCompareDoc(doc)) {
-    showToast('✅ 对比文档已添加');
-    renderRefMaterialList();
-  }
 }
 
 function filterRefMaterials() {
@@ -1542,7 +1449,7 @@ function confirmRefMaterialSelect() {
   if (!refMaterialCompareSelectedIds.length) { showToast('⚠️ 请至少选择一个对比文档'); return; }
   let added = 0;
   for (const sid of refMaterialCompareSelectedIds) {
-    const doc = libraryDocs.find(d => d.id == sid);
+    const doc = libraryDocs.find(d => d.id === sid);
     if (doc && addCompareDoc({ ...doc })) added++;
   }
   if (added > 0) {
@@ -1625,10 +1532,6 @@ let pageSize = 3;
 let filteredHistory = [...historyData];
 let sortOrder = 'desc'; // 'asc' | 'desc'
 let historyAutoRefreshTimer = null;
-let batchSimTimer = null;
-let batchCompleteTimer = null;
-let submitTimeAnimInterval = null;
-let submitTimeAnimTimer = null;
 let resultModalRows = [];
 let activeResultId = null;
 let activeInlineCompareIndex = 0;
@@ -1641,27 +1544,6 @@ function escapeHtmlAttr(s) {
     .replace(/>/g, '&gt;');
 }
 
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-/** 一行任务 = 目标文档 + 1 个历史对比文档，状态为该行自身 */
-function getRowStatusPresentation(h) {
-  if (h.status === 'completed') {
-    return { text: '已完成', badgeClass: 'badge-green', detail: '' };
-  }
-  if (h.status === 'failed') {
-    return { text: '失败', badgeClass: 'badge-red', detail: '' };
-  }
-  if (h.status === 'pending') {
-    return { text: '待处理', badgeClass: 'badge-gray', detail: '' };
-  }
-  return { text: '处理中', badgeClass: 'badge-blue', detail: '' };
-}
-
 function renderHistory() {
   // 分页计算
   const start = (currentPage - 1) * pageSize;
@@ -1669,28 +1551,23 @@ function renderHistory() {
   const paginatedData = filteredHistory.slice(start, end);
   
   document.getElementById('historyTbody').innerHTML = paginatedData.map(h => {
-    const st = getRowStatusPresentation(h);
-    const statusText = st.text;
-    const statusClass = st.badgeClass;
+    const statusText = h.status === 'processing' ? '进行中' : h.status === 'failed' ? '失败' : '已完成';
+    const statusClass = h.status === 'processing' ? 'badge-blue' : h.status === 'failed' ? 'badge-red' : 'badge-green';
     const hasRate = typeof h.rate === 'number' && !Number.isNaN(h.rate);
     const rateText = hasRate ? `${h.rate}%` : '—';
     const rateClass = !hasRate ? 'badge-gray' : h.rate >= 40 ? 'badge-red' : h.rate >= 20 ? 'badge-orange' : 'badge-green';
     const opHtml = h.status === 'completed'
-      ? `<span style="display:inline-flex;gap:8px;align-items:center;white-space:nowrap;"><button class="link-btn" onclick="openResultModal(${h.id})">查重结果</button><button class="link-btn" onclick="openStartCheckFromHistory(${h.id})">重新查重</button></span>`
-      : `<span style="display:inline-flex;gap:8px;align-items:center;white-space:nowrap;"><button class="link-btn" style="opacity:.45;cursor:not-allowed;" disabled>处理中</button><button class="link-btn" onclick="openStartCheckFromHistory(${h.id})">重新查重</button></span>`;
-    const docLine = h.target;
-    const titleAttr = escapeHtmlAttr(docLine + (st.detail ? '\n' + st.detail : ''));
-    const compareLine = h.compareName ? h.compareName : '—';
-    const compareTitle = escapeHtmlAttr(compareLine);
+      ? `<button class="link-btn" onclick="openResultModal(${h.id})">查重结果</button><a class="link-btn" href="javascript:void(0)" onclick="openHistoryEdit(${h.id})">编辑</a>`
+      : `<button class="link-btn" style="opacity:.45;cursor:not-allowed;" disabled>执行中</button><a class="link-btn" href="javascript:void(0)" onclick="openHistoryEdit(${h.id})">编辑</a>`;
+    const titleAttr = escapeHtmlAttr(h.target);
     return `
       <tr>
-        <td title="${titleAttr}"><span class="cell-doc-ellipsis">📄 ${docLine}</span></td>
+        <td title="${titleAttr}"><span class="cell-doc-ellipsis">📄 ${h.target}</span></td>
+        <td style="text-align:center;white-space:nowrap;"><button class="link-btn" onclick="openStartCheckFromHistory(${h.id})">重新查重</button></td>
+        <td>${h.time}</td>
         <td>${h.size || '-'}</td>
         <td>${h.uploadTime || '-'}</td>
         <td>${h.user || '-'}</td>
-        <td style="text-align:center;white-space:nowrap;">-</td>
-        <td title="${compareTitle}"><span class="cell-doc-ellipsis">📄 ${compareLine}</span></td>
-        <td>${h.time}</td>
         <td><span class="badge ${statusClass}">${statusText}</span></td>
         <td><span class="badge ${rateClass}">${rateText}</span></td>
         <td>
@@ -1743,7 +1620,6 @@ function filterHistory(preservePage) {
   const targetName = document.getElementById('searchTargetName').value.trim().toLowerCase();
   const timeStart = document.getElementById('searchTimeStart').value;
   const timeEnd = document.getElementById('searchTimeEnd').value;
-  const useSubmitTime = document.getElementById('historyFilterSubmitTime')?.checked;
   const status = document.getElementById('searchStatus').value;
   const rateMin = document.getElementById('searchRateMin').value;
   const rateMax = document.getElementById('searchRateMax').value;
@@ -1754,15 +1630,13 @@ function filterHistory(preservePage) {
       return false;
     }
     
-    // 查重时间筛选（勾选「发起时间」时按起止时刻，含时分秒）
-    if (useSubmitTime) {
-      const rt = parseRecordDateTime(h.time);
-      const ts = parseFilterDateTimeVal(timeStart);
-      const te = parseFilterDateTimeVal(timeEnd);
-      if (rt != null) {
-        if (ts && rt < ts) return false;
-        if (te && rt > te) return false;
-      }
+    // 查重时间筛选
+    const recordDate = h.time.split(' ')[0];
+    if (timeStart && recordDate < timeStart) {
+      return false;
+    }
+    if (timeEnd && recordDate > timeEnd) {
+      return false;
     }
     
     // 状态筛选
@@ -1770,12 +1644,11 @@ function filterHistory(preservePage) {
       return false;
     }
     
-    // 重复率筛选（进行中/无分数记录不参与数值比较，避免 null 被当成 0 误筛掉）
-    const hasRate = typeof h.rate === 'number' && !Number.isNaN(h.rate);
-    if (rateMin && hasRate && h.rate < parseInt(rateMin, 10)) {
+    // 重复率筛选
+    if (rateMin && h.rate < parseInt(rateMin)) {
       return false;
     }
-    if (rateMax && hasRate && h.rate > parseInt(rateMax, 10)) {
+    if (rateMax && h.rate > parseInt(rateMax)) {
       return false;
     }
     
@@ -1786,23 +1659,13 @@ function filterHistory(preservePage) {
 }
 
 function resetFilter() {
-  if (submitTimeAnimInterval) {
-    clearInterval(submitTimeAnimInterval);
-    submitTimeAnimInterval = null;
-  }
-  if (submitTimeAnimTimer) {
-    clearTimeout(submitTimeAnimTimer);
-    submitTimeAnimTimer = null;
-  }
   document.getElementById('searchTargetName').value = '';
   document.getElementById('searchTimeStart').value = '';
   document.getElementById('searchTimeEnd').value = '';
   document.getElementById('searchStatus').value = '';
   document.getElementById('searchRateMin').value = '';
   document.getElementById('searchRateMax').value = '';
-  const st = document.getElementById('historyFilterSubmitTime');
-  if (st) st.checked = false;
-
+  
   filteredHistory = [...historyData];
   sortHistory(sortOrder, false);
 }
@@ -1810,14 +1673,9 @@ function resetFilter() {
 function sortHistory(order, preservePage) {
   sortOrder = order;
   filteredHistory.sort((a, b) => {
-    const dateA = parseRecordDateTime(a.time) || new Date(0);
-    const dateB = parseRecordDateTime(b.time) || new Date(0);
-    let cmp = order === 'desc' ? dateB - dateA : dateA - dateB;
-    if (cmp !== 0) return cmp;
-    if (a.batchId != null && b.batchId != null && a.batchId === b.batchId) {
-      return (a.batchIndex || 0) - (b.batchIndex || 0);
-    }
-    return (b.id || 0) - (a.id || 0);
+    const dateA = new Date(a.time.replace(/\s+/, 'T'));
+    const dateB = new Date(b.time.replace(/\s+/, 'T'));
+    return order === 'desc' ? dateB - dateA : dateA - dateB;
   });
   if (!preservePage) {
     currentPage = 1;
@@ -1903,10 +1761,6 @@ function openStartCheckFromHistory(id) {
   const doc = libraryDocs.find(d => d.name === row.target) || { id: Date.now(), name: row.target, size: row.size || '-', time: row.uploadTime || row.time, user: row.user || '系统' };
   setTargetDoc({ ...doc });
   compareDocs = [];
-  if (row.compareName) {
-    const cd = libraryDocs.find(d => d.name === row.compareName);
-    if (cd) compareDocs.push({ ...cd });
-  }
   renderCompareDocs();
   openStartCheckModal();
 }
@@ -1921,7 +1775,9 @@ function openResultModal(id) {
     showToast('⚠️ 仅已完成记录可查看结果');
     return;
   }
-  resultModalRows = [targetRow];
+  resultModalRows = historyData
+    .filter(h => h.target === targetRow.target && h.status === 'completed')
+    .sort((a, b) => new Date(b.time.replace(/\s+/, 'T')) - new Date(a.time.replace(/\s+/, 'T')));
   activeResultId = targetRow.id;
   renderResultTabs();
   renderResultDetail(activeResultId);
@@ -1931,21 +1787,11 @@ function openResultModal(id) {
 function renderResultTabs() {
   const tabList = document.getElementById('resultTabList');
   if (!tabList) return;
-  if (resultModalRows.length <= 1) {
-    tabList.innerHTML = '';
-    tabList.style.display = 'none';
-    return;
-  }
-  tabList.style.display = '';
-  tabList.innerHTML = resultModalRows.map(r => {
-    const label = r.compareName
-      ? `${escapeHtml(r.compareName.length > 28 ? r.compareName.slice(0, 28) + '…' : r.compareName)} · ${escapeHtml(r.time)}`
-      : escapeHtml(r.time);
-    return `
-    <button type="button" class="result-tab-item ${r.id === activeResultId ? 'active' : ''}" onclick="renderResultDetail(${r.id})">
-      ${label}
-    </button>`;
-  }).join('');
+  tabList.innerHTML = resultModalRows.map(r => `
+    <button class="result-tab-item ${r.id === activeResultId ? 'active' : ''}" onclick="renderResultDetail(${r.id})">
+      ${r.time}
+    </button>
+  `).join('');
 }
 
 function getRateClass(rate) {
@@ -1954,7 +1800,7 @@ function getRateClass(rate) {
 
 const inlineCompareTemplates = [
   {
-    name: 'XX公司云资源池扩容技术规范书_2026.docx',
+    name: '河南电信云资源池扩容技术规范书_2026.docx',
     rate: 34,
     leftBlocks: [
       { text: '本项目建设5G核心网NFV基础设施平台，支持网络功能虚拟化，实现计算、存储、网络资源的统一管理与动态调度，满足5G网络对超低时延、高可靠性的承载需求。', level: 'match' },
@@ -2010,12 +1856,6 @@ function getInlineTemplate(row) {
 function renderInlineCompareTabs(compareDocs) {
   const host = document.getElementById('resultInlineCompareTabs');
   if (!host) return;
-  if (!compareDocs || compareDocs.length <= 1) {
-    host.innerHTML = '';
-    host.style.display = 'none';
-    return;
-  }
-  host.style.display = '';
   host.innerHTML = compareDocs.map((d, i) => `
     <div class="inline-compare-tab ${i === activeInlineCompareIndex ? 'active' : ''}" onclick="setInlineCompareDoc(${i})">
       <div class="inline-compare-name" title="${escapeHtmlAttr(d.name)}">${d.name}</div>
@@ -2027,8 +1867,20 @@ function renderInlineCompareTabs(compareDocs) {
 
 function renderInlineCompareMain(compareDocs, targetName, rowTime) {
   const curr = compareDocs[activeInlineCompareIndex] || compareDocs[0];
+  const titleEl = document.getElementById('resultInlineTitle');
+  const rateEl = document.getElementById('resultInlineRate');
+  const metaEl = document.getElementById('resultInlineMeta');
+  const subtleEl = document.getElementById('resultInlineSubtle');
   const colsEl = document.getElementById('resultInlineCompareMain');
   if (!curr || !colsEl) return;
+
+  if (titleEl) titleEl.textContent = `📄 ${curr.name}`;
+  if (rateEl) {
+    rateEl.textContent = `${curr.rate}%`;
+    rateEl.className = 'result-inline-rate ' + getRateClass(curr.rate);
+  }
+  if (metaEl) metaEl.textContent = `查重时间：${rowTime} · 重复 ${curr.matchCount} 段`;
+  if (subtleEl) subtleEl.textContent = `目标文档：${targetName}`;
 
   const leftHtml = curr.leftBlocks.map((b, i) => `
     <div class="result-block ${b.level}">
@@ -2042,17 +1894,15 @@ function renderInlineCompareMain(compareDocs, targetName, rowTime) {
       [匹配${i + 1}] ${b.text}
     </div>
   `).join('');
-  const targetShow = targetName.length > 36 ? targetName.slice(0, 36) + '…' : targetName;
-  const compareShow = curr.name.length > 36 ? curr.name.slice(0, 36) + '…' : curr.name;
   colsEl.innerHTML = `
     <div class="result-inline-col">
-      <div class="result-inline-col-title">目标 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(targetName)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(targetShow)}</button></div>
-      <div class="result-inline-note">${curr.leftBlocks.length} 段 · 标红/橙为疑似重复或相似</div>
+      <div class="result-inline-col-title">📄 目标文档 <span class="badge badge-blue">${curr.leftBlocks.length} 段</span></div>
+      <div class="result-inline-note">共发现 <strong>${curr.matchCount}</strong> 处重复/相似段落，红色标注为重复，橙色为高度相似</div>
       ${leftHtml}
     </div>
     <div class="result-inline-col">
-      <div class="result-inline-col-title">对比 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(curr.name)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(compareShow)}</button></div>
-      <div class="result-inline-note">${curr.rightBlocks.length} 段与左侧对应</div>
+      <div class="result-inline-col-title">📄 对比文档 <span class="badge badge-blue">${curr.rightBlocks.length} 段匹配</span></div>
+      <div class="result-inline-note">以下为对比文档中与目标文档重复或相似的段落</div>
       ${rightHtml}
     </div>
   `;
@@ -2071,26 +1921,41 @@ function renderResultDetail(id) {
   activeResultId = id;
   renderResultTabs();
   const tpl = getInlineTemplate(row);
-  const rid = Math.abs(Number(row.id)) || 0;
-  const matchCount = 4 + (rid % 5);
-  const targetBlocks = tpl.leftBlocks.length;
-  const derivedRatePct = targetBlocks > 0 ? (matchCount / targetBlocks) * 100 : 0;
-  const rateFromRatio = Number(derivedRatePct.toFixed(2));
-  const compareDocs = [{
-    name: row.compareName || tpl.name,
-    rate: rateFromRatio,
-    matchCount,
-    leftBlocks: tpl.leftBlocks,
-    rightBlocks: tpl.rightBlocks,
-  }];
-  const totalMatch = compareDocs[0].matchCount;
+  const compareDocs = [
+    {
+      name: '河南电信云资源池扩容技术规范书_2026.docx',
+      rate: 34,
+      matchCount: 6,
+      leftBlocks: tpl.leftBlocks,
+      rightBlocks: tpl.rightBlocks
+    },
+    {
+      name: 'OTN设备采购技术规范书_v2.1.docx',
+      rate: 52,
+      matchCount: 4,
+      leftBlocks: inlineCompareTemplates[1].leftBlocks,
+      rightBlocks: inlineCompareTemplates[1].rightBlocks
+    },
+    {
+      name: '核心网NFV平台技术规范书_2026Q1.docx',
+      rate: 18,
+      matchCount: 1,
+      leftBlocks: inlineCompareTemplates[2].leftBlocks,
+      rightBlocks: inlineCompareTemplates[2].rightBlocks
+    }
+  ];
+  const totalMatch = compareDocs.reduce((s, d) => s + d.matchCount, 0);
+  const targetBlocks = Math.max(...compareDocs.map(d => d.leftBlocks.length));
+  const derivedRatePct = targetBlocks > 0 ? (totalMatch / targetBlocks) * 100 : 0;
+  const headerRate = Number(derivedRatePct.toFixed(2));
   const metaEl = document.getElementById('resultTopMeta');
   const maxRateEl = document.getElementById('resultTopMaxRate');
+  const docCountEl = document.getElementById('resultTopDocCount');
   const matchCountEl = document.getElementById('resultTopMatchCount');
   const blockCountEl = document.getElementById('resultTopBlockCount');
-  const compareLabel = row.compareName || '—';
-  if (metaEl) metaEl.textContent = `发起 ${row.time} · 耗时 ${12 + (rid % 30)}秒 · ${row.target} — ${compareLabel}`;
-  if (maxRateEl) maxRateEl.textContent = `${compareDocs[0].rate}%`;
+  if (metaEl) metaEl.textContent = `查重时间：${row.time} | 查重耗时：${12 + (row.id % 30)}秒 | 目标文档：${row.target}`;
+  if (maxRateEl) maxRateEl.textContent = `${headerRate}%`;
+  if (docCountEl) docCountEl.textContent = String(compareDocs.length);
   if (matchCountEl) matchCountEl.textContent = String(totalMatch);
   if (blockCountEl) blockCountEl.textContent = String(targetBlocks);
   const colsEl = document.getElementById('resultInlineCols');
@@ -2110,144 +1975,15 @@ function renderResultDetail(id) {
   activeInlineCompareIndex = 0;
   renderInlineCompareTabs(compareDocs);
   renderInlineCompareMain(compareDocs, row.target, row.time);
-  window._exportReportPayload = {
-    target: row.target,
-    compareName: compareDocs[0].name,
-    time: row.time,
-    rate: compareDocs[0].rate,
-    durationSec: 12 + (rid % 30),
-    matchCount: totalMatch,
-    leftBlocks: compareDocs[0].leftBlocks.map(b => ({ ...b })),
-    rightBlocks: compareDocs[0].rightBlocks.map(b => ({ ...b })),
-  };
-}
-
-/** 历史记录 time 字段统一为 YYYY-MM-DD HH:mm:ss，避免与日期筛选比较时闪空 */
-function formatHistoryDateTime(d) {
-  const t = d instanceof Date ? d : new Date(d);
-  const y = t.getFullYear();
-  const m = String(t.getMonth() + 1).padStart(2, '0');
-  const day = String(t.getDate()).padStart(2, '0');
-  const hh = String(t.getHours()).padStart(2, '0');
-  const mm = String(t.getMinutes()).padStart(2, '0');
-  const ss = String(t.getSeconds()).padStart(2, '0');
-  return `${y}-${m}-${day} ${hh}:${mm}:${ss}`;
-}
-
-/** 从记录 time 解析为 Date（支持 YYYY-MM-DD HH:mm:ss / 无秒） */
-function parseRecordDateTime(timeStr) {
-  if (!timeStr) return null;
-  const s = String(timeStr).trim();
-  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/.exec(s);
-  if (m) {
-    return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
-  }
-  const d = new Date(s.replace(/\s+/, 'T'));
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-/** 筛选框 datetime-local 的值 → Date */
-function parseFilterDateTimeVal(val) {
-  if (!val) return null;
-  const d = new Date(val);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-/** Date → datetime-local 值（含秒） */
-function toDatetimeLocalValue(dt) {
-  const x = dt instanceof Date ? dt : new Date(dt);
-  const pad = n => String(n).padStart(2, '0');
-  return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}T${pad(x.getHours())}:${pad(x.getMinutes())}:${pad(x.getSeconds())}`;
-}
-
-/**
- * 发起查重后：起 = 本次发起时刻，止 = 空（不限制上限），配合目标名称仅看该目标在此发起之后的任务。
- */
-function applySubmitTimeFilterFromSubmitAt(submitAt) {
-  if (submitTimeAnimInterval) {
-    clearInterval(submitTimeAnimInterval);
-    submitTimeAnimInterval = null;
-  }
-  if (submitTimeAnimTimer) {
-    clearTimeout(submitTimeAnimTimer);
-    submitTimeAnimTimer = null;
-  }
-  const sEl = document.getElementById('searchTimeStart');
-  const eEl = document.getElementById('searchTimeEnd');
-  if (!sEl || !eEl) return;
-  sEl.value = toDatetimeLocalValue(submitAt);
-  eEl.value = '';
-}
-
-/**
- * 批量发起 n 个对比文档 → n 行任务；同一 batchId 下行内依次模拟「处理中 → 已完成」。
- */
-function startBatchSimulation(batchId, n) {
-  if (batchSimTimer) {
-    clearInterval(batchSimTimer);
-    batchSimTimer = null;
-  }
-  if (batchCompleteTimer) {
-    clearTimeout(batchCompleteTimer);
-    batchCompleteTimer = null;
-  }
-  if (!n || n < 1) return;
-
-  const intervalMs = 5000;
-  const mockRates = [15, 22, 31, 28, 41, 19];
-
-  function runPhase2Complete() {
-    let completeIdx = 0;
-    function tickComplete() {
-      if (completeIdx >= n) {
-        batchCompleteTimer = null;
-        return;
-      }
-      historyData.forEach(h => {
-        if (h.batchId !== batchId || h.batchIndex !== completeIdx) return;
-        h.status = 'completed';
-        h.rate = mockRates[completeIdx % mockRates.length];
-      });
-      completeIdx++;
-      filterHistory(true);
-      if (completeIdx >= n) {
-        batchCompleteTimer = null;
-        return;
-      }
-      batchCompleteTimer = setTimeout(tickComplete, intervalMs);
-    }
-    tickComplete();
-  }
-
-  if (n <= 1) {
-    setTimeout(runPhase2Complete, intervalMs);
-    return;
-  }
-
-  let progress = 1;
-  batchSimTimer = setInterval(() => {
-    progress++;
-    historyData.forEach(h => {
-      if (h.batchId !== batchId) return;
-      h.status = h.batchIndex < progress ? 'processing' : 'pending';
-    });
-    filterHistory(true);
-    if (progress >= n) {
-      clearInterval(batchSimTimer);
-      batchSimTimer = null;
-      setTimeout(runPhase2Complete, 0);
-    }
-  }, intervalMs);
 }
 
 // ===== 开始查重 =====
 function startCheck() {
   if (!targetDoc) { showToast('⚠️ 请先选择目标稽核文档'); return; }
   if (!compareDocs.length) { showToast('⚠️ 请至少选择 1 个对比文档'); return; }
-  const payload = { target: targetDoc, compares: compareDocs.map(d => ({ ...d })) };
-  sessionStorage.setItem('checkTask', JSON.stringify(payload));
+  sessionStorage.setItem('checkTask', JSON.stringify({ target: targetDoc, compares: compareDocs }));
   closeStartCheckModal();
-  enqueueBackgroundExecution('✅ 系统已收到请求，将调度安排执行');
+  enqueueBackgroundExecution('✅ 系统已收到请求，将调用安排执行');
 }
 
 // ===== 查重处理中遮罩弹框逻辑（移植自 loading.html）=====
@@ -2355,54 +2091,37 @@ function backgroundCheck() {
 
 function enqueueBackgroundExecution(toastMsg) {
   if (toastMsg) showToast(toastMsg);
-  if (submitTimeAnimInterval) {
-    clearInterval(submitTimeAnimInterval);
-    submitTimeAnimInterval = null;
-  }
-  if (submitTimeAnimTimer) {
-    clearTimeout(submitTimeAnimTimer);
-    submitTimeAnimTimer = null;
-  }
 
+  // 展开历史记录，并按当前目标文档过滤
   setFoldCollapsed('startFold', true);
   setFoldCollapsed('historyFold', false);
   const input = document.getElementById('searchTargetName');
   const statusSel = document.getElementById('searchStatus');
   const rateMinEl = document.getElementById('searchRateMin');
   const rateMaxEl = document.getElementById('searchRateMax');
-  const submitTimeCb = document.getElementById('historyFilterSubmitTime');
   if (input && targetDoc?.name) input.value = targetDoc.name;
-  if (statusSel) statusSel.value = '';
+  if (statusSel) statusSel.value = 'processing';
   if (rateMinEl) rateMinEl.value = '';
   if (rateMaxEl) rateMaxEl.value = '';
-  const submitAt = new Date();
-  if (submitTimeCb) submitTimeCb.checked = true;
-  applySubmitTimeFilterFromSubmitAt(submitAt);
 
-  let compares = compareDocs;
-  try {
-    const t = JSON.parse(sessionStorage.getItem('checkTask') || '{}');
-    if (Array.isArray(t.compares) && t.compares.length) compares = t.compares;
-  } catch (e) {}
-
-  if (targetDoc?.name && compares.length) {
-    const batchId = Date.now();
-    const now = formatHistoryDateTime(submitAt);
-    const rows = compares.map((cd, i) => ({
-      id: batchId * 1000 + i,
-      batchId,
-      batchIndex: i,
+  // 写入一条“进行中”的当前任务记录（置顶）
+  if (targetDoc?.name) {
+    const now = new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-');
+    for (let i = historyData.length - 1; i >= 0; i--) {
+      if (historyData[i]?.status === 'processing' && historyData[i]?.target === targetDoc.name) historyData.splice(i, 1);
+    }
+    historyData.unshift({
+      id: Date.now(),
       target: targetDoc.name,
-      compareName: cd.name,
+      count: compareDocs.length,
       time: now,
       size: targetDoc.size || '-',
       uploadTime: targetDoc.time || now,
       user: targetDoc.user || '王海龙',
       rate: null,
-      status: i === 0 ? 'processing' : 'pending',
-    }));
-    rows.slice().reverse().forEach(r => historyData.unshift(r));
-    startBatchSimulation(batchId, compares.length);
+      status: 'processing',
+    });
+    filteredHistory = [...historyData];
   }
 
   filterHistory();
@@ -2416,328 +2135,6 @@ function showToast(msg) {
   t.textContent = msg;
   t.style.display = 'block';
   setTimeout(() => { t.style.display = 'none'; }, 2800);
-}
-
-/** OOXML 文本转义（正文 w:t） */
-function xmlEscapeText(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-/** 单行 OOXML 段落（与查重报告导出共用） */
-function ooxmlParagraphLine(text, bold, sz) {
-  if (text === '' && !bold && !sz) return '<w:p/>';
-  const rPr = [];
-  if (bold) rPr.push('<w:b/>');
-  if (sz) rPr.push(`<w:sz w:val="${sz}"/>`);
-  const pr = rPr.length ? `<w:rPr>${rPr.join('')}</w:rPr>` : '';
-  return `<w:p><w:r>${pr}<w:t xml:space="preserve">${xmlEscapeText(text)}</w:t></w:r></w:p>`;
-}
-
-function blockLevelLabelOOXML(level) {
-  if (level === 'match') return '重复';
-  if (level === 'highlight') return '高度相似';
-  return '正常';
-}
-
-const OOXML_CONTENT_TYPES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n  <Default Extension="xml" ContentType="application/xml"/>\n  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>\n</Types>';
-
-const OOXML_RELS_ROOT = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>\n</Relationships>';
-
-const OOXML_DOC_RELS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
-
-/** 下载单篇文档时的本地文件名（演示占位 DOCX） */
-function sanitizeDownloadFilename(name) {
-  let s = String(name || 'document').trim();
-  if (!/\.docx$/i.test(s)) s += '.docx';
-  s = s.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, '_');
-  return s || 'document.docx';
-}
-
-async function downloadResultDemoDocxButton(el) {
-  const name = el.getAttribute('data-doc-name');
-  if (!name) return;
-  await downloadResultDemoDocx(name);
-}
-
-/** 结果页：点击目标/对比文档名，下载与文件名一致的演示用 DOCX（实际系统可改为真实文件流） */
-async function downloadResultDemoDocx(displayName) {
-  const name = String(displayName || '').trim();
-  if (!name) return;
-  if (typeof JSZip === 'undefined') {
-    showToast('文档组件加载失败，请检查网络后重试');
-    return;
-  }
-  const inner =
-    ooxmlParagraphLine('技术规范书文档（演示下载）', true, 32) +
-    ooxmlParagraphLine('') +
-    ooxmlParagraphLine(`文件名：${name}`) +
-    ooxmlParagraphLine('') +
-    ooxmlParagraphLine('本文件为前端演示生成的占位 DOCX，实际系统应替换为从文稿库或对象存储拉取的真实文档二进制流。') +
-    ooxmlParagraphLine('') +
-    ooxmlParagraphLine(`生成时间：${new Date().toLocaleString('zh-CN', { hour12: false })}`);
-  const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>${inner}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body>
-</w:document>`;
-  const zip = new JSZip();
-  zip.file('[Content_Types].xml', OOXML_CONTENT_TYPES);
-  zip.file('_rels/.rels', OOXML_RELS_ROOT);
-  zip.file('word/_rels/document.xml.rels', OOXML_DOC_RELS);
-  zip.file('word/document.xml', docXml);
-  const blob = await zip.generateAsync({
-    type: 'blob',
-    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = sanitizeDownloadFilename(name);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  showToast('已开始下载：' + name);
-}
-
-/**
- * 下载文件名中的「简称」规则（非人工摘要名，仅作安全截断）：
- * 1）去掉扩展名 .docx；2）将 Windows 非法字符及空白替换为 _；
- * 3）截取前 maxLen 个字符（默认 40），防止路径过长。
- * 最终：查重报告_{目标片段}_vs_{对比片段}_{YYYYMMDD}_{HHmmss}.docx
- */
-function sanitizeReportToken(s, maxLen) {
-  let x = String(s || '').replace(/\.docx$/i, '');
-  x = x.replace(/[\\/:*?"<>|\x00-\x1f]+/g, '_').replace(/\s+/g, '_');
-  if (x.length > maxLen) x = x.slice(0, maxLen);
-  return x || 'doc';
-}
-
-function timeTokenFromSubmitTime(timeStr) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(timeStr || '').trim());
-  if (m) {
-    const sec = (m[6] != null && m[6] !== '') ? m[6] : '00';
-    return `${m[1]}${m[2]}${m[3]}_${m[4]}${m[5]}${sec}`;
-  }
-  const d = new Date();
-  const p = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
-}
-
-function buildReportFilename(target, compare, timeStr) {
-  const ta = sanitizeReportToken(target, 40);
-  const tc = sanitizeReportToken(compare, 40);
-  const tt = timeTokenFromSubmitTime(timeStr);
-  return `查重报告_${ta}_vs_${tc}_${tt}.docx`;
-}
-
-function buildCheckReportDocumentInnerXml(p) {
-  const left = p.leftBlocks || [];
-  const right = p.rightBlocks || [];
-  const n = Math.max(left.length, right.length);
-  let rep = 0;
-  let sim = 0;
-  left.forEach(b => {
-    if (b.level === 'match') rep++;
-    else if (b.level === 'highlight') sim++;
-  });
-  const parts = [];
-  const para = (t, bold, sz) => {
-    if (t === '' && !bold && !sz) {
-      parts.push('<w:p/>');
-      return;
-    }
-    const rPr = [];
-    if (bold) rPr.push('<w:b/>');
-    if (sz) rPr.push(`<w:sz w:val="${sz}"/>`);
-    const pr = rPr.length ? `<w:rPr>${rPr.join('')}</w:rPr>` : '';
-    parts.push(`<w:p><w:r>${pr}<w:t xml:space="preserve">${xmlEscapeText(t)}</w:t></w:r></w:p>`);
-  };
-  para('技术规范书查重报告', true, 36);
-  para('');
-  para('一、任务信息', true, 28);
-  para(`任务发起时间：${p.time}`);
-  para(`查重耗时：${p.durationSec} 秒`);
-  para(`综合重复率：${p.rate}%`);
-  para(`目标文档：${p.target}`);
-  para(`历史对比文档：${p.compareName}`);
-  para('');
-  para('二、片段统计', true, 28);
-  para(`目标侧参与比对段落数：${left.length}`);
-  para(`对比侧参与比对段落数：${right.length}`);
-  para(`标注为「重复」的片段：${rep} 段；「高度相似」：${sim} 段；系统检出需重点关注的片段合计 ${p.matchCount} 段（与结果页统计一致）。`);
-  para('');
-  para('三、逐段对照明细', true, 28);
-  para('按片段序号列出左右对照：左列为目标文档原文摘录，右列为对比文档中与之对应的匹配摘录；标注为算法判定的重复或相似类型。若单侧缺段则注明「无对应段落」。');
-  for (let i = 0; i < n; i++) {
-    const L = left[i];
-    const R = right[i];
-    para(`3.${i + 1} 片段 ${i + 1}`, true, 24);
-    para(`目标侧类型：${L ? blockLevelLabelOOXML(L.level) : '—'}；对比侧类型：${R ? blockLevelLabelOOXML(R.level) : '—'}`);
-    para('【目标文档摘录】');
-    para(L ? L.text : '（无对应段落）');
-    para('【对比文档摘录】');
-    para(R ? R.text : '（无对应段落）');
-    para('');
-  }
-  para('— 报告完 —');
-  return parts.join('');
-}
-
-async function downloadCheckReportDocx() {
-  const payload = window._exportReportPayload;
-  if (!payload || !Array.isArray(payload.leftBlocks)) {
-    showToast('请先打开一条已完成记录的查重结果');
-    return;
-  }
-  if (typeof JSZip === 'undefined') {
-    showToast('报告组件加载失败，请检查网络后重试');
-    return;
-  }
-  const inner = buildCheckReportDocumentInnerXml(payload);
-  const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>${inner}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body>
-</w:document>`;
-  const zip = new JSZip();
-  zip.file('[Content_Types].xml', OOXML_CONTENT_TYPES);
-  zip.file('_rels/.rels', OOXML_RELS_ROOT);
-  zip.file('word/_rels/document.xml.rels', OOXML_DOC_RELS);
-  zip.file('word/document.xml', docXml);
-  const blob = await zip.generateAsync({
-    type: 'blob',
-    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = buildReportFilename(payload.target, payload.compareName, payload.time);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  showToast('报告已生成并下载');
-}
-
-function buildReportFilenameXls(target, compare, timeStr) {
-  const ta = sanitizeReportToken(target, 40);
-  const tc = sanitizeReportToken(compare, 40);
-  const tt = timeTokenFromSubmitTime(timeStr);
-  return `查重报告_${ta}_vs_${tc}_${tt}.xls`;
-}
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function levelLabelForExcel(level) {
-  if (level === 'match') return '重复';
-  if (level === 'highlight') return '相似';
-  return '正常';
-}
-
-function levelClassForExcel(level) {
-  if (level === 'match') return 'dup';
-  if (level === 'highlight') return 'sim';
-  return '';
-}
-
-function buildCheckReportExcelHtml(p) {
-  const left = p.leftBlocks || [];
-  const right = p.rightBlocks || [];
-  const n = Math.max(left.length, right.length);
-  let rep = 0;
-  let sim = 0;
-  left.forEach(b => {
-    if (b.level === 'match') rep++;
-    else if (b.level === 'highlight') sim++;
-  });
-  const rows = [];
-  for (let i = 0; i < n; i++) {
-    const L = left[i];
-    const R = right[i];
-    const leftLevel = L && L.level;
-    const rightLevel = R && R.level;
-    const hasRisk = leftLevel === 'match' || leftLevel === 'highlight' || rightLevel === 'match' || rightLevel === 'highlight';
-    if (!hasRisk) continue;
-    rows.push(
-      `<tr>` +
-      `<td>${i + 1}</td>` +
-      `<td class="${levelClassForExcel(leftLevel)}">${escapeHtml(levelLabelForExcel(leftLevel))}</td>` +
-      `<td>${escapeHtml(L ? L.text : '（无对应段落）')}</td>` +
-      `<td class="${levelClassForExcel(rightLevel)}">${escapeHtml(levelLabelForExcel(rightLevel))}</td>` +
-      `<td>${escapeHtml(R ? R.text : '（无对应段落）')}</td>` +
-      `</tr>`
-    );
-  }
-
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <style>
-    body { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 12px; color: #333; }
-    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-    th, td { border: 1px solid #d9d9d9; padding: 6px 8px; vertical-align: top; word-break: break-all; }
-    th { background: #f5f7fa; }
-    .meta td { width: 25%; }
-    .meta .meta-title { text-align: center; font-size: 16px; font-weight: 700; background: #f5f7fa; }
-    .dup { background: #ffebee; color: #c62828; font-weight: 700; }
-    .sim { background: #fff3e0; color: #e65100; font-weight: 700; }
-  </style>
-</head>
-<body>
-  <table class="meta">
-    <tr><td colspan="4" class="meta-title">技术规范书查重报告</td></tr>
-    <tr><td>任务发起时间</td><td>${escapeHtml(p.time)}</td><td>查重耗时</td><td>${escapeHtml(p.durationSec)} 秒</td></tr>
-    <tr><td>综合重复率</td><td>${escapeHtml(p.rate)}%</td><td>重复 / 相似段落</td><td style="mso-number-format:'\@';">${rep}/${sim}</td></tr>
-    <tr><td>目标文档</td><td colspan="3">${escapeHtml(p.target)}</td></tr>
-    <tr><td>历史对比文档</td><td colspan="3">${escapeHtml(p.compareName)}</td></tr>
-  </table>
-  <br/>
-  <table>
-    <thead>
-      <tr>
-        <th style="width:56px;">序号</th>
-        <th style="width:72px;">目标类型</th>
-        <th>目标文档摘录</th>
-        <th style="width:72px;">对比类型</th>
-        <th>对比文档摘录</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows.join('')}
-    </tbody>
-  </table>
-</body>
-</html>`;
-}
-
-function downloadCheckReportExcel() {
-  const payload = window._exportReportPayload;
-  if (!payload || !Array.isArray(payload.leftBlocks)) {
-    showToast('请先打开一条已完成记录的查重结果');
-    return;
-  }
-  const html = buildCheckReportExcelHtml(payload);
-  const blob = new Blob(['\uFEFF', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = buildReportFilenameXls(payload.target, payload.compareName, payload.time);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  showToast('Excel报告已生成并下载');
 }
 
 function goBack() {
@@ -2784,12 +2181,12 @@ if (historyFilterTargetName) {
         const now = new Date();
         for (let i = 0; i < need; i++) {
           const dt = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000);
-          const alt = libraryDocs.find(d => d.name !== historyFilterTargetName);
+          const time = dt.toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-');
           historyData.unshift({
             id: Date.now() + i + 1,
             target: historyFilterTargetName,
-            compareName: alt ? alt.name : `演示对比文档_${i + 1}.docx`,
-            time: formatHistoryDateTime(dt),
+            count: Math.max(1, Math.min(3, (compareDocs?.length || 2))),
+            time,
             rate: [12, 18, 27, 34, 41, 52][(i + expected) % 6],
             status: 'completed',
           });
@@ -2809,28 +2206,6 @@ if (historyFilterTargetName) {
   setFoldCollapsed('startFold', true);
   setFoldCollapsed('historyFold', false);
 }
-
-(function initHistorySubmitTimeToggle() {
-  const cb = document.getElementById('historyFilterSubmitTime');
-  if (!cb) return;
-  cb.addEventListener('change', () => {
-    if (submitTimeAnimInterval) {
-      clearInterval(submitTimeAnimInterval);
-      submitTimeAnimInterval = null;
-    }
-    if (submitTimeAnimTimer) {
-      clearTimeout(submitTimeAnimTimer);
-      submitTimeAnimTimer = null;
-    }
-    if (!cb.checked) {
-      const s = document.getElementById('searchTimeStart');
-      const e = document.getElementById('searchTimeEnd');
-      if (s) s.value = '';
-      if (e) e.value = '';
-    }
-    filterHistory();
-  });
-})();
 
 (function initHistoryAutoRefresh() {
   const secEl = document.getElementById('historyAutoRefreshSec');

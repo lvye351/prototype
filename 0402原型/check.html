@@ -22,18 +22,11 @@
     .topbar .avatar { width: 28px; height: 28px; border-radius: 50%; background: rgb(18, 109, 255); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
 
     .layout { display: flex; min-height: calc(100vh - 52px); }
-    /* 统一侧栏样式（与 index.html / chat-write / ppt-write 对齐） */
-    .sidebar { width: 200px; background: #fff; flex-shrink: 0; display: flex; flex-direction: column; box-shadow: 2px 0 8px rgba(0,0,0,.06); }
-    .sidebar-scroll { flex: 1; overflow-y: auto; padding: 4px 0 12px; }
-    .side-group-h { display: flex; align-items: center; padding: 0 24px 0 34px; height: 40px; font-size: 14px; font-weight: 400; color: #1890ff; border-right: 0.75px solid rgba(0,0,0,.06); }
-    .side-sub { background: #fafafa; padding: 4px 0 8px; }
-    .sidebar .menu-item { position: relative; padding: 0 16px 0 48px; height: 40px; line-height: 40px; font-size: 14px; color: rgba(0,0,0,.85); cursor: pointer; transition: background .15s; display: block; gap: 0; }
-    .sidebar .menu-item:hover { background: #f0f0f0; color: rgba(0,0,0,.85); }
-    .sidebar .menu-item.active { background: #f1f1f1; color: #1890ff; font-weight: 400; border-left: none; }
-    .sidebar .menu-item.active::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #1890ff, #1fbdff); }
-    .sidebar-foot { border-top: 0.75px solid #f0f0f0; padding: 8px 12px; display: flex; align-items: center; gap: 8px; background: #fff; }
-    .sf-av { width: 24px; height: 24px; border-radius: 12px; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
-    .sf-name { font-size: 13.7px; color: #262626; font-weight: 500; }
+    .sidebar { width: 200px; background: #fff; border-right: 1px solid #e8ecf0; padding: 16px 0; flex-shrink: 0; }
+    .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; color: #555; display: flex; align-items: center; gap: 8px; transition: all .2s; }
+    .sidebar .menu-item:hover { background: #f0f5ff; color: #126DFF; }
+    .sidebar .menu-item.active { background: #e8f0fe; color: #126DFF; font-weight: 600; border-left: 3px solid #126DFF; }
+    .sidebar .section-title { font-size: 11px; color: #aaa; padding: 16px 24px 6px; text-transform: uppercase; }
 
     .content { flex: 1; padding: 28px 32px; }
     .page-header { margin-bottom: 24px; }
@@ -294,22 +287,6 @@
     .badge-green { background: #e6f7ee; color: #1a7a4b; }
     .badge-blue { background: #e8f0fe; color: #126DFF; }
     .badge-gray { background: #f3f4f6; color: #6b7280; }
-    button.badge.badge-doc-download {
-      cursor: pointer;
-      border: none;
-      font: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      max-width: 100%;
-      vertical-align: baseline;
-      text-align: left;
-      line-height: 1.35;
-    }
-    button.badge.badge-doc-download:hover {
-      filter: brightness(0.97);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
 
     .link-btn { color: #126DFF; cursor: pointer; font-size: 13px; padding: 3px 8px; border-radius: 4px; border: none; background: none; font-family: inherit; }
     .link-btn:hover { background: #e8f0fe; }
@@ -869,20 +846,14 @@
 
 <div class="layout">
   <div class="sidebar">
-    <div class="sidebar-scroll">
-      <div class="side-group-h">文档写作</div>
-      <div class="side-sub">
-        <div class="menu-item" onclick="location.href='chat-write.html'">对话写作</div>
-        <div class="menu-item" onclick="location.href='ppt-write.html'">ppt写作</div>
-        <div class="menu-item" onclick="location.href='index.html'">我的文稿</div>
-        <div class="menu-item" onclick="location.href='ppt-audit.html'">采购方案PPT稽核</div>
-        <div class="menu-item active">技术规范书查重</div>
-      </div>
-    </div>
-    <div class="sidebar-foot">
-      <div class="sf-av">王</div>
-      <span class="sf-name">王海龙</span>
-    </div>
+    <div class="section-title">知识管理</div>
+    <div class="menu-item" onclick="showToast('👤 个人知识库功能开发中')">.个人知识库</div>
+    <div class="menu-item" onclick="showToast('🔎 知识查询功能开发中')">.知识查询</div>
+    <div class="menu-item" onclick="showToast('🏢 企业知识库功能开发中')">.企业知识库</div>
+    <div class="menu-item" onclick="showToast('🏬 部门知识库功能开发中')">.部门知识库</div>
+    <div class="section-title">文档管理</div>
+    <div class="menu-item active">.技术规范书查重</div>
+    <div class="menu-item" onclick="location.href='ppt-audit.html'">.采购方案PPT稽核</div>
   </div>
 
   <div class="content">
@@ -926,7 +897,6 @@
               <div class="upload-placeholder" style="margin-top:8px;">请选择待查重文档</div>
               <div class="upload-row">
                 <button class="btn btn-outline btn-sm" onclick="openRefMaterialModal('target')">从知识库选择</button>
-                <button class="btn btn-outline btn-sm" onclick="openLibraryModal('target')">从我的文稿选择</button>
               </div>
             </div>
             <div id="targetDocInfo" style="display:none;" class="target-doc-info">
@@ -957,7 +927,6 @@
           </div>
           <div class="compare-add-row">
             <button class="btn btn-outline btn-sm" onclick="openRefMaterialModal('compare')" id="addRefKbBtn">从知识库选择</button>
-            <button class="btn btn-outline btn-sm" onclick="openLibraryModal('compare')" id="addMyDocBtn">从我的文稿选择</button>
           </div>
           <!-- <div class="tip-text">最多可选 3 个对比文档，超过限制时请先删除已选文档</div>-->
            <!-- 提示 -->
@@ -1060,7 +1029,7 @@
                 </th>
                 <th style="width: 7%; text-align: left;">状态</th>
                 <th style="width: 8%; text-align: left;">重复率</th>
-                <th style="width: 14%; text-align: left;">操作</th>
+                <th style="width: 9%; text-align: left;">操作</th>
               </tr>
             </thead>
             <tbody id="historyTbody"></tbody>
@@ -1169,7 +1138,7 @@
                 <div class="result-top-title">← 查重稽核结果</div>
                 <div class="result-top-btns">
                   <button class="btn btn-outline btn-sm" onclick="openStartCheckModal()">🔄 重新查重</button>
-                  <button type="button" class="btn btn-primary btn-sm" onclick="downloadCheckReportExcel()">📥 导出报告</button>
+                  <button type="button" class="btn btn-primary btn-sm" onclick="downloadCheckReportDocx()">📥 导出报告</button>
                 </div>
               </div>
               <div class="result-top-meta" id="resultTopMeta">—</div>
@@ -1247,9 +1216,9 @@
 <script>
 // ===== 数据 =====
 const libraryDocs = [
-  { id: 1, name: "XX公司5G核心网建设技术规范书_v2.3.docx", size: "2.4MB", time: "2026-03-10 09:32", user: "王海龙" },
-  { id: 2, name: "XX公司云资源池扩容技术规范书_2026.docx", size: "1.8MB", time: "2026-03-11 14:15", user: "李明" },
-  { id: 3, name: "XX公司传输网络设备采购技术规范书.docx", size: "3.1MB", time: "2026-03-12 10:08", user: "张伟" },
+  { id: 1, name: "河南电信5G核心网建设技术规范书_v2.3.docx", size: "2.4MB", time: "2026-03-10 09:32", user: "王海龙" },
+  { id: 2, name: "河南电信云资源池扩容技术规范书_2026.docx", size: "1.8MB", time: "2026-03-11 14:15", user: "李明" },
+  { id: 3, name: "河南电信传输网络设备采购技术规范书.docx", size: "3.1MB", time: "2026-03-12 10:08", user: "张伟" },
   { id: 4, name: "基站设备技术规范书_城区_v1.0.docx", size: "1.2MB", time: "2026-03-12 16:44", user: "王海龙" },
   { id: 5, name: "核心网NFV平台技术规范书_2026Q1.docx", size: "2.7MB", time: "2026-03-13 09:00", user: "赵强" },
   { id: 6, name: "宽带接入网改造技术规范书_郑州.docx", size: "1.5MB", time: "2026-03-13 11:20", user: "孙丽" },
@@ -1258,8 +1227,8 @@ const libraryDocs = [
 ];
 
 const historyData = [
-  { id: 1, target: "XX公司5G核心网建设技术规范书_v2.3.docx", compareName: "XX公司云资源池扩容技术规范书_2026.docx", time: "2026-03-14 10:32:00", rate: 34, status: "completed" },
-  { id: 2, target: "XX公司云资源池扩容技术规范书_2026.docx", compareName: "OTN设备采购技术规范书_v2.1.docx", time: "2026-03-13 15:20:00", rate: 18, status: "completed" },
+  { id: 1, target: "河南电信5G核心网建设技术规范书_v2.3.docx", compareName: "河南电信云资源池扩容技术规范书_2026.docx", time: "2026-03-14 10:32:00", rate: 34, status: "completed" },
+  { id: 2, target: "河南电信云资源池扩容技术规范书_2026.docx", compareName: "OTN设备采购技术规范书_v2.1.docx", time: "2026-03-13 15:20:00", rate: 18, status: "completed" },
   { id: 3, target: "OTN设备采购技术规范书_v2.1.docx", compareName: "核心网NFV平台技术规范书_2026Q1.docx", time: "2026-03-12 09:10:00", rate: 52, status: "completed" },
   { id: 4, target: "宽带接入网改造技术规范书_郑州.docx", compareName: "基站设备技术规范书_城区_v1.0.docx", time: "2026-03-11 14:00:00", rate: 9, status: "completed" },
   { id: 5, target: "核心网NFV平台技术规范书_2026Q1.docx", compareName: "数据中心网络技术规范书_新建.docx", time: "2026-03-10 16:45:00", rate: 27, status: "completed" },
@@ -1366,7 +1335,7 @@ function closeLibraryModal() { document.getElementById('libraryModal').classList
 // ===== 引用素材（从知识库选择）弹窗 =====
 const kmMaterials = [
   { id: 'km1', name: '公司2023年端到端透明化监控建设项目技术规范书.docx', size: '2.1MB', time: '2026-03-10 10:22', user: '知识库', status: '已完成' },
-  { id: 'km2', name: 'XX公司5G核心网建设技术规范书_v2.3.docx', size: '2.4MB', time: '2026-03-10 09:32', user: '知识库', status: '已完成' },
+  { id: 'km2', name: '河南电信5G核心网建设技术规范书_v2.3.docx', size: '2.4MB', time: '2026-03-10 09:32', user: '知识库', status: '已完成' },
 ];
 let refMaterialMode = 'target'; // 'target' | 'compare'
 let refMaterialSelectedId = null;
@@ -1621,7 +1590,7 @@ function confirmLibrarySelect() {
 
 // ===== 历史记录 =====
 let currentPage = 1;
-let pageSize = 3;
+let pageSize = 10;
 let filteredHistory = [...historyData];
 let sortOrder = 'desc'; // 'asc' | 'desc'
 let historyAutoRefreshTimer = null;
@@ -1668,6 +1637,7 @@ function renderHistory() {
   const end = start + pageSize;
   const paginatedData = filteredHistory.slice(start, end);
   
+  const editDisabled = '<span class="link-btn" style="opacity:.4;cursor:not-allowed;color:#aaa;pointer-events:none;">编辑</span>';
   document.getElementById('historyTbody').innerHTML = paginatedData.map(h => {
     const st = getRowStatusPresentation(h);
     const statusText = st.text;
@@ -1676,8 +1646,8 @@ function renderHistory() {
     const rateText = hasRate ? `${h.rate}%` : '—';
     const rateClass = !hasRate ? 'badge-gray' : h.rate >= 40 ? 'badge-red' : h.rate >= 20 ? 'badge-orange' : 'badge-green';
     const opHtml = h.status === 'completed'
-      ? `<span style="display:inline-flex;gap:8px;align-items:center;white-space:nowrap;"><button class="link-btn" onclick="openResultModal(${h.id})">查重结果</button><button class="link-btn" onclick="openStartCheckFromHistory(${h.id})">重新查重</button></span>`
-      : `<span style="display:inline-flex;gap:8px;align-items:center;white-space:nowrap;"><button class="link-btn" style="opacity:.45;cursor:not-allowed;" disabled>处理中</button><button class="link-btn" onclick="openStartCheckFromHistory(${h.id})">重新查重</button></span>`;
+      ? `<button class="link-btn" onclick="openResultModal(${h.id})">查重结果</button>${editDisabled}`
+      : `<button class="link-btn" style="opacity:.45;cursor:not-allowed;" disabled>处理中</button>${editDisabled}`;
     const docLine = h.target;
     const titleAttr = escapeHtmlAttr(docLine + (st.detail ? '\n' + st.detail : ''));
     const compareLine = h.compareName ? h.compareName : '—';
@@ -1688,7 +1658,7 @@ function renderHistory() {
         <td>${h.size || '-'}</td>
         <td>${h.uploadTime || '-'}</td>
         <td>${h.user || '-'}</td>
-        <td style="text-align:center;white-space:nowrap;">-</td>
+        <td style="text-align:center;white-space:nowrap;"><button class="link-btn" onclick="openStartCheckFromHistory(${h.id})">重新查重</button></td>
         <td title="${compareTitle}"><span class="cell-doc-ellipsis">📄 ${compareLine}</span></td>
         <td>${h.time}</td>
         <td><span class="badge ${statusClass}">${statusText}</span></td>
@@ -1954,7 +1924,7 @@ function getRateClass(rate) {
 
 const inlineCompareTemplates = [
   {
-    name: 'XX公司云资源池扩容技术规范书_2026.docx',
+    name: '河南电信云资源池扩容技术规范书_2026.docx',
     rate: 34,
     leftBlocks: [
       { text: '本项目建设5G核心网NFV基础设施平台，支持网络功能虚拟化，实现计算、存储、网络资源的统一管理与动态调度，满足5G网络对超低时延、高可靠性的承载需求。', level: 'match' },
@@ -2042,16 +2012,14 @@ function renderInlineCompareMain(compareDocs, targetName, rowTime) {
       [匹配${i + 1}] ${b.text}
     </div>
   `).join('');
-  const targetShow = targetName.length > 36 ? targetName.slice(0, 36) + '…' : targetName;
-  const compareShow = curr.name.length > 36 ? curr.name.slice(0, 36) + '…' : curr.name;
   colsEl.innerHTML = `
     <div class="result-inline-col">
-      <div class="result-inline-col-title">目标 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(targetName)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(targetShow)}</button></div>
+      <div class="result-inline-col-title">目标 <span class="badge badge-blue">${escapeHtml(targetName.length > 36 ? targetName.slice(0, 36) + '…' : targetName)}</span></div>
       <div class="result-inline-note">${curr.leftBlocks.length} 段 · 标红/橙为疑似重复或相似</div>
       ${leftHtml}
     </div>
     <div class="result-inline-col">
-      <div class="result-inline-col-title">对比 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(curr.name)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(compareShow)}</button></div>
+      <div class="result-inline-col-title">对比 <span class="badge badge-blue">${escapeHtml(curr.name.length > 36 ? curr.name.slice(0, 36) + '…' : curr.name)}</span></div>
       <div class="result-inline-note">${curr.rightBlocks.length} 段与左侧对应</div>
       ${rightHtml}
     </div>
@@ -2418,6 +2386,7 @@ function showToast(msg) {
   setTimeout(() => { t.style.display = 'none'; }, 2800);
 }
 
+/** 下载查重报告 DOCX 样例（与页面同目录的静态文件） */
 /** OOXML 文本转义（正文 w:t） */
 function xmlEscapeText(s) {
   return String(s)
@@ -2425,16 +2394,6 @@ function xmlEscapeText(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-}
-
-/** 单行 OOXML 段落（与查重报告导出共用） */
-function ooxmlParagraphLine(text, bold, sz) {
-  if (text === '' && !bold && !sz) return '<w:p/>';
-  const rPr = [];
-  if (bold) rPr.push('<w:b/>');
-  if (sz) rPr.push(`<w:sz w:val="${sz}"/>`);
-  const pr = rPr.length ? `<w:rPr>${rPr.join('')}</w:rPr>` : '';
-  return `<w:p><w:r>${pr}<w:t xml:space="preserve">${xmlEscapeText(text)}</w:t></w:r></w:p>`;
 }
 
 function blockLevelLabelOOXML(level) {
@@ -2448,60 +2407,6 @@ const OOXML_CONTENT_TYPES = '<?xml version="1.0" encoding="UTF-8" standalone="ye
 const OOXML_RELS_ROOT = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>\n</Relationships>';
 
 const OOXML_DOC_RELS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
-
-/** 下载单篇文档时的本地文件名（演示占位 DOCX） */
-function sanitizeDownloadFilename(name) {
-  let s = String(name || 'document').trim();
-  if (!/\.docx$/i.test(s)) s += '.docx';
-  s = s.replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, '_');
-  return s || 'document.docx';
-}
-
-async function downloadResultDemoDocxButton(el) {
-  const name = el.getAttribute('data-doc-name');
-  if (!name) return;
-  await downloadResultDemoDocx(name);
-}
-
-/** 结果页：点击目标/对比文档名，下载与文件名一致的演示用 DOCX（实际系统可改为真实文件流） */
-async function downloadResultDemoDocx(displayName) {
-  const name = String(displayName || '').trim();
-  if (!name) return;
-  if (typeof JSZip === 'undefined') {
-    showToast('文档组件加载失败，请检查网络后重试');
-    return;
-  }
-  const inner =
-    ooxmlParagraphLine('技术规范书文档（演示下载）', true, 32) +
-    ooxmlParagraphLine('') +
-    ooxmlParagraphLine(`文件名：${name}`) +
-    ooxmlParagraphLine('') +
-    ooxmlParagraphLine('本文件为前端演示生成的占位 DOCX，实际系统应替换为从文稿库或对象存储拉取的真实文档二进制流。') +
-    ooxmlParagraphLine('') +
-    ooxmlParagraphLine(`生成时间：${new Date().toLocaleString('zh-CN', { hour12: false })}`);
-  const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <w:body>${inner}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body>
-</w:document>`;
-  const zip = new JSZip();
-  zip.file('[Content_Types].xml', OOXML_CONTENT_TYPES);
-  zip.file('_rels/.rels', OOXML_RELS_ROOT);
-  zip.file('word/_rels/document.xml.rels', OOXML_DOC_RELS);
-  zip.file('word/document.xml', docXml);
-  const blob = await zip.generateAsync({
-    type: 'blob',
-    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = sanitizeDownloadFilename(name);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  showToast('已开始下载：' + name);
-}
 
 /**
  * 下载文件名中的「简称」规则（非人工摘要名，仅作安全截断）：
@@ -2620,124 +2525,6 @@ async function downloadCheckReportDocx() {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
   showToast('报告已生成并下载');
-}
-
-function buildReportFilenameXls(target, compare, timeStr) {
-  const ta = sanitizeReportToken(target, 40);
-  const tc = sanitizeReportToken(compare, 40);
-  const tt = timeTokenFromSubmitTime(timeStr);
-  return `查重报告_${ta}_vs_${tc}_${tt}.xls`;
-}
-
-function escapeHtml(s) {
-  return String(s == null ? '' : s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function levelLabelForExcel(level) {
-  if (level === 'match') return '重复';
-  if (level === 'highlight') return '相似';
-  return '正常';
-}
-
-function levelClassForExcel(level) {
-  if (level === 'match') return 'dup';
-  if (level === 'highlight') return 'sim';
-  return '';
-}
-
-function buildCheckReportExcelHtml(p) {
-  const left = p.leftBlocks || [];
-  const right = p.rightBlocks || [];
-  const n = Math.max(left.length, right.length);
-  let rep = 0;
-  let sim = 0;
-  left.forEach(b => {
-    if (b.level === 'match') rep++;
-    else if (b.level === 'highlight') sim++;
-  });
-  const rows = [];
-  for (let i = 0; i < n; i++) {
-    const L = left[i];
-    const R = right[i];
-    const leftLevel = L && L.level;
-    const rightLevel = R && R.level;
-    const hasRisk = leftLevel === 'match' || leftLevel === 'highlight' || rightLevel === 'match' || rightLevel === 'highlight';
-    if (!hasRisk) continue;
-    rows.push(
-      `<tr>` +
-      `<td>${i + 1}</td>` +
-      `<td class="${levelClassForExcel(leftLevel)}">${escapeHtml(levelLabelForExcel(leftLevel))}</td>` +
-      `<td>${escapeHtml(L ? L.text : '（无对应段落）')}</td>` +
-      `<td class="${levelClassForExcel(rightLevel)}">${escapeHtml(levelLabelForExcel(rightLevel))}</td>` +
-      `<td>${escapeHtml(R ? R.text : '（无对应段落）')}</td>` +
-      `</tr>`
-    );
-  }
-
-  return `<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <style>
-    body { font-family: "Microsoft YaHei", Arial, sans-serif; font-size: 12px; color: #333; }
-    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-    th, td { border: 1px solid #d9d9d9; padding: 6px 8px; vertical-align: top; word-break: break-all; }
-    th { background: #f5f7fa; }
-    .meta td { width: 25%; }
-    .meta .meta-title { text-align: center; font-size: 16px; font-weight: 700; background: #f5f7fa; }
-    .dup { background: #ffebee; color: #c62828; font-weight: 700; }
-    .sim { background: #fff3e0; color: #e65100; font-weight: 700; }
-  </style>
-</head>
-<body>
-  <table class="meta">
-    <tr><td colspan="4" class="meta-title">技术规范书查重报告</td></tr>
-    <tr><td>任务发起时间</td><td>${escapeHtml(p.time)}</td><td>查重耗时</td><td>${escapeHtml(p.durationSec)} 秒</td></tr>
-    <tr><td>综合重复率</td><td>${escapeHtml(p.rate)}%</td><td>重复 / 相似段落</td><td style="mso-number-format:'\@';">${rep}/${sim}</td></tr>
-    <tr><td>目标文档</td><td colspan="3">${escapeHtml(p.target)}</td></tr>
-    <tr><td>历史对比文档</td><td colspan="3">${escapeHtml(p.compareName)}</td></tr>
-  </table>
-  <br/>
-  <table>
-    <thead>
-      <tr>
-        <th style="width:56px;">序号</th>
-        <th style="width:72px;">目标类型</th>
-        <th>目标文档摘录</th>
-        <th style="width:72px;">对比类型</th>
-        <th>对比文档摘录</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows.join('')}
-    </tbody>
-  </table>
-</body>
-</html>`;
-}
-
-function downloadCheckReportExcel() {
-  const payload = window._exportReportPayload;
-  if (!payload || !Array.isArray(payload.leftBlocks)) {
-    showToast('请先打开一条已完成记录的查重结果');
-    return;
-  }
-  const html = buildCheckReportExcelHtml(payload);
-  const blob = new Blob(['\uFEFF', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = buildReportFilenameXls(payload.target, payload.compareName, payload.time);
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
-  showToast('Excel报告已生成并下载');
 }
 
 function goBack() {
