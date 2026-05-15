@@ -1453,6 +1453,45 @@
     .tool-btn:hover { background: #f5f5f5; }
     .tool-btn.active { background: #f0f5ff; color: #1890ff; }
     .tool-btn .ico { font-size: 17px; line-height: 1; }
+    .tool-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      color: rgba(0, 0, 0, 0.35);
+    }
+    .tool-btn:disabled:hover { background: #fff; }
+
+    .doc-load-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(250, 251, 252, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .doc-load-overlay.show { display: flex; }
+    .doc-load-card {
+      min-width: 240px;
+      padding: 24px 32px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.12);
+      border: 1px solid #e8ecf1;
+      text-align: center;
+    }
+    .doc-load-spinner {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 14px;
+      border: 3px solid #e8ecf1;
+      border-top-color: #126dff;
+      border-radius: 50%;
+      animation: docLoadSpin 0.85s linear infinite;
+    }
+    @keyframes docLoadSpin { to { transform: rotate(360deg); } }
+    .doc-load-text { font-size: 14px; color: #4b5563; line-height: 1.5; }
 
     .toast {
       position: fixed;
@@ -1861,7 +1900,7 @@
         <button type="button" class="tool-btn" onclick="showToast('金句素材')"><span class="ico">✨</span>金句素材</button>
         <button type="button" class="tool-btn" onclick="showToast('范文素材')"><span class="ico">📑</span>范文素材</button>
         <button type="button" class="tool-btn" id="toolBtnReview" aria-pressed="false" title="智能审校"><span class="ico">✓</span>智能审校</button>
-        <button type="button" class="tool-btn" onclick="showToast('全文溯源')"><span class="ico">🔗</span>全文溯源</button>
+        <button type="button" class="tool-btn" id="toolBtnTrace" onclick="showToast('全文溯源')"><span class="ico">🔗</span>全文溯源</button>
         <button type="button" class="tool-btn" onclick="showToast('模版套用')"><span class="ico">📋</span>模版套用</button>
         <button type="button" class="tool-btn" onclick="showToast('历史报告')"><span class="ico">📊</span>历史报告</button>
         <button type="button" class="tool-btn" onclick="showToast('历史版本')"><span class="ico">🕐</span>历史版本</button>
@@ -2012,6 +2051,13 @@
 
   <div class="toast" id="toast"></div>
 
+  <div class="doc-load-overlay" id="docLoadOverlay" aria-hidden="true" role="status" aria-live="polite">
+    <div class="doc-load-card">
+      <div class="doc-load-spinner" aria-hidden="true"></div>
+      <div class="doc-load-text">正在加载文档，请稍候…</div>
+    </div>
+  </div>
+
   <script>
     (function () {
       var raw = sessionStorage.getItem('editDocPayload');
@@ -2026,6 +2072,32 @@
         location.href = 'index.html';
         return;
       }
+
+      var docLoadOverlay = document.getElementById('docLoadOverlay');
+      function showDocLoadOverlay() {
+        if (docLoadOverlay) {
+          docLoadOverlay.classList.add('show');
+          docLoadOverlay.setAttribute('aria-hidden', 'false');
+        }
+      }
+      function hideDocLoadOverlay() {
+        if (docLoadOverlay) {
+          docLoadOverlay.classList.remove('show');
+          docLoadOverlay.setAttribute('aria-hidden', 'true');
+        }
+      }
+      function setHeavyToolsBlocked(blocked) {
+        var reviewBtn = document.getElementById('toolBtnReview');
+        var traceBtn = document.getElementById('toolBtnTrace');
+        [reviewBtn, traceBtn].forEach(function (btn) {
+          if (!btn) return;
+          btn.disabled = !!blocked;
+        });
+      }
+      showDocLoadOverlay();
+      var wcBootEl = document.getElementById('wcDisplay');
+      if (wcBootEl) wcBootEl.textContent = '…';
+      setHeavyToolsBlocked(true);
 
       function escapeHtml(s) {
         return String(s == null ? '' : s)
@@ -2229,11 +2301,16 @@
       }
 
       function updateWc() {
-        document.getElementById('wcDisplay').textContent = countChars();
+        var el = document.getElementById('wcDisplay');
+        if (el) el.textContent = countChars();
       }
 
       document.getElementById('editor').addEventListener('input', updateWc);
-      updateWc();
+      setTimeout(function () {
+        updateWc();
+        setHeavyToolsBlocked(false);
+        hideDocLoadOverlay();
+      }, 1000);
 
       (function initAiBubble() {
         var editorEl = document.getElementById('editor');
