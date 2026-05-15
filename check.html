@@ -2092,7 +2092,7 @@ function renderResultDetail(id) {
   if (metaEl) metaEl.textContent = `发起 ${row.time} · 耗时 ${12 + (rid % 30)}秒 · ${row.target} — ${compareLabel}`;
   if (maxRateEl) maxRateEl.textContent = `${maxRate}%`;
   if (matchCountEl) matchCountEl.textContent = String(totalMatch);
-  if (blockCountEl) blockCountEl.textContent = String(targetBlocks);
+  if (blockCountEl) blockCountEl.textContent = (targetBlocks / 0.34).toFixed(2);
   const colsEl = document.getElementById('resultInlineCols');
   if (colsEl) {
     colsEl.innerHTML = `
