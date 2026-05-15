@@ -1961,7 +1961,7 @@ const inlineCompareTemplates = [
       { text: '核心网设备采用分布式架构，支持多数据中心容灾部署，主备切换时延小于50ms，整体平台设计满足运营商级电信标准。', level: 'normal' },
       { text: '控制面与用户面分离部署，控制面AMF/SMF/UPF独立部署，支持多业务切片，每切片提供独立的QoS保障策略及差异化SLA服务能力。', level: 'match' },
       { text: '系统需支持容器化部署，基于Kubernetes集群编排，提供自动扩缩容能力，保障关键网络功能99.999%的高可用性。', level: 'highlight' },
-      { text: '网络安全防护满足等保三级要求，部署防火墙、入侵检测系统，对管理面流量进行TLS 1.3加密传输。', level: 'match' },
+      { text: '网络安全防护满足等保三级要求，部署防火墙、入侵检测系统，对管理面流量进行TLS 1.3加密传输。', level: 'normal' },
       { text: '设备供货周期不超过90天，到货安装完成后提供不少于12个月的质保服务，质保期内7×24小时响应。', level: 'highlight' }
     ],
     rightBlocks: [
@@ -2007,13 +2007,21 @@ function getInlineTemplate(row) {
   return inlineCompareTemplates[idx];
 }
 
-/** 与结果弹窗一致：重复段落数 ≤ 目标侧段落数，重复率 = 第二项 / 第三项 ×100% */
+/** 目标侧需复核段数：与下方对照区标红/橙一致（match + highlight，不含 normal） */
+function countFlaggedTargetBlocks(leftBlocks) {
+  if (!Array.isArray(leftBlocks)) return 0;
+  return leftBlocks.filter(function (b) {
+    return b && b.level && b.level !== 'normal';
+  }).length;
+}
+
+/** 第二格=标红/相似段数，第三格=目标侧总段数；第一格=第二÷第三×100%，且第二≤第三 */
 function deriveDuplicateViewStats(rowLike) {
   const rid = Math.abs(Number(rowLike && rowLike.id)) || 0;
   const tpl = getInlineTemplate(rowLike || { id: 0 });
   const targetBlocks = tpl.leftBlocks.length;
-  const rawMatch = 4 + (rid % 5);
-  const matchCount = Math.min(Math.max(0, rawMatch), targetBlocks);
+  var matchCount = countFlaggedTargetBlocks(tpl.leftBlocks);
+  if (matchCount > targetBlocks) matchCount = targetBlocks;
   const ratePct = targetBlocks > 0 ? Number(((matchCount / targetBlocks) * 100).toFixed(2)) : 0;
   return { tpl, rid, matchCount, targetBlocks, ratePct };
 }
@@ -2038,7 +2046,7 @@ function renderInlineCompareTabs(compareDocs) {
   host.innerHTML = compareDocs.map((d, i) => `
     <div class="inline-compare-tab ${i === activeInlineCompareIndex ? 'active' : ''}" onclick="setInlineCompareDoc(${i})">
       <div class="inline-compare-name" title="${escapeHtmlAttr(d.name)}">${d.name}</div>
-      <div class="inline-compare-meta">重复 ${d.matchCount} 段</div>
+      <div class="inline-compare-meta">重复/相似 ${d.matchCount} 段</div>
       <div class="inline-compare-rate ${getRateClass(d.rate)}">${d.rate}%</div>
     </div>
   `).join('');
@@ -2063,15 +2071,17 @@ function renderInlineCompareMain(compareDocs, targetName, rowTime) {
   `).join('');
   const targetShow = targetName.length > 36 ? targetName.slice(0, 36) + '…' : targetName;
   const compareShow = curr.name.length > 36 ? curr.name.slice(0, 36) + '…' : curr.name;
+  const flaggedLeft = countFlaggedTargetBlocks(curr.leftBlocks);
+  const flaggedRight = countFlaggedTargetBlocks(curr.rightBlocks);
   colsEl.innerHTML = `
     <div class="result-inline-col">
       <div class="result-inline-col-title">目标 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(targetName)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(targetShow)}</button></div>
-      <div class="result-inline-note">${curr.leftBlocks.length} 段 · 标红/橙为疑似重复或相似</div>
+      <div class="result-inline-note">共 ${curr.leftBlocks.length} 段 · 其中 ${flaggedLeft} 段标为重复/相似（与上方统计一致）</div>
       ${leftHtml}
     </div>
     <div class="result-inline-col">
       <div class="result-inline-col-title">对比 <button type="button" class="badge badge-blue badge-doc-download" data-doc-name="${escapeHtmlAttr(curr.name)}" onclick="downloadResultDemoDocxButton(this)" title="点击下载该文档（演示占位 DOCX）">${escapeHtml(compareShow)}</button></div>
-      <div class="result-inline-note">${curr.rightBlocks.length} 段与左侧对应</div>
+      <div class="result-inline-note">共 ${curr.rightBlocks.length} 段 · 其中 ${flaggedRight} 段标为重复/相似</div>
       ${rightHtml}
     </div>
   `;
