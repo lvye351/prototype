@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智能写作系统 · PPT 编辑</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px; color: rgba(0,0,0,.85); background: #f0f2f5;
+    }
+    .topbar {
+      height: 52px; background: #fff; border-bottom: 1px solid #e8ecf0;
+      display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0;
+    }
+    .topbar-back {
+      border: none; background: none; cursor: pointer; font-size: 18px; color: #666; padding: 4px 8px;
+    }
+    .topbar-title {
+      flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: #1f2937;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .topbar-actions { display: flex; gap: 8px; }
+    .btn {
+      border: none; border-radius: 6px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-family: inherit;
+    }
+    .btn-outline { background: #fff; color: #333; border: 1px solid #d9d9d9; }
+    .btn-primary { background: #1890ff; color: #fff; }
+    .btn-primary:hover { background: #40a9ff; }
+
+    .workspace { display: flex; height: calc(100vh - 52px); min-height: 0; }
+
+    .thumb-pane {
+      width: 168px; flex-shrink: 0; background: #eef1f5; border-right: 1px solid #dde3ea;
+      overflow-y: auto; padding: 10px 8px;
+    }
+    .thumb-item {
+      position: relative; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent;
+      border-radius: 4px; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      aspect-ratio: 16/9; overflow: hidden;
+    }
+    .thumb-item.active { border-color: #1890ff; }
+    .thumb-num {
+      position: absolute; left: 4px; top: 4px; z-index: 2;
+      font-size: 10px; color: #fff; background: rgba(0,0,0,.45); padding: 1px 5px; border-radius: 3px;
+    }
+    .thumb-mini { transform: scale(0.22); transform-origin: top left; width: 454%; height: 454%; pointer-events: none; }
+
+    .center-col { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #e8ecf1; }
+    .fmt-bar {
+      flex-shrink: 0; background: #fff; border-bottom: 1px solid #e8ecf0;
+      padding: 6px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .fmt-bar .ai-tag {
+      width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #7c5cff, #2c7bfe);
+      color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+    }
+    .fmt-bar select, .fmt-bar input[type="text"] {
+      border: 1px solid #d9d9d9; border-radius: 4px; padding: 4px 8px; font-size: 12px; height: 28px;
+    }
+    .fmt-btn {
+      width: 28px; height: 28px; border: 1px solid #e8e8e8; background: #fff; border-radius: 4px;
+      cursor: pointer; font-size: 13px;
+    }
+    .fmt-btn.on { background: #e6f4ff; border-color: #91caff; color: #1890ff; }
+
+    .stage-wrap {
+      flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;
+      padding: 20px; position: relative; overflow: auto;
+    }
+    .stage {
+      width: min(960px, 100%); aspect-ratio: 16/9; background: #fff;
+      box-shadow: 0 8px 32px rgba(15,23,42,.12); position: relative; overflow: hidden;
+      transform-origin: center center;
+    }
+    .slide-cover {
+      height: 100%; background: linear-gradient(105deg, #fff 42%, #fff 42%, #f8f8f8 48%, #c41e3a 52%, #a01830 100%);
+      display: flex; flex-direction: column; justify-content: center; padding: 8% 10% 8% 8%;
+    }
+    .slide-cover .sub { font-size: clamp(12px, 1.4vw, 16px); color: #333; margin-bottom: 8px; }
+    .slide-cover .main-title {
+      font-size: clamp(18px, 2.2vw, 28px); font-weight: 700; color: #1a1a1a; line-height: 1.45; max-width: 72%;
+    }
+    .slide-cover .meta { margin-top: auto; font-size: clamp(11px, 1.2vw, 14px); color: #555; }
+
+    .slide-toc {
+      height: 100%; padding: 10% 12%; background: #fff;
+      background-image: linear-gradient(135deg, transparent 70%, rgba(196,30,58,.08) 100%);
+    }
+    .slide-toc h2 { font-size: clamp(20px, 2.5vw, 32px); color: #c41e3a; margin-bottom: 12%; font-weight: 700; }
+    .slide-toc .toc-list { font-size: clamp(14px, 1.6vw, 20px); line-height: 2; color: #333; }
+
+    .slide-content {
+      height: 100%; display: flex; flex-direction: column; background: #fff;
+    }
+    .slide-content .head {
+      background: linear-gradient(90deg, #c41e3a, #d4384a); color: #fff;
+      padding: 10px 16px; font-size: clamp(14px, 1.5vw, 18px); font-weight: 600;
+    }
+    .slide-content .body {
+      flex: 1; padding: 16px 20px; overflow: auto; font-size: clamp(11px, 1.1vw, 14px); line-height: 1.65; color: #333;
+    }
+    .slide-block {
+      margin-bottom: 10px; outline: none; border-radius: 2px; padding: 2px 4px;
+      min-height: 1.4em;
+    }
+    .slide-block:focus { background: rgba(24,144,255,.06); box-shadow: 0 0 0 1px #91caff; }
+    .slide-block.title-block { font-weight: 600; font-size: 1.05em; }
+
+    .zoom-bar {
+      flex-shrink: 0; height: 40px; background: #fff; border-top: 1px solid #e8ecf0;
+      display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; color: #666;
+    }
+    .zoom-bar button {
+      width: 28px; height: 28px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer;
+    }
+
+    .right-col { width: 280px; flex-shrink: 0; display: flex; background: #f7f9fc; border-left: 1px solid #e8ecf0; }
+    .props-panel {
+      flex: 1; min-width: 0; padding: 12px; overflow-y: auto; display: none;
+    }
+    .props-panel.show { display: block; }
+    .props-panel h3 { font-size: 14px; margin-bottom: 12px; color: #1f2937; }
+    .prop-row { margin-bottom: 10px; }
+    .prop-row label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+    .prop-row input {
+      width: 100%; border: 1px solid #d9d9d9; border-radius: 4px; padding: 5px 8px; font-size: 12px;
+    }
+    .prop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .layer-btns { display: flex; gap: 6px; margin-top: 6px; }
+    .layer-btns button { flex: 1; padding: 6px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer; font-size: 11px; }
+
+    .tool-rail {
+      width: 64px; flex-shrink: 0; border-left: 1px solid #e8ecf0; background: #fafafa;
+      display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 4px; overflow-y: auto;
+    }
+    .tool-btn {
+      width: 52px; min-height: 52px; border: none; border-radius: 8px; background: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,.06); cursor: pointer; font-size: 10px; color: #333;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 4px 2px;
+      font-family: inherit;
+    }
+    .tool-btn .ico { font-size: 16px; }
+    .tool-btn:hover { background: #f0f5ff; }
+    .tool-btn.active { background: #e6f4ff; color: #1890ff; }
+    .tool-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .ai-bubble {
+      position: absolute; z-index: 50; display: none; width: min(420px, calc(100% - 40px));
+      background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.18);
+      border: 1px solid #e8ecf0; padding: 10px 12px;
+    }
+    .ai-bubble.show { display: block; }
+    .ai-bubble-hint { font-size: 11px; color: #888; line-height: 1.5; margin-bottom: 8px; }
+    .ai-bubble-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .ai-shortcut {
+      border: 1px solid #e8e8e8; background: #fafafa; border-radius: 6px; padding: 4px 10px;
+      font-size: 12px; cursor: pointer; font-family: inherit;
+    }
+    .ai-shortcut:hover { border-color: #91caff; color: #1890ff; }
+    .ai-shortcut.purple { color: #722ed1; }
+    .ai-bubble textarea {
+      width: 100%; min-height: 56px; border: 1px solid #e8e8e8; border-radius: 6px; padding: 8px;
+      font-size: 13px; resize: vertical; font-family: inherit;
+    }
+    .ai-bubble-foot { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .ai-send {
+      border: none; background: linear-gradient(90deg, #5b9bff, #2c7bfe); color: #fff;
+      border-radius: 6px; padding: 6px 14px; font-size: 12px; cursor: pointer;
+    }
+
+    .doc-load-overlay {
+      position: fixed; inset: 0; z-index: 300; background: rgba(250,251,252,.92);
+      display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px);
+    }
+    .doc-load-overlay.show { display: flex; }
+    .doc-load-card {
+      text-align: center; padding: 28px 36px; background: #fff; border-radius: 12px;
+      box-shadow: 0 12px 36px rgba(15,23,42,.12); border: 1px solid #e8ecf1;
+    }
+    .doc-load-spinner {
+      width: 36px; height: 36px; margin: 0 auto 14px; border: 3px solid #e8ecf1;
+      border-top-color: #1890ff; border-radius: 50%; animation: spin .85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.78); color: #fff; padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; display: none; z-index: 400;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button type="button" class="topbar-back" onclick="goBack()" title="返回">←</button>
+    <div class="topbar-title" id="docTitle">PPT 文稿</div>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-outline" onclick="showToast('导出（原型）')">导出</button>
+      <button type="button" class="btn btn-primary" onclick="savePpt()">保存</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside class="thumb-pane" id="thumbPane" aria-label="幻灯片缩略图"></aside>
+
+    <section class="center-col">
+      <div class="fmt-bar">
+        <span class="ai-tag">AI</span>
+        <select id="fmtFont" title="字体"><option>微软雅黑</option><option>宋体</option></select>
+        <select id="fmtSize" title="字号"><option>12</option><option selected>16</option><option>20</option><option>24</option></select>
+        <input type="text" id="fmtColor" value="#000000" title="颜色" style="width:72px" />
+        <button type="button" class="fmt-btn" title="加粗" data-cmd="bold"><strong>B</strong></button>
+        <button type="button" class="fmt-btn" title="倾斜" data-cmd="italic"><em>I</em></button>
+        <button type="button" class="fmt-btn" title="下划线" data-cmd="underline"><u>U</u></button>
+      </div>
+
+      <div class="stage-wrap" id="stageWrap">
+        <div class="stage" id="stage" style="transform: scale(0.86);"></div>
+        <div class="ai-bubble" id="aiBubble">
+          <div class="ai-bubble-hint">对已选文本输入指令，或使用快捷按钮；支持润色、改写、扩写、续写、缩写。</div>
+          <div class="ai-bubble-tools">
+            <button type="button" class="ai-shortcut" data-ai="润色">润色</button>
+            <button type="button" class="ai-shortcut" data-ai="改写">改写</button>
+            <button type="button" class="ai-shortcut" data-ai="扩写">扩写</button>
+            <button type="button" class="ai-shortcut" data-ai="续写">续写</button>
+            <button type="button" class="ai-shortcut" data-ai="缩写">缩写</button>
+            <button type="button" class="ai-shortcut purple" data-ai="出处查询">出处查询</button>
+          </div>
+          <textarea id="aiBubbleText" placeholder="输入 AI 指令…"></textarea>
+          <div class="ai-bubble-foot"><button type="button" class="ai-send" id="aiBubbleSend">发送</button></div>
+        </div>
+      </div>
+
+      <div class="zoom-bar">
+        <button type="button" id="zoomOut" aria-label="缩小">−</button>
+        <span id="zoomLabel">86%</span>
+        <button type="button" id="zoomIn" aria-label="放大">+</button>
+      </div>
+    </section>
+
+    <aside class="right-col">
+      <div class="props-panel" id="propsPanel">
+        <h3>文本框设置</h3>
+        <div class="prop-row"><label>宽度</label><input type="number" id="propW" value="284" /></div>
+        <div class="prop-row"><label>高度</label><input type="number" id="propH" value="221" /></div>
+        <div class="prop-grid">
+          <div class="prop-row"><label>左边距</label><input type="number" id="propL" value="840" /></div>
+          <div class="prop-row"><label>上边距</label><input type="number" id="propT" value="189" /></div>
+        </div>
+        <div class="prop-row"><label>层级</label>
+          <div class="layer-btns">
+            <button type="button" onclick="showToast('置于顶层')">⬆</button>
+            <button type="button" onclick="showToast('上移一层')">↑</button>
+            <button type="button" onclick="showToast('下移一层')">↓</button>
+            <button type="button" onclick="showToast('置于底层')">⬇</button>
+          </div>
+        </div>
+      </div>
+      <nav class="tool-rail" aria-label="工具">
+        <button type="button" class="tool-btn" onclick="showToast('文本框')"><span class="ico">T</span>文本框</button>
+        <button type="button" class="tool-btn" onclick="showToast('形状')"><span class="ico">◇</span>形状</button>
+        <button type="button" class="tool-btn" onclick="showToast('表格')"><span class="ico">▦</span>表格</button>
+        <button type="button" class="tool-btn" onclick="showToast('图表')"><span class="ico">📊</span>图表</button>
+        <button type="button" class="tool-btn" onclick="showToast('图标')"><span class="ico">★</span>图标</button>
+        <button type="button" class="tool-btn" onclick="showToast('图片')"><span class="ico">🖼</span>图片</button>
+        <button type="button" class="tool-btn" onclick="showToast('边写边搜')"><span class="ico">🔍</span>边写边搜</button>
+        <button type="button" class="tool-btn" id="toolBtnReview" disabled title="解析完成后可用"><span class="ico">✓</span>智能审校</button>
+        <button type="button" class="tool-btn" id="toolBtnTrace" disabled title="解析完成后可用"><span class="ico">🔗</span>全文溯源</button>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="doc-load-overlay show" id="docLoadOverlay" aria-live="polite">
+    <div class="doc-load-card">
+      <div class="doc-load-spinner"></div>
+      <div>正在解析 PPT，请稍候…</div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+  <script src="assets/pptx-parse.js"></script>
+  <script>
+(function () {
+  var DEFAULT_DECK_URL = 'assets/ppt-henan-ai-deck.json';
+  var LOAD_MS = 3000;
+  var zoom = 0.86;
+  var deck = null;
+  var activeIndex = 0;
+  var docMeta = {};
+  var lastRange = null;
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function () { t.style.display = 'none'; }, 2200);
+  }
+  window.showToast = showToast;
+
+  function goBack() {
+    if (history.length > 1) history.back();
+    else location.href = 'index.html';
+  }
+  window.goBack = goBack;
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function slideKind(slide) {
+    if (slide.index === 1) return 'cover';
+    if (slide.index === 3 || /目录/.test(slide.title || '')) return 'toc';
+    return 'content';
+  }
+
+  function renderSlideInner(slide) {
+    var kind = slideKind(slide);
+    var paras = slide.paragraphs && slide.paragraphs.length ? slide.paragraphs.slice() : [slide.title || ''];
+    if (kind === 'cover') {
+      var sub = paras[0] || '';
+      var main = paras.find(function (p) { return p.length > 20; }) || paras[paras.length - 1] || sub;
+      var meta = paras.find(function (p) { return /\d{4}年/.test(p); }) || paras[1] || '';
+      return '<div class="slide-cover">' +
+        '<div class="sub slide-block" contenteditable="true" data-idx="0">' + escapeHtml(sub) + '</div>' +
+        '<div class="main-title slide-block" contenteditable="true" data-idx="1">' + escapeHtml(main) + '</div>' +
+        '<div class="meta slide-block" contenteditable="true" data-idx="2">' + escapeHtml(meta) + '</div>' +
+        '</div>';
+    }
+    if (kind === 'toc') {
+      var items = paras.filter(function (p) { return p !== '目录' && !/^\d+$/.test(p); });
+      var list = items.map(function (p, i) {
+        return '<div class="slide-block" contenteditable="true" data-idx="' + i + '">' + escapeHtml(p) + '</div>';
+      }).join('');
+      return '<div class="slide-toc"><h2 class="slide-block" contenteditable="true" data-idx="0">目录</h2><div class="toc-list">' + list + '</div></div>';
+    }
+    var head = paras[0] || slide.title || '';
+    var body = paras.slice(1).map(function (p, i) {
+      var cls = i === 0 ? 'slide-block title-block' : 'slide-block';
+      return '<div class="' + cls + '" contenteditable="true" data-idx="' + (i + 1) + '">' + escapeHtml(p) + '</div>';
+    }).join('');
+    return '<div class="slide-content"><div class="head slide-block" contenteditable="true" data-idx="0">' + escapeHtml(head) + '</div><div class="body">' + body + '</div></div>';
+  }
+
+  function renderThumbMini(slide) {
+    return '<div class="thumb-mini">' + renderSlideInner(slide) + '</div>';
+  }
+
+  function collectSlideFromDom(slideEl) {
+    var blocks = slideEl.querySelectorAll('.slide-block');
+    var paras = [];
+    blocks.forEach(function (b) { paras.push((b.innerText || '').trim()); });
+    return paras.filter(Boolean);
+  }
+
+  function syncActiveSlideToDeck() {
+    if (!deck || !deck.slides[activeIndex]) return;
+    var stage = document.getElementById('stage');
+    var paras = collectSlideFromDom(stage);
+    var s = deck.slides[activeIndex];
+    s.paragraphs = paras.length ? paras : s.paragraphs;
+    s.title = paras[0] || s.title;
+    s.body = paras.slice(1, 8).join('\n');
+  }
+
+  function renderStage() {
+    var slide = deck.slides[activeIndex];
+    var stage = document.getElementById('stage');
+    stage.innerHTML = renderSlideInner(slide);
+    bindStageBlocks();
+    document.querySelectorAll('.thumb-item').forEach(function (el, i) {
+      el.classList.toggle('active', i === activeIndex);
+    });
+  }
+
+  function renderThumbs() {
+    var pane = document.getElementById('thumbPane');
+    pane.innerHTML = deck.slides.map(function (slide, i) {
+      return '<div class="thumb-item' + (i === activeIndex ? ' active' : '') + '" data-i="' + i + '">' +
+        '<span class="thumb-num">' + slide.index + '</span>' + renderThumbMini(slide) + '</div>';
+    }).join('');
+    pane.querySelectorAll('.thumb-item').forEach(function (el) {
+      el.addEventListener('click', function () {
+        syncActiveSlideToDeck();
+        activeIndex = parseInt(el.getAttribute('data-i'), 10) || 0;
+        renderStage();
+        renderThumbs();
+      });
+    });
+  }
+
+  function positionAiBubble() {
+    var bubble = document.getElementById('aiBubble');
+    var sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) {
+      bubble.classList.remove('show');
+      return;
+    }
+    var range = sel.getRangeAt(0);
+    var stage = document.getElementById('stage');
+    if (!stage.contains(range.commonAncestorContainer)) {
+      bubble.classList.remove('show');
+      return;
+    }
+    lastRange = range.cloneRange();
+    var rect = range.getBoundingClientRect();
+    var wrap = document.getElementById('stageWrap').getBoundingClientRect();
+    var top = rect.bottom - wrap.top + 8;
+    var left = Math.min(Math.max(rect.left - wrap.left, 8), wrap.width - 420);
+    bubble.style.top = top + 'px';
+    bubble.style.left = left + 'px';
+    bubble.classList.add('show');
+  }
+
+  function bindStageBlocks() {
+    var stage = document.getElementById('stage');
+    stage.querySelectorAll('.slide-block').forEach(function (block) {
+      block.addEventListener('focus', function () {
+        document.getElementById('propsPanel').classList.add('show');
+      });
+      block.addEventListener('mouseup', positionAiBubble);
+      block.addEventListener('keyup', positionAiBubble);
+    });
+  }
+
+  function applyAiCommand(cmd) {
+    if (!lastRange) { showToast('请先选中幻灯片中的文字'); return; }
+    var text = lastRange.toString();
+    if (!text.trim()) { showToast('请先选中文字'); return; }
+    var instr = (document.getElementById('aiBubbleText').value || '').trim();
+    var demo = text;
+    if (cmd === '润色') demo = text.replace(/。$/, '') + '（表述已优化）。';
+    else if (cmd === '改写') demo = '【改写】' + text;
+    else if (cmd === '扩写') demo = text + '。此外，本段内容可结合项目背景进一步展开说明。';
+    else if (cmd === '续写') demo = text + '后续将按采购流程推进实施与验收。';
+    else if (cmd === '缩写') demo = text.length > 24 ? text.slice(0, 22) + '…' : text;
+    else if (cmd === '出处查询') { showToast('出处查询（原型）：' + text.slice(0, 20)); return; }
+    if (instr) demo = '【' + cmd + '·' + instr + '】' + demo;
+
+    var node = lastRange.startContainer;
+    if (node.nodeType === 3) node = node.parentNode;
+    var block = node.closest && node.closest('.slide-block');
+    if (block) {
+      block.textContent = demo;
+      syncActiveSlideToDeck();
+      showToast('已' + cmd);
+      document.getElementById('aiBubble').classList.remove('show');
+    }
+  }
+
+  function setZoom(z) {
+    zoom = Math.min(1.2, Math.max(0.5, z));
+    document.getElementById('stage').style.transform = 'scale(' + zoom + ')';
+    document.getElementById('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+  }
+
+  function finishBoot() {
+    document.getElementById('toolBtnReview').disabled = false;
+    document.getElementById('toolBtnTrace').disabled = false;
+    document.getElementById('docLoadOverlay').classList.remove('show');
+    showToast('已解析 ' + deck.slideCount + ' 页，可局部编辑并使用 AI 润色');
+  }
+
+  function initDeck(data) {
+    deck = data;
+    docMeta.title = data.title || docMeta.name || 'PPT 文稿';
+    document.getElementById('docTitle').textContent = docMeta.title;
+    activeIndex = 0;
+    renderThumbs();
+    renderStage();
+    setTimeout(finishBoot, LOAD_MS);
+  }
+
+  function loadDeck() {
+    var rawPayload = sessionStorage.getItem('editDocPayload');
+    if (!rawPayload) { location.href = 'index.html'; return; }
+    try { docMeta = JSON.parse(rawPayload); } catch (e) { location.href = 'index.html'; return; }
+
+    var cached = sessionStorage.getItem('pptEditDeck');
+    if (cached) {
+      try { initDeck(JSON.parse(cached)); return; } catch (e) { sessionStorage.removeItem('pptEditDeck'); }
+    }
+
+    var b64 = sessionStorage.getItem('pptEditFileBase64');
+    var b64name = sessionStorage.getItem('pptEditFileName') || docMeta.name || 'upload.pptx';
+    if (b64 && typeof parsePptxArrayBuffer === 'function') {
+      parsePptxArrayBuffer(pptxArrayBufferFromBase64(b64), b64name).then(function (d) {
+        sessionStorage.setItem('pptEditDeck', JSON.stringify(d));
+        sessionStorage.removeItem('pptEditFileBase64');
+        initDeck(d);
+      }).catch(function () {
+        fetchDefaultDeck();
+      });
+      return;
+    }
+    fetchDefaultDeck();
+  }
+
+  function fetchDefaultDeck() {
+    fetch(DEFAULT_DECK_URL).then(function (r) { return r.json(); }).then(function (d) {
+      sessionStorage.setItem('pptEditDeck', JSON.stringify(d));
+      initDeck(d);
+    }).catch(function () {
+      showToast('解析数据加载失败');
+      document.getElementById('docLoadOverlay').classList.remove('show');
+    });
+  }
+
+  function savePpt() {
+    syncActiveSlideToDeck();
+    sessionStorage.setItem('pptEditDeck', JSON.stringify(deck));
+    sessionStorage.setItem('editDocPayload', JSON.stringify(docMeta));
+    showToast('已保存（原型）');
+  }
+  window.savePpt = savePpt;
+
+  document.getElementById('zoomIn').addEventListener('click', function () { setZoom(zoom + 0.05); });
+  document.getElementById('zoomOut').addEventListener('click', function () { setZoom(zoom - 0.05); });
+  document.querySelectorAll('.fmt-btn[data-cmd]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.execCommand(btn.getAttribute('data-cmd'), false, null);
+      btn.classList.toggle('on');
+    });
+  });
+  document.querySelectorAll('.ai-shortcut').forEach(function (btn) {
+    btn.addEventListener('click', function () { applyAiCommand(btn.getAttribute('data-ai')); });
+  });
+  document.getElementById('aiBubbleSend').addEventListener('click', function () {
+    applyAiCommand((document.getElementById('aiBubbleText').value || '指令').slice(0, 8));
+  });
+  document.getElementById('toolBtnReview').addEventListener('click', function () { showToast('智能审校（原型）'); });
+  document.getElementById('toolBtnTrace').addEventListener('click', function () { showToast('全文溯源（原型）'); });
+  document.addEventListener('mousedown', function (e) {
+    var bubble = document.getElementById('aiBubble');
+    if (!bubble.contains(e.target) && !document.getElementById('stage').contains(e.target)) {
+      bubble.classList.remove('show');
+    }
+  });
+
+  loadDeck();
+})();
+  </script>
+</body>
+</html>

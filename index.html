@@ -621,14 +621,12 @@ function renderTable(data) {
       ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goCheck(' + d.id + ')">查重</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();editDoc(' + d.id + ')">编辑</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();addDocToKnowledgeBase(' + d.id + ')">添加到知识库</button> ' +
-        '<button type="button" class="link-btn" onclick="event.stopPropagation();importDocRow(' + d.id + ')">导入</button> ' +
         (d.hasHistory ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goHistory(' + d.id + ')">历史记录</button> ' : '') +
         (isTechSpec ? '<button type="button" class="link-btn" onclick="event.stopPropagation();convertToProposal(' + d.id + ')">转写项目建议书</button> ' : '') +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
         '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>'
       : '<button type="button" class="link-btn" onclick="event.stopPropagation();editDoc(' + d.id + ')">编辑</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();addDocToKnowledgeBase(' + d.id + ')">添加到知识库</button> ' +
-        '<button type="button" class="link-btn" onclick="event.stopPropagation();importDocRow(' + d.id + ')">导入</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();goPptAudit(' + d.id + ')">稽核</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
         '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>';
@@ -670,22 +668,20 @@ function goPptAudit(id) {
 function editDoc(id) {
   const doc = docs.find(d => d.id === id);
   if (!doc) return;
-  if (doc.kind !== 'word') {
-    showToast('PPT 文稿暂不支持该编辑页，请使用「稽核」进入审阅');
+  sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
+  if (doc.kind === 'ppt') {
+    sessionStorage.removeItem('pptEditDeck');
+    sessionStorage.removeItem('pptEditFileBase64');
+    sessionStorage.removeItem('pptEditFileName');
+    location.href = 'ppt-edit.html';
     return;
   }
-  sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
   location.href = 'doc-edit.html';
 }
 
 function addDocToKnowledgeBase(id) {
   const doc = docs.find(d => d.id === id);
   showToast('添加到知识库（原型）' + (doc ? '：' + doc.name : ''));
-}
-
-function importDocRow(id) {
-  const doc = docs.find(d => d.id === id);
-  showToast('导入（原型）' + (doc ? '：' + doc.name : ''));
 }
 
 const proposalTplPool = [
@@ -889,6 +885,26 @@ function confirmUpload() {
     count: 0,
     hasHistory: false
   };
+  if (kind === 'ppt') {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const bytes = new Uint8Array(reader.result);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      sessionStorage.setItem('pptEditFileBase64', btoa(binary));
+      sessionStorage.setItem('pptEditFileName', selectedFile.name);
+      sessionStorage.removeItem('pptEditDeck');
+      sessionStorage.setItem('editDocPayload', JSON.stringify(newDoc));
+      docs.unshift(newDoc);
+      filterTable();
+      closeUploadModal();
+      showToast('上传成功，正在解析…');
+      location.href = 'ppt-edit.html';
+    };
+    reader.onerror = function () { showToast('文件读取失败'); };
+    reader.readAsArrayBuffer(selectedFile);
+    return;
+  }
   docs.unshift(newDoc);
   filterTable();
   closeUploadModal();
