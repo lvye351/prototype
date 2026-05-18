@@ -225,7 +225,15 @@
     tbody tr:last-child td { border-bottom: none; }
 
     .col-title { width: 18%; }
-    .col-op { width: 14%; min-width: 140px; }
+    .col-op { width: 18%; min-width: 220px; }
+    #docTable .cell-actions {
+      white-space: normal;
+      line-height: 1.65;
+    }
+    #docTable .cell-actions .link-btn {
+      margin-right: 2px;
+      vertical-align: baseline;
+    }
 
     .file-name {
       color: #1470cc;
@@ -612,11 +620,16 @@ function renderTable(data) {
     const actions = d.kind === 'word'
       ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goCheck(' + d.id + ')">查重</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();editDoc(' + d.id + ')">编辑</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();addDocToKnowledgeBase(' + d.id + ')">添加到知识库</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();importDocRow(' + d.id + ')">导入</button> ' +
         (d.hasHistory ? '<button type="button" class="link-btn" onclick="event.stopPropagation();goHistory(' + d.id + ')">历史记录</button> ' : '') +
         (isTechSpec ? '<button type="button" class="link-btn" onclick="event.stopPropagation();convertToProposal(' + d.id + ')">转写项目建议书</button> ' : '') +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
         '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>'
-      : '<button type="button" class="link-btn" onclick="event.stopPropagation();goPptAudit(' + d.id + ')">稽核</button> ' +
+      : '<button type="button" class="link-btn" onclick="event.stopPropagation();editDoc(' + d.id + ')">编辑</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();addDocToKnowledgeBase(' + d.id + ')">添加到知识库</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();importDocRow(' + d.id + ')">导入</button> ' +
+        '<button type="button" class="link-btn" onclick="event.stopPropagation();goPptAudit(' + d.id + ')">稽核</button> ' +
         '<button type="button" class="link-btn" onclick="event.stopPropagation();downloadDoc(' + d.id + ')">下载</button> ' +
         '<button type="button" class="link-btn red" onclick="event.stopPropagation();deleteDoc(' + d.id + ')">删除</button>';
     return '<tr>' +
@@ -629,7 +642,7 @@ function renderTable(data) {
       '<td>' + escapeHtml(d.wordCount) + '</td>' +
       '<td>' + escapeHtml(d.creator) + '</td>' +
       '<td>' + escapeHtml(d.editTime) + '</td>' +
-      '<td>' + actions + '</td>' +
+      '<td class="cell-actions">' + actions + '</td>' +
       '</tr>';
   }).join('');
 }
@@ -656,12 +669,23 @@ function goPptAudit(id) {
 
 function editDoc(id) {
   const doc = docs.find(d => d.id === id);
-  if (!doc || doc.kind !== 'word') {
-    showToast('仅 Word 文稿支持该编辑页');
+  if (!doc) return;
+  if (doc.kind !== 'word') {
+    showToast('PPT 文稿暂不支持该编辑页，请使用「稽核」进入审阅');
     return;
   }
   sessionStorage.setItem('editDocPayload', JSON.stringify(doc));
   location.href = 'doc-edit.html';
+}
+
+function addDocToKnowledgeBase(id) {
+  const doc = docs.find(d => d.id === id);
+  showToast('添加到知识库（原型）' + (doc ? '：' + doc.name : ''));
+}
+
+function importDocRow(id) {
+  const doc = docs.find(d => d.id === id);
+  showToast('导入（原型）' + (doc ? '：' + doc.name : ''));
 }
 
 const proposalTplPool = [
