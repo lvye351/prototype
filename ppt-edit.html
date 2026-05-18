@@ -109,6 +109,35 @@
     .slide-block:focus { background: rgba(24,144,255,.06); box-shadow: 0 0 0 1px #91caff; }
     .slide-block.title-block { font-weight: 600; font-size: 1.05em; }
 
+    .slide-blocks-body { flex: 1; padding: 12px 16px 16px; overflow: auto; min-height: 0; }
+    .ppt-block { margin-bottom: 10px; }
+    .ppt-block:last-child { margin-bottom: 0; }
+    .slide-table-wrap {
+      width: 100%; overflow-x: auto; margin: 8px 0;
+      border-radius: 2px; box-shadow: 0 0 0 1px #e8e8e8;
+    }
+    .slide-table {
+      width: 100%; border-collapse: collapse; table-layout: fixed;
+      font-size: clamp(9px, 0.95vw, 11px); line-height: 1.35; background: #fff;
+    }
+    .slide-table th,
+    .slide-table td {
+      border: 1px solid #d9d9d9; padding: 4px 6px; vertical-align: middle;
+      word-break: break-word; min-width: 48px;
+    }
+    .slide-table thead th,
+    .slide-table tr:first-child th,
+    .slide-table tr:first-child td {
+      background: linear-gradient(180deg, #c41e3a, #b01835);
+      color: #fff; font-weight: 600; text-align: center;
+    }
+    .slide-table tbody tr:nth-child(even) td { background: #fafafa; }
+    .slide-table .slide-cell { outline: none; min-height: 1.2em; }
+    .slide-table .slide-cell:focus {
+      background: rgba(24,144,255,.08); box-shadow: inset 0 0 0 1px #91caff;
+    }
+    .slide-table .slide-cell:empty::before { content: '\00a0'; }
+
     .zoom-bar {
       flex-shrink: 0; height: 40px; background: #fff; border-top: 1px solid #e8ecf0;
       display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; color: #666;
@@ -283,6 +312,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
   <script src="assets/pptx-parse.js"></script>
+  <script src="assets/ppt-edit-render.js"></script>
   <script>
 (function () {
   var DEFAULT_DECK_URL = 'assets/ppt-henan-ai-deck.json';
@@ -313,59 +343,20 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function slideKind(slide) {
-    if (slide.index === 1) return 'cover';
-    if (slide.index === 3 || /目录/.test(slide.title || '')) return 'toc';
-    return 'content';
-  }
+  var R = window.PptEditRender;
 
   function renderSlideInner(slide) {
-    var kind = slideKind(slide);
-    var paras = slide.paragraphs && slide.paragraphs.length ? slide.paragraphs.slice() : [slide.title || ''];
-    if (kind === 'cover') {
-      var sub = paras[0] || '';
-      var main = paras.find(function (p) { return p.length > 20; }) || paras[paras.length - 1] || sub;
-      var meta = paras.find(function (p) { return /\d{4}年/.test(p); }) || paras[1] || '';
-      return '<div class="slide-cover">' +
-        '<div class="sub slide-block" contenteditable="true" data-idx="0">' + escapeHtml(sub) + '</div>' +
-        '<div class="main-title slide-block" contenteditable="true" data-idx="1">' + escapeHtml(main) + '</div>' +
-        '<div class="meta slide-block" contenteditable="true" data-idx="2">' + escapeHtml(meta) + '</div>' +
-        '</div>';
-    }
-    if (kind === 'toc') {
-      var items = paras.filter(function (p) { return p !== '目录' && !/^\d+$/.test(p); });
-      var list = items.map(function (p, i) {
-        return '<div class="slide-block" contenteditable="true" data-idx="' + i + '">' + escapeHtml(p) + '</div>';
-      }).join('');
-      return '<div class="slide-toc"><h2 class="slide-block" contenteditable="true" data-idx="0">目录</h2><div class="toc-list">' + list + '</div></div>';
-    }
-    var head = paras[0] || slide.title || '';
-    var body = paras.slice(1).map(function (p, i) {
-      var cls = i === 0 ? 'slide-block title-block' : 'slide-block';
-      return '<div class="' + cls + '" contenteditable="true" data-idx="' + (i + 1) + '">' + escapeHtml(p) + '</div>';
-    }).join('');
-    return '<div class="slide-content"><div class="head slide-block" contenteditable="true" data-idx="0">' + escapeHtml(head) + '</div><div class="body">' + body + '</div></div>';
+    return R.renderSlideInner(slide);
   }
 
   function renderThumbMini(slide) {
-    return '<div class="thumb-mini">' + renderSlideInner(slide) + '</div>';
-  }
-
-  function collectSlideFromDom(slideEl) {
-    var blocks = slideEl.querySelectorAll('.slide-block');
-    var paras = [];
-    blocks.forEach(function (b) { paras.push((b.innerText || '').trim()); });
-    return paras.filter(Boolean);
+    return R.renderThumbMini(slide);
   }
 
   function syncActiveSlideToDeck() {
     if (!deck || !deck.slides[activeIndex]) return;
     var stage = document.getElementById('stage');
-    var paras = collectSlideFromDom(stage);
-    var s = deck.slides[activeIndex];
-    s.paragraphs = paras.length ? paras : s.paragraphs;
-    s.title = paras[0] || s.title;
-    s.body = paras.slice(1, 8).join('\n');
+    R.syncSlideFromDom(deck.slides[activeIndex], stage);
   }
 
   function renderStage() {
@@ -419,7 +410,7 @@
 
   function bindStageBlocks() {
     var stage = document.getElementById('stage');
-    stage.querySelectorAll('.slide-block').forEach(function (block) {
+    stage.querySelectorAll('.slide-block, .slide-cell').forEach(function (block) {
       block.addEventListener('focus', function () {
         document.getElementById('propsPanel').classList.add('show');
       });
@@ -444,7 +435,7 @@
 
     var node = lastRange.startContainer;
     if (node.nodeType === 3) node = node.parentNode;
-    var block = node.closest && node.closest('.slide-block');
+    var block = node.closest && (node.closest('.slide-block') || node.closest('.slide-cell'));
     if (block) {
       block.textContent = demo;
       syncActiveSlideToDeck();
@@ -463,7 +454,7 @@
     document.getElementById('toolBtnReview').disabled = false;
     document.getElementById('toolBtnTrace').disabled = false;
     document.getElementById('docLoadOverlay').classList.remove('show');
-    showToast('已解析 ' + deck.slideCount + ' 页，可局部编辑并使用 AI 润色');
+    showToast('已解析 ' + deck.slideCount + ' 页、' + R.countTables(deck) + ' 个表格，可编辑并使用 AI 润色');
   }
 
   function initDeck(data) {
@@ -483,7 +474,11 @@
 
     var cached = sessionStorage.getItem('pptEditDeck');
     if (cached) {
-      try { initDeck(JSON.parse(cached)); return; } catch (e) { sessionStorage.removeItem('pptEditDeck'); }
+      try {
+        var parsed = JSON.parse(cached);
+        if (R.deckHasBlocks(parsed)) { initDeck(parsed); return; }
+        sessionStorage.removeItem('pptEditDeck');
+      } catch (e) { sessionStorage.removeItem('pptEditDeck'); }
     }
 
     var b64 = sessionStorage.getItem('pptEditFileBase64');
